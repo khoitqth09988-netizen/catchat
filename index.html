@@ -373,6 +373,10 @@
       letter-spacing: -.02em;
     }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-edit { padding: 0; appearance: none; cursor: pointer; font-family: inherit; transition: transform .18s, border-color .18s; }
+    .avatar-edit:hover { transform: translateY(-1px); border-color: rgba(255,255,255,.45); }
+    .avatar-edit::after { position: absolute; right: 0; bottom: 0; display: grid; width: 15px; height: 15px; place-items: center; border: 1px solid rgba(255,255,255,.35); border-radius: 50%; background: rgba(10,10,10,.88); color: #fff; content: "✎"; font-size: 9px; opacity: 0; transition: opacity .18s; }
+    .avatar-edit:hover::after, .avatar-edit:focus-visible::after { opacity: 1; }
     .profile-text { min-width: 0; flex: 1; }
     .profile-text strong { display: block; overflow: hidden; color: #e9e9e9; font-size: 10px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
     .profile-text span { display: block; overflow: hidden; margin-top: 4px; color: #8f8f8f; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
@@ -467,13 +471,31 @@
     .message-row.mine .message-meta { justify-content: flex-end; }
     .message-name { color: #c2c2c2; font-size: 9px; font-weight: 720; }
     .message-time { color: #7a7a7a; font-size: 8px; font-variant-numeric: tabular-nums; }
+    .message-reply { display: inline-flex; align-items: center; gap: 3px; padding: 1px 3px; border: 0; border-radius: 5px; background: transparent; color: #a8a8a8; cursor: pointer; opacity: 0; transition: opacity .15s, background .15s, color .15s; }
+    .message-reply:hover { background: rgba(255,255,255,.08); color: #f2f2f2; }
+    .message-reply .icon { width: 12px; height: 12px; }
+    .message-row:hover .message-reply, .message-reply:focus-visible { opacity: 1; }
+    .message-quote { display: flex; max-width: min(100%, 420px); align-items: flex-start; gap: 7px; margin: 0 0 6px; padding: 6px 9px; border: 0; border-left: 2px solid #a2a2a2; border-radius: 0 8px 8px 0; background: rgba(255,255,255,.035); color: #a8a8a8; cursor: pointer; text-align: left; }
+    .message-quote .icon { width: 12px; height: 12px; margin-top: 1px; flex: 0 0 auto; }
+    .message-quote-copy { min-width: 0; }
+    .message-quote-copy strong { display: block; color: #dadada; font-size: 8px; font-weight: 700; }
+    .message-quote-copy span { display: block; overflow: hidden; max-width: 380px; margin-top: 2px; color: #989898; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+    .message-quote:hover { background: rgba(255,255,255,.07); }
     .message-bubble { position: relative; display: inline-block; max-width: 100%; padding: 10px 12px; border: 1px solid rgba(189,189,189,.1); border-radius: 4px 13px 13px 13px; background: #222222; color: #e5e5e5; font-size: 11px; line-height: 1.65; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; }
     .message-row.mine .message-bubble { border-color: rgba(151,151,151,.18); border-radius: 13px 4px 13px 13px; background: linear-gradient(135deg, rgba(102,102,102,.3), rgba(88,88,88,.22)); color: #efefef; }
+    .message-image-link { display: block; max-width: min(100%, 380px); margin: 0 0 7px; overflow: hidden; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; background: #111; }
+    .message-image { display: block; width: auto; max-width: 100%; max-height: 320px; object-fit: contain; }
     .message-delete { position: absolute; top: 0; right: -36px; display: grid; width: 27px; height: 27px; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: #222222; color: #a6a6a6; cursor: pointer; opacity: 0; transform: translateX(-3px); transition: opacity .15s, transform .15s, color .15s, background .15s; }
     .message-row.mine .message-delete { right: auto; left: -36px; }
     .message-row:hover .message-delete, .message-delete:focus-visible { opacity: 1; transform: translateX(0); }
     .message-delete:hover { background: rgba(145,145,145,.13); color: #b2b2b2; }
     .message-delete .icon { width: 14px; height: 14px; }
+    .reaction-strip { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+    .reaction-button { display: inline-flex; min-width: 31px; min-height: 25px; align-items: center; justify-content: center; gap: 5px; padding: 2px 7px; border: 1px solid rgba(255,255,255,.1); border-radius: 99px; background: rgba(255,255,255,.035); color: #d8d8d8; cursor: pointer; transition: transform .16s, background .16s, border .16s; }
+    .reaction-button:hover { transform: translateY(-1px); background: rgba(255,255,255,.1); }
+    .reaction-button.active { border-color: rgba(255,255,255,.32); background: rgba(255,255,255,.12); }
+    .reaction-emoji { font-size: 12px; line-height: 1; filter: grayscale(1); }
+    .reaction-count { color: #aaa; font-size: 8px; font-variant-numeric: tabular-nums; }
     .message-row.announcement-row { width: min(100%, 620px); max-width: 100%; align-self: center; justify-content: center; padding: 8px 0; }
     .server-announcement {
       width: 100%;
@@ -492,6 +514,22 @@
     .announcement-row.mine .message-delete { right: -35px; left: auto; }
 
     .composer-wrap { padding: 12px 19px 16px; border-top: 1px solid var(--line); background: rgba(18,18,18,.38); }
+    .reply-preview { display: flex; align-items: center; gap: 9px; margin: 0 0 9px; padding: 8px 10px; border: 1px solid rgba(255,255,255,.12); border-left: 2px solid #bcbcbc; border-radius: 10px; background: rgba(255,255,255,.035); animation: field-in .2s var(--ease) both; }
+    .reply-preview > .icon { width: 15px; height: 15px; color: #ccc; }
+    .reply-preview-copy { min-width: 0; flex: 1; }
+    .reply-preview-copy strong { display: block; color: #ddd; font-size: 9px; }
+    .reply-preview-copy span { display: block; overflow: hidden; margin-top: 3px; color: #999; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+    .reply-preview .icon-button { width: 27px; height: 27px; }
+    .pending-image-preview { display: flex; max-width: 390px; align-items: center; gap: 9px; margin: 0 0 9px; padding: 8px; border: 1px solid rgba(255,255,255,.12); border-radius: 11px; background: rgba(255,255,255,.035); animation: field-in .2s var(--ease) both; }
+    .pending-image-preview img { width: 44px; height: 44px; flex: 0 0 auto; border-radius: 8px; object-fit: cover; background: #222; }
+    .pending-image-copy { min-width: 0; flex: 1; }
+    .pending-image-copy strong { display: block; color: #ddd; font-size: 9px; }
+    .pending-image-copy span { display: block; overflow: hidden; margin-top: 3px; color: #999; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+    .pending-image-preview .icon-button { width: 28px; height: 28px; }
+    .attach-button { display: grid; width: 32px; height: 35px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 9px; background: transparent; color: #a2a2a2; cursor: pointer; transition: color .16s, background .16s; }
+    .attach-button:hover { background: rgba(255,255,255,.07); color: #fff; }
+    .attach-button:disabled { opacity: .45; cursor: not-allowed; }
+    .attach-button .icon { width: 17px; height: 17px; }
     .composer-box { display: flex; align-items: flex-end; gap: 10px; padding: 10px 10px 10px 14px; border: 1px solid rgba(189,189,189,.15); border-radius: 15px; background: #1d1d1d; box-shadow: 0 8px 24px rgba(0,0,0,.1); transition: border .2s, box-shadow .2s; }
     .composer-box:focus-within { border-color: rgba(151,151,151,.5); box-shadow: 0 0 0 3px rgba(151,151,151,.08), 0 8px 24px rgba(0,0,0,.1); }
     .composer-box textarea { display: block; width: 100%; min-height: 24px; max-height: 118px; flex: 1; resize: none; border: 0; outline: 0; background: transparent; color: #ededed; font-size: 11px; line-height: 1.6; }
@@ -700,7 +738,10 @@
       .app-view { height: 100dvh; }
       .app-shell { display: block; height: calc(100% - 72px); }
       .sidebar { position: fixed; z-index: 40; right: 10px; bottom: 9px; left: 10px; display: flex; width: auto; height: 61px; flex-direction: row; justify-content: center; padding: 5px 12px; border: 1px solid var(--line-strong); border-radius: 18px; background: rgba(27,27,27,.96); box-shadow: 0 14px 42px rgba(0,0,0,.4); }
-      .sidebar .brand-lockup, .sidebar-spacer, .profile-chip { display: none; }
+      .sidebar .brand-lockup, .sidebar-spacer { display: none; }
+      .sidebar .profile-chip { position: absolute; top: 9px; right: 11px; display: flex; width: auto; justify-content: center; padding: 0; border: 0; }
+      .sidebar .profile-text, .sidebar .profile-logout { display: none; }
+      .sidebar .profile-chip .avatar { width: 40px; height: 40px; }
       .side-nav { display: flex; width: auto; align-items: center; gap: 8px; margin: 0; }
       .nav-link { width: 46px; min-height: 43px; margin: 0; }
       .nav-link .icon { width: 18px; height: 18px; }
@@ -725,6 +766,7 @@
       .message-avatar { width: 27px; height: 27px; border-radius: 9px; }
       .message-bubble { padding: 9px 10px; font-size: 10px; }
       .message-meta { margin-bottom: 4px; }
+      .message-reply { opacity: 1; }
       .composer-hint { font-size: 7px; }
       .right-panel.open { top: 70px; right: 10px; bottom: 81px; width: min(330px, calc(100vw - 20px)); }
       .admin-drawer { width: 100%; }
@@ -776,6 +818,7 @@
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
     <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a16 16 0 0 1-3 3.8M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7c1.1 0 2.1-.2 3-.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-reply" viewBox="0 0 24 24"><path d="m9 14-5-5 5-5M4 9h9a7 7 0 0 1 7 7v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 11v5M12 8h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
     <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16ZM5 2l.7 2.3L8 5l-2.3.7L5 8l-.7-2.3L2 5l2.3-.7L5 2Z" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h14M4 15h14M10 3 8 21M16 3l-2 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
@@ -875,7 +918,7 @@
         </form>
         <p class="auth-switch" id="authSwitchText">Chưa có tài khoản? <button id="toggleAuthMode" type="button">Đăng ký ngay</button></p>
         <div class="auth-divider">Bắt đầu kết nối</div>
-        <p class="auth-footnote"><svg class="icon"><use href="#i-shield"></use></svg><span>Tài khoản được xác thực bằng Firebase. Admin đăng nhập bằng admin@com.vn; quyền quản trị được cấp riêng theo UID.</span></p>
+        <p class="auth-footnote"><svg class="icon"><use href="#i-shield"></use></svg><span>Tài khoản được xác thực bằng Firebase. Vai trò quản trị được quản lý phía Firebase theo UID hoặc custom claim.</span></p>
       </div>
     </section>
     <div class="auth-bottom">© 2026 Chạm · Một góc nhỏ dành cho những kết nối thật.</div>
@@ -913,10 +956,11 @@
           <p>Một lời chào thân thiện có thể mở đầu cho một tình bạn mới.</p>
         </div>
         <div class="profile-chip">
-          <div class="avatar" id="sidebarAvatar">?</div>
+          <button class="avatar avatar-edit" id="sidebarAvatar" type="button" title="Đổi ảnh đại diện" aria-label="Đổi ảnh đại diện">?</button>
           <div class="profile-text"><strong id="sidebarName">Thành viên</strong><span id="sidebarEmail">Đang đăng nhập</span></div>
           <button class="profile-logout" id="logoutButton" type="button" title="Đăng xuất" aria-label="Đăng xuất"><svg class="icon"><use href="#i-logout"></use></svg></button>
         </div>
+        <input id="avatarFileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
       </aside>
 
       <div class="main-layout">
@@ -968,8 +1012,20 @@
               </div>
             </div>
             <div class="composer-wrap">
+              <div class="reply-preview" id="replyPreview" hidden>
+                <svg class="icon"><use href="#i-reply"></use></svg>
+                <div class="reply-preview-copy"><strong id="replyPreviewName"></strong><span id="replyPreviewText"></span></div>
+                <button class="icon-button" id="cancelReplyButton" type="button" title="Hủy trả lời" aria-label="Hủy trả lời"><svg class="icon"><use href="#i-close"></use></svg></button>
+              </div>
+              <div class="pending-image-preview" id="pendingImagePreview" hidden>
+                <img id="pendingImageThumb" alt="Xem trước ảnh sẽ gửi">
+                <div class="pending-image-copy"><strong>Ảnh đính kèm</strong><span id="pendingImageName"></span></div>
+                <button class="icon-button" id="clearPendingImageButton" type="button" title="Bỏ ảnh" aria-label="Bỏ ảnh"><svg class="icon"><use href="#i-close"></use></svg></button>
+              </div>
               <form id="messageForm" autocomplete="off">
                 <div class="composer-box">
+                  <button class="attach-button" id="attachImageButton" type="button" title="Đính kèm ảnh" aria-label="Đính kèm ảnh"><svg class="icon"><use href="#i-plus"></use></svg></button>
+                  <input id="chatImageInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
                   <textarea id="messageInput" rows="1" maxlength="800" placeholder="Viết tin nhắn cho mọi người..." aria-label="Nội dung tin nhắn"></textarea>
                   <button class="send-button" id="sendButton" type="submit" aria-label="Gửi tin nhắn" disabled><svg class="icon"><use href="#i-send"></use></svg></button>
                 </div>
@@ -1050,21 +1106,26 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script>
     (() => {
       'use strict';
 
       /*
-       * QUYỀN QUẢN TRỊ / BOOTSTRAP:
-       * Trang tĩnh không thể tạo tài khoản đặc quyền an toàn hoặc vô hiệu hóa Firebase Auth.
-       * Tài khoản đăng nhập bằng Firebase Auth; mật khẩu không được hardcode trong HTML.
-       * ADMIN_EMAIL là email admin; cấp quyền UID đó bằng cách ghi
-       * /admins/<UID> = true trong Realtime Database qua Firebase Console; Security Rules phải
-       * cấm client tự ghi /admins và chỉ cho admin đọc
-       * /memberEmails và ghi /bans, gửi thông báo hoặc xóa tin nhắn. Các lệnh ban ở đây là ban
-       * truy cập ứng dụng; muốn khóa hẳn tài khoản Firebase cần Cloud Function/Admin SDK phía máy chủ.
+       * QUYỀN QUẢN TRỊ:
+       * Vai trò được đọc từ Firebase: /admins/<UID> = true hoặc custom claim admin=true.
+       * Không có email/mật khẩu admin hardcode trong client. Firebase Security Rules vẫn phải
+       * bảo vệ việc đọc/ghi /admins, /memberEmails, /bans, messages và reactions.
+       * Ban trong UI chặn quyền truy cập ứng dụng; vô hiệu hóa Firebase Auth cần Admin SDK.
+       * Giới hạn một tài khoản/IP/thiết bị cần Firebase Auth blocking functions hoặc backend tin cậy;
+       * trình duyệt tĩnh không thể thực thi giới hạn này an toàn.
        */
-      const ADMIN_EMAIL = 'admin@com.vn';
+      const REACTIONS = [
+        { key: 'like', glyph: '👍', label: 'Thích' },
+        { key: 'heart', glyph: '❤️', label: 'Yêu thích' },
+        { key: 'laugh', glyph: '😂', label: 'Haha' },
+        { key: 'wow', glyph: '😮', label: 'Ngạc nhiên' }
+      ];
       const firebaseConfig = {
         apiKey: "AIzaSyAf8xiMmAipgxxrGVDjeLdQIeU1yqVEXu0",
         authDomain: "chat-e58b5.firebaseapp.com",
@@ -1085,7 +1146,7 @@
         toggleAuthMode: $('#toggleAuthMode'), displayNameField: $('#displayNameField'), displayName: $('#displayName'),
         email: $('#email'), password: $('#password'), confirmPasswordField: $('#confirmPasswordField'), confirmPassword: $('#confirmPassword'),
         forgotPassword: $('#forgotPassword'), togglePassword: $('#togglePassword'), sidebarName: $('#sidebarName'), sidebarEmail: $('#sidebarEmail'),
-        sidebarAvatar: $('#sidebarAvatar'), connectionPill: $('#connectionPill'), connectionLabel: $('#connectionLabel'),
+        sidebarAvatar: $('#sidebarAvatar'), avatarFileInput: $('#avatarFileInput'), connectionPill: $('#connectionPill'), connectionLabel: $('#connectionLabel'),
         openAdminButton: $('#openAdminButton'), rolePill: $('#rolePill'), membersPanel: $('#membersPanel'), memberList: $('#memberList'),
         adminOverlay: $('#adminOverlay'), adminMemberList: $('#adminMemberList'), adminMembersTab: $('#adminMembersTab'),
         adminAnnouncementsTab: $('#adminAnnouncementsTab'), adminMemberSearch: $('#adminMemberSearch'),
@@ -1093,6 +1154,9 @@
         adminAnnouncementList: $('#adminAnnouncementList'), chatMessages: $('#chatMessages'), chatEmptyState: $('#chatEmptyState'),
         messageSearchBar: $('#messageSearchBar'), messageSearchInput: $('#messageSearchInput'), messageSearchCount: $('#messageSearchCount'),
         messageInput: $('#messageInput'), sendButton: $('#sendButton'), messageCharCount: $('#messageCharCount'),
+        chatImageInput: $('#chatImageInput'), pendingImagePreview: $('#pendingImagePreview'), pendingImageThumb: $('#pendingImageThumb'),
+        pendingImageName: $('#pendingImageName'), attachImageButton: $('#attachImageButton'),
+        replyPreview: $('#replyPreview'), replyPreviewName: $('#replyPreviewName'), replyPreviewText: $('#replyPreviewText'),
         announcementBanner: $('#announcementBanner'), announcementBannerText: $('#announcementBannerText'),
         announcementBannerTime: $('#announcementBannerTime'), confirmLayer: $('#confirmLayer'), confirmTitle: $('#confirmTitle'),
         confirmDescription: $('#confirmDescription'), confirmReasonWrap: $('#confirmReasonWrap'), confirmReason: $('#confirmReason'),
@@ -1107,6 +1171,8 @@
       let presenceRef = null;
       let adminsRef = null;
       let bansRef = null;
+      let messageReactionsRef = null;
+      let storage = null;
       let firebaseReady = false;
 
       let isSignUp = false;
@@ -1117,7 +1183,15 @@
       let presence = {};
       let bans = {};
       let messages = new Map();
+      let messageReactions = {};
+      let reactionStops = new Map();
       let messageSearchQuery = '';
+      let replyTarget = null;
+      let pendingImageFile = null;
+      let pendingImageObjectUrl = null;
+      let isSendingMessage = false;
+      let hasAdminMarker = false;
+      let hasAdminClaim = false;
       let cleanupFns = [];
       let stopAdminBanListener = null;
       let stopAdminEmailListener = null;
@@ -1156,8 +1230,36 @@
         return (Array.from(words[0])[0] + Array.from(words[words.length - 1])[0]).toLocaleUpperCase('vi-VN');
       }
 
-      function makeAvatar(name, uid, className = 'avatar') {
-        const avatar = textElement('div', className, initialsFor(name));
+      function safeImageUrl(value) {
+        if (typeof value !== 'string' || !value.trim()) return '';
+        try {
+          const url = new URL(value, window.location.href);
+          return url.protocol === 'https:' ? url.href : '';
+        } catch (_) { return ''; }
+      }
+
+      function setAvatarContent(element, name, photoURL = '') {
+        const safeURL = safeImageUrl(photoURL);
+        element.replaceChildren();
+        if (!safeURL) {
+          element.textContent = initialsFor(name);
+          return;
+        }
+        const image = document.createElement('img');
+        image.src = safeURL;
+        image.alt = '';
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        image.addEventListener('error', () => {
+          image.remove();
+          if (!element.querySelector('img')) element.appendChild(document.createTextNode(initialsFor(name)));
+        }, { once: true });
+        element.appendChild(image);
+      }
+
+      function makeAvatar(name, uid, className = 'avatar', photoURL = '') {
+        const avatar = textElement('div', className);
+        setAvatarContent(avatar, name, photoURL);
         avatar.setAttribute('aria-label', name || 'Thành viên');
         avatar.title = name || 'Thành viên';
         return avatar;
@@ -1332,6 +1434,7 @@
         await ref.update({
           uid: user.uid,
           name: displayNameFor(user).slice(0, 32),
+          photoURL: user.photoURL || existing.photoURL || '',
           createdAt: existing.createdAt || currentTimestamp(),
           lastSeen: currentTimestamp()
         });
@@ -1357,11 +1460,41 @@
         cleanupFns = [];
         stopAdminBanListener = null;
         stopAdminEmailListener = null;
+        hasAdminMarker = false;
+        hasAdminClaim = false;
         messages.clear();
+        messageReactions = {};
+        reactionStops.clear();
         members = {};
         memberEmails = {};
         presence = {};
         bans = {};
+        clearReplyTarget();
+        clearPendingImage();
+      }
+
+      function syncReactionListeners(generation) {
+        if (!messageReactionsRef) return;
+        const activeIds = new Set(messages.keys());
+        for (const [messageId, stop] of reactionStops) {
+          if (!activeIds.has(messageId)) {
+            stop();
+            const cleanupIndex = cleanupFns.indexOf(stop);
+            if (cleanupIndex !== -1) cleanupFns.splice(cleanupIndex, 1);
+            reactionStops.delete(messageId);
+            delete messageReactions[messageId];
+          }
+        }
+        for (const messageId of activeIds) {
+          if (reactionStops.has(messageId)) continue;
+          const stop = subscribe(messageReactionsRef.child(messageId), 'value', (snapshot) => {
+            if (generation !== authGeneration) return;
+            if (snapshot.exists()) messageReactions[messageId] = snapshot.val() || {};
+            else delete messageReactions[messageId];
+            renderAllMessages(false);
+          }, (error) => showDatabaseError(error, 'Không thể tải reaction. Hãy kiểm tra quyền /messageReactions.'));
+          reactionStops.set(messageId, stop);
+        }
       }
 
       function showDatabaseError(error, fallback) {
@@ -1435,8 +1568,11 @@
       let signedOutNotice = '';
       function handleAuthState(user) {
         const generation = ++authGeneration;
+        const previousUid = currentUser?.uid || null;
         cleanupRealtime();
         currentUser = user || null;
+        if (previousUid !== (currentUser?.uid || null)) els.messageInput.value = '';
+        updateMessageComposer();
         setAdminState(false);
         setConnectionState('connecting');
         announcementDismissedId = null;
@@ -1476,11 +1612,15 @@
           renderAllMessages(true);
           updateAnnouncementBanner();
           renderAdminPanel();
+          syncReactionListeners(generation);
           subscribe(messageQuery, 'child_added', (child) => {
             if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
             const isNew = !messages.has(child.key);
             messages.set(child.key, child.val() || {});
-            if (isNew) renderAllMessages(false, true);
+            if (isNew) {
+              renderAllMessages(false, true);
+              syncReactionListeners(generation);
+            }
             updateAnnouncementBanner();
             renderAdminPanel();
           }, (error) => showDatabaseError(error, 'Không thể tải tin nhắn.'));
@@ -1494,6 +1634,7 @@
           subscribe(messageQuery, 'child_removed', (child) => {
             if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
             messages.delete(child.key);
+            syncReactionListeners(generation);
             renderAllMessages(false);
             updateAnnouncementBanner();
             renderAdminPanel();
@@ -1506,6 +1647,7 @@
         subscribe(membersRef, 'value', (snapshot) => {
           if (generation !== authGeneration) return;
           members = snapshot.val() || {};
+          if (currentUser) updateCurrentUserUI();
           renderMembers();
           renderAdminPanel();
         }, (error) => showDatabaseError(error, 'Không thể tải danh sách thành viên.'));
@@ -1522,14 +1664,28 @@
           toast('Tài khoản của bạn đã bị chặn truy cập ứng dụng.', 'error');
           void auth.signOut();
         }, (error) => showDatabaseError(error, 'Không thể theo dõi trạng thái tài khoản.'));
+        hasAdminMarker = false;
+        hasAdminClaim = false;
+        setAdminState(false);
         subscribe(adminsRef.child(user.uid), 'value', (snapshot) => {
           if (generation !== authGeneration) return;
-          const isConfiguredAdmin = user.email?.trim().toLowerCase() === ADMIN_EMAIL;
-          setAdminState(isConfiguredAdmin && snapshot.val() === true);
+          hasAdminMarker = snapshot.val() === true;
+          setAdminState(hasAdminMarker || hasAdminClaim);
         }, (error) => {
-          setAdminState(false);
-          showDatabaseError(error, 'Không thể xác minh quyền quản trị.');
+          hasAdminMarker = false;
+          setAdminState(hasAdminClaim);
+          showDatabaseError(error, 'Không thể đọc quyền admin từ /admins. Hãy kiểm tra Firebase Rules.');
         });
+        if (typeof user.getIdTokenResult === 'function') {
+          user.getIdTokenResult(true).then((token) => {
+            if (generation !== authGeneration) return;
+            hasAdminClaim = token.claims?.admin === true;
+            setAdminState(hasAdminMarker || hasAdminClaim);
+          }).catch((error) => {
+            console.warn('Không tải được Firebase custom claims:', error);
+            if (generation === authGeneration) setAdminState(hasAdminMarker);
+          });
+        }
       }
 
       function setupPresence(user, generation) {
@@ -1558,7 +1714,85 @@
         const name = displayNameFor(currentUser);
         els.sidebarName.textContent = name;
         els.sidebarEmail.textContent = currentUser?.email || 'Thành viên';
-        els.sidebarAvatar.replaceChildren(document.createTextNode(initialsFor(name)));
+        setAvatarContent(els.sidebarAvatar, name, currentUser?.photoURL || members[currentUser?.uid]?.photoURL || '');
+        els.sidebarAvatar.title = 'Đổi ảnh đại diện';
+        els.sidebarAvatar.setAttribute('aria-label', `Đổi ảnh đại diện cho ${name}`);
+      }
+
+      async function prepareAvatarImage(file) {
+        const objectUrl = URL.createObjectURL(file);
+        try {
+          const image = await new Promise((resolve, reject) => {
+            const element = new Image();
+            element.onload = () => resolve(element);
+            element.onerror = () => reject(new Error('Không thể đọc ảnh đã chọn.'));
+            element.src = objectUrl;
+          });
+          const cropSize = Math.min(image.naturalWidth, image.naturalHeight);
+          const sourceX = (image.naturalWidth - cropSize) / 2;
+          const sourceY = (image.naturalHeight - cropSize) / 2;
+          const canvas = document.createElement('canvas');
+          canvas.width = 512;
+          canvas.height = 512;
+          const context = canvas.getContext('2d');
+          if (!context) return file;
+          context.drawImage(image, sourceX, sourceY, cropSize, cropSize, 0, 0, 512, 512);
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', .86));
+          return blob || file;
+        } finally {
+          URL.revokeObjectURL(objectUrl);
+        }
+      }
+
+      async function uploadAvatar(event) {
+        const file = event.target.files?.[0];
+        const user = currentUser;
+        const storageService = storage;
+        event.target.value = '';
+        if (!file) return;
+        if (!user || !storageService) {
+          toast('Tải ảnh đại diện chưa sẵn sàng. Hãy bật Firebase Storage và đăng nhập lại.', 'error');
+          return;
+        }
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+          toast('Chọn ảnh JPG, PNG hoặc WebP.', 'error');
+          return;
+        }
+        if (file.size > 8 * 1024 * 1024) {
+          toast('Ảnh gốc tối đa 8 MB. Ảnh sẽ được cắt vuông và nén trước khi tải lên.', 'error');
+          return;
+        }
+        els.avatarFileInput.disabled = true;
+        els.sidebarAvatar.disabled = true;
+        try {
+          const imageBlob = await prepareAvatarImage(file);
+          const avatarRef = storageService.ref(`avatars/${user.uid}/profile-avatar`);
+          const uploaded = await avatarRef.put(imageBlob, { contentType: imageBlob.type || 'image/webp' });
+          const baseURL = await uploaded.ref.getDownloadURL();
+          const downloadURL = `${baseURL}${baseURL.includes('?') ? '&' : '?'}v=${Date.now()}`;
+          await user.updateProfile({ photoURL: downloadURL });
+          let memberProfileSaved = true;
+          try {
+            await membersRef.child(user.uid).update({ photoURL: downloadURL, updatedAt: currentTimestamp() });
+          } catch (error) {
+            memberProfileSaved = false;
+            console.warn('Ảnh đã cập nhật trong Auth nhưng chưa lưu được /members:', error);
+          }
+          if (currentUser?.uid === user.uid) {
+            updateCurrentUserUI();
+            renderMembers();
+            renderAllMessages(false);
+          }
+          toast(memberProfileSaved ? 'Đã cập nhật ảnh đại diện.' : 'Ảnh đã lưu trong tài khoản. Hãy cấp quyền cập nhật /members để mọi người nhìn thấy ảnh mới.', memberProfileSaved ? 'success' : 'error');
+        } catch (error) {
+          const denied = error?.code === 'storage/unauthorized' || error?.code === 'PERMISSION_DENIED';
+          toast(denied ? 'Firebase Storage Rules chưa cho phép tải ảnh lên.' : 'Không thể tải ảnh lên. Hãy thử ảnh khác hoặc kiểm tra Firebase Storage.', 'error');
+          console.warn('Avatar upload:', error);
+        } finally {
+          els.avatarFileInput.disabled = false;
+          els.sidebarAvatar.disabled = false;
+        }
       }
 
       function timestampOf(data) {
@@ -1594,6 +1828,70 @@
         return new Intl.DateTimeFormat('vi-VN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date);
       }
 
+      function makeReplyButton(messageId) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'message-reply';
+        button.dataset.replyMessage = messageId;
+        button.title = 'Trả lời tin nhắn';
+        button.setAttribute('aria-label', 'Trả lời tin nhắn');
+        button.appendChild(icon('reply'));
+        return button;
+      }
+
+      function makeReactionStrip(messageId) {
+        const strip = textElement('div', 'reaction-strip');
+        const data = messageReactions[messageId] || {};
+        REACTIONS.forEach(({ key, glyph, label }) => {
+          const users = data[key] || {};
+          const count = Object.values(users).filter(Boolean).length;
+          const active = Boolean(currentUser && users[currentUser.uid]);
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = `reaction-button${active ? ' active' : ''}`;
+          button.dataset.reactMessage = messageId;
+          button.dataset.reaction = key;
+          button.title = `${label}${count ? ` · ${count}` : ''}`;
+          button.setAttribute('aria-label', `${label}, ${count} lượt`);
+          button.setAttribute('aria-pressed', String(active));
+          button.appendChild(textElement('span', 'reaction-emoji', glyph));
+          if (count) button.appendChild(textElement('span', 'reaction-count', String(count)));
+          strip.appendChild(button);
+        });
+        return strip;
+      }
+
+      function setReplyTarget(messageId) {
+        const data = messages.get(messageId);
+        if (!data) {
+          toast('Tin nhắn gốc không còn trong danh sách gần đây.', 'info');
+          return;
+        }
+        replyTarget = { id: messageId, name: data.name || 'Thành viên', text: String(data.text || (data.imageURL ? '[Ảnh đính kèm]' : 'Thông báo')).slice(0, 180) };
+        els.replyPreviewName.textContent = `Đang trả lời ${replyTarget.name}`;
+        els.replyPreviewText.textContent = replyTarget.text || 'Thông báo';
+        els.replyPreview.hidden = false;
+        els.messageInput.focus();
+      }
+
+      function clearReplyTarget() {
+        replyTarget = null;
+        els.replyPreview.hidden = true;
+        els.replyPreviewName.textContent = '';
+        els.replyPreviewText.textContent = '';
+      }
+
+      async function toggleMessageReaction(messageId, reactionKey) {
+        if (!currentUser || !messageReactionsRef || !messages.has(messageId) || !REACTIONS.some((item) => item.key === reactionKey)) return;
+        const reactionRef = messageReactionsRef.child(messageId).child(reactionKey).child(currentUser.uid);
+        try {
+          if (messageReactions[messageId]?.[reactionKey]?.[currentUser.uid]) await reactionRef.remove();
+          else await reactionRef.set(true);
+        } catch (error) {
+          showDatabaseError(error, 'Không thể lưu reaction. Hãy cấp quyền ghi vào /messageReactions.');
+        }
+      }
+
       function makeDeleteButton(messageId, label = 'Xóa tin nhắn') {
         const button = document.createElement('button');
         button.type = 'button';
@@ -1603,6 +1901,21 @@
         button.title = label;
         button.appendChild(icon('trash'));
         return button;
+      }
+
+      function makeReplyQuote(data) {
+        if (!data.replyTo || !data.replyText) return null;
+        const quote = document.createElement('button');
+        quote.type = 'button';
+        quote.className = 'message-quote';
+        quote.dataset.jumpMessage = data.replyTo;
+        quote.setAttribute('aria-label', `Đi tới tin nhắn của ${data.replyName || 'thành viên'}`);
+        quote.appendChild(icon('reply'));
+        const copy = textElement('span', 'message-quote-copy');
+        copy.append(textElement('strong', '', data.replyName || 'Thành viên'));
+        copy.append(textElement('span', '', data.replyText));
+        quote.appendChild(copy);
+        return quote;
       }
 
       function buildMessageNode(id, data) {
@@ -1620,20 +1933,44 @@
           const head = textElement('div', 'server-announcement-head');
           head.append(icon('megaphone'));
           head.append(textElement('span', '', 'Thông báo toàn máy chủ'));
+          const quote = makeReplyQuote(data);
+          if (quote) announcement.appendChild(quote);
           const content = textElement('p', '', data.text || '');
           const meta = textElement('div', 'server-announcement-meta');
           meta.append(textElement('span', '', `Gửi bởi ${name}`));
           meta.append(textElement('time', '', formatDateTime(time)));
-          announcement.append(head, content, meta);
+          meta.appendChild(makeReplyButton(id));
+          announcement.append(head, content, meta, makeReactionStrip(id));
           row.appendChild(announcement);
         } else {
-          const avatar = makeAvatar(name, data.uid, 'avatar message-avatar');
+          const avatar = makeAvatar(name, data.uid, 'avatar message-avatar', members[data.uid]?.photoURL || '');
           const content = textElement('div', 'message-content');
           const meta = textElement('div', 'message-meta');
           meta.append(textElement('span', 'message-name', name));
           meta.append(textElement('time', 'message-time', formatTime(time)));
-          const bubble = textElement('div', 'message-bubble', data.text || '');
-          content.append(meta, bubble);
+          meta.appendChild(makeReplyButton(id));
+          const quote = makeReplyQuote(data);
+          if (quote) content.appendChild(quote);
+          content.appendChild(meta);
+          const imageURL = safeImageUrl(data.imageURL || '');
+          if (imageURL) {
+            const link = document.createElement('a');
+            link.className = 'message-image-link';
+            link.href = imageURL;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.setAttribute('aria-label', `Mở ảnh ${data.imageName || 'đính kèm'}`);
+            const image = document.createElement('img');
+            image.className = 'message-image';
+            image.src = imageURL;
+            image.alt = data.imageName || `Ảnh được gửi bởi ${name}`;
+            image.loading = 'lazy';
+            image.decoding = 'async';
+            link.appendChild(image);
+            content.appendChild(link);
+          }
+          if (data.text) content.appendChild(textElement('div', 'message-bubble', data.text));
+          content.appendChild(makeReactionStrip(id));
           row.append(avatar, content);
         }
         if (isAdmin) row.appendChild(makeDeleteButton(id, isAnnouncement ? 'Xóa thông báo' : 'Xóa tin nhắn'));
@@ -1645,7 +1982,7 @@
         const allMessages = Array.from(messages.entries()).sort((a, b) => timestampOf(a[1]) - timestampOf(b[1]));
         const query = messageSearchQuery.trim().toLocaleLowerCase('vi');
         const visibleMessages = query
-          ? allMessages.filter(([, data]) => `${data.name || ''} ${data.text || ''}`.toLocaleLowerCase('vi').includes(query))
+          ? allMessages.filter(([, data]) => `${data.name || ''} ${data.text || ''} ${data.imageName || ''}`.toLocaleLowerCase('vi').includes(query))
           : allMessages;
         els.messageSearchCount.textContent = query ? `${visibleMessages.length} kết quả` : `${allMessages.length} tin nhắn`;
         const fragment = document.createDocumentFragment();
@@ -1715,7 +2052,7 @@
         const isBanned = Boolean(bans[uid]);
         if (adminRow) {
           const row = textElement('div', 'admin-member-row');
-          row.appendChild(makeAvatar(name, uid));
+          row.appendChild(makeAvatar(name, uid, 'avatar', safeMember.photoURL || ''));
           const meta = textElement('div', 'admin-member-meta');
           meta.append(textElement('strong', '', name));
           meta.append(textElement('span', '', memberEmails[uid]?.email || safeMember.email || uid));
@@ -1742,7 +2079,7 @@
 
         const row = textElement('div', 'member-row');
         const avatarWrap = textElement('div', 'member-avatar-wrap');
-        avatarWrap.appendChild(makeAvatar(name, uid));
+        avatarWrap.appendChild(makeAvatar(name, uid, 'avatar', safeMember.photoURL || ''));
         const status = textElement('span', `presence-indicator${isOnline ? ' is-online' : ''}`);
         status.setAttribute('aria-label', isOnline ? 'Đang trực tuyến' : 'Ngoại tuyến');
         avatarWrap.appendChild(status);
@@ -1788,7 +2125,7 @@
         const avatarFragment = document.createDocumentFragment();
         entries.filter(([uid]) => presence[uid]).slice(0, 3).forEach(([uid, member]) => {
           const name = member.name || member.email?.split('@')[0] || 'Thành viên';
-          avatarFragment.appendChild(makeAvatar(name, uid, 'avatar'));
+          avatarFragment.appendChild(makeAvatar(name, uid, 'avatar', member.photoURL || ''));
         });
         if (onlineCount > 3) avatarFragment.appendChild(textElement('div', 'avatar more', `+${onlineCount - 3}`));
         $('#headerAvatars').replaceChildren(avatarFragment);
@@ -1844,36 +2181,102 @@
       function updateMessageComposer() {
         const length = els.messageInput.value.length;
         els.messageCharCount.textContent = `${length} / 800`;
-        els.sendButton.disabled = !currentUser || !els.messageInput.value.trim() || length > 800;
+        els.sendButton.disabled = isSendingMessage || !currentUser || (!els.messageInput.value.trim() && !pendingImageFile) || length > 800;
+        els.messageInput.disabled = isSendingMessage;
+        els.attachImageButton.disabled = isSendingMessage;
+        els.chatImageInput.disabled = isSendingMessage;
         els.messageInput.style.height = 'auto';
         els.messageInput.style.height = `${Math.min(els.messageInput.scrollHeight, 118)}px`;
       }
 
+      function clearPendingImage() {
+        pendingImageFile = null;
+        if (pendingImageObjectUrl) URL.revokeObjectURL(pendingImageObjectUrl);
+        pendingImageObjectUrl = null;
+        els.pendingImageThumb.removeAttribute('src');
+        els.pendingImageName.textContent = '';
+        els.pendingImagePreview.hidden = true;
+        updateMessageComposer();
+      }
+
+      function selectChatImage(event) {
+        const file = event.target.files?.[0];
+        event.target.value = '';
+        if (!file) return;
+        if (!storage) {
+          toast('Chưa bật Firebase Storage. Hãy cấu hình Storage trước khi gửi ảnh.', 'error');
+          return;
+        }
+        const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!allowed.includes(file.type)) {
+          toast('Ảnh đính kèm cần ở định dạng JPG, PNG, WebP hoặc GIF.', 'error');
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          toast('Ảnh đính kèm tối đa 5 MB.', 'error');
+          return;
+        }
+        if (pendingImageObjectUrl) URL.revokeObjectURL(pendingImageObjectUrl);
+        pendingImageFile = file;
+        pendingImageObjectUrl = URL.createObjectURL(file);
+        els.pendingImageThumb.src = pendingImageObjectUrl;
+        els.pendingImageName.textContent = `${file.name} · ${Math.max(1, Math.round(file.size / 1024))} KB`;
+        els.pendingImagePreview.hidden = false;
+        updateMessageComposer();
+        els.messageInput.focus();
+      }
+
       async function sendMessage(event) {
         event?.preventDefault();
-        if (!currentUser || !messagesRef) return;
+        const user = currentUser;
+        if (!user || !messagesRef || isSendingMessage) return;
         const text = els.messageInput.value.trim();
-        if (!text) return;
+        const imageFile = pendingImageFile;
+        const reply = replyTarget ? { ...replyTarget } : null;
+        if (!text && !imageFile) return;
         if (text.length > 800) {
           toast('Tin nhắn tối đa 800 ký tự.', 'error');
           return;
         }
-        els.sendButton.disabled = true;
+        isSendingMessage = true;
+        updateMessageComposer();
+        let uploadedImageRef = null;
         try {
-          await messagesRef.push({
-            uid: currentUser.uid,
-            name: displayNameFor(currentUser).slice(0, 32),
+          const message = {
+            uid: user.uid,
+            name: displayNameFor(user).slice(0, 32),
             text,
             kind: 'message',
             timestamp: currentTimestamp()
-          });
-          els.messageInput.value = '';
-          updateMessageComposer();
-          els.messageInput.focus();
+          };
+          if (imageFile) {
+            const extension = imageFile.type === 'image/png' ? 'png' : imageFile.type === 'image/gif' ? 'gif' : imageFile.type === 'image/webp' ? 'webp' : 'jpg';
+            const randomSuffix = Math.random().toString(36).slice(2, 8);
+            if (!storage) throw new Error('Firebase Storage chưa sẵn sàng.');
+            uploadedImageRef = storage.ref(`chatImages/${user.uid}/${Date.now()}-${randomSuffix}.${extension}`);
+            const uploaded = await uploadedImageRef.put(imageFile, { contentType: imageFile.type });
+            message.imageURL = await uploaded.ref.getDownloadURL();
+            message.imageName = String(imageFile.name || 'Ảnh đính kèm').slice(0, 120);
+          }
+          if (reply) {
+            message.replyTo = reply.id;
+            message.replyName = reply.name;
+            message.replyText = reply.text;
+          }
+          if (currentUser?.uid !== user.uid) throw new Error('Phiên đăng nhập đã thay đổi.');
+          await messagesRef.push(message);
+          if (currentUser?.uid === user.uid) {
+            els.messageInput.value = '';
+            clearReplyTarget();
+            clearPendingImage();
+          }
         } catch (error) {
-          showDatabaseError(error, 'Không gửi được tin nhắn. Hãy thử lại sau.');
+          if (uploadedImageRef) await uploadedImageRef.delete().catch(() => {});
+          showDatabaseError(error, error?.code?.startsWith('storage/') ? 'Không gửi được ảnh. Hãy kiểm tra Firebase Storage Rules.' : 'Không gửi được tin nhắn. Hãy thử lại sau.');
         } finally {
+          isSendingMessage = false;
           updateMessageComposer();
+          if (currentUser?.uid === user.uid) els.messageInput.focus();
         }
       }
 
@@ -1950,6 +2353,7 @@
         if (!confirm) return;
         try {
           await messagesRef.child(messageId).remove();
+          await messageReactionsRef.child(messageId).remove().catch((error) => console.warn('Không dọn được reactions cũ:', error));
           toast(isAnnouncement ? 'Đã xóa thông báo.' : 'Đã xóa tin nhắn.', 'success');
         } catch (error) {
           showDatabaseError(error, 'Không thể xóa nội dung. Hãy kiểm tra quyền admin trong Firebase.');
@@ -2069,6 +2473,11 @@
           els.togglePassword.setAttribute('aria-label', show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
           els.togglePassword.title = show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
         });
+        els.sidebarAvatar.addEventListener('click', () => {
+          if (!currentUser) return;
+          els.avatarFileInput.click();
+        });
+        els.avatarFileInput.addEventListener('change', uploadAvatar);
         $('#logoutButton').addEventListener('click', async () => {
           if (!auth) return;
           try {
@@ -2081,7 +2490,11 @@
         });
         $('#mobileLogoutButton').addEventListener('click', () => $('#logoutButton').click());
         $('#messageForm').addEventListener('submit', sendMessage);
+        els.attachImageButton.addEventListener('click', () => els.chatImageInput.click());
+        els.chatImageInput.addEventListener('change', selectChatImage);
+        $('#clearPendingImageButton').addEventListener('click', clearPendingImage);
         els.messageInput.addEventListener('input', updateMessageComposer);
+        $('#cancelReplyButton').addEventListener('click', clearReplyTarget);
         els.messageInput.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
@@ -2144,9 +2557,30 @@
           void manageBan(button.dataset.uid, button.dataset.memberAction === 'ban');
         });
         document.addEventListener('click', (event) => {
-          const button = event.target.closest('[data-delete-message]');
-          if (!button) return;
-          void deleteMessage(button.dataset.deleteMessage);
+          const target = event.target instanceof Element ? event.target : event.target.parentElement;
+          if (!target) return;
+          const reaction = target.closest('[data-react-message]');
+          if (reaction) {
+            void toggleMessageReaction(reaction.dataset.reactMessage, reaction.dataset.reaction);
+            return;
+          }
+          const reply = target.closest('[data-reply-message]');
+          if (reply) {
+            setReplyTarget(reply.dataset.replyMessage);
+            return;
+          }
+          const jump = target.closest('[data-jump-message]');
+          if (jump) {
+            const messageId = jump.dataset.jumpMessage;
+            if (messageSearchQuery) setMessageSearchOpen(false);
+            window.setTimeout(() => {
+              const original = Array.from(document.querySelectorAll('.message-row')).find((row) => row.dataset.messageId === messageId);
+              original?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 25);
+            return;
+          }
+          const remove = target.closest('[data-delete-message]');
+          if (remove) void deleteMessage(remove.dataset.deleteMessage);
         });
         els.confirmCancel.addEventListener('click', () => closeConfirm(null));
         els.confirmAccept.addEventListener('click', () => closeConfirm({ confirmed: true, reason: els.confirmReason.value.trim() }));
@@ -2189,6 +2623,8 @@
           presenceRef = database.ref('presence');
           adminsRef = database.ref('admins');
           bansRef = database.ref('bans');
+          messageReactionsRef = database.ref('messageReactions');
+          storage = firebase.storage ? firebase.storage() : null;
           firebaseReady = true;
           auth.onAuthStateChanged(handleAuthState, (error) => {
             setAuthError(friendlyAuthError(error));
