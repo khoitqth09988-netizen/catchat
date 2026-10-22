@@ -1755,6 +1755,7 @@
     .directory-badge { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; padding: 2px 7px; border-radius: 999px; background: var(--theme-accent-soft); color: var(--cat-meow, var(--theme-accent)); font-size: 8px; font-weight: 800; }
     .directory-badge .icon { width: 10px; height: 10px; }
     .directory-badge.banned { background: color-mix(in srgb, var(--theme-danger) 16%, transparent); color: var(--theme-danger); }
+    .directory-badge.muted { background: color-mix(in srgb, #d99a24 18%, transparent); color: #cf8c12; }
     .directory-empty { grid-column: 1 / -1; padding: 60px 20px; color: var(--theme-muted); font-size: 11px; text-align: center; }
     .directory-footer { display: flex; align-items: center; gap: 7px; padding: 11px 24px 14px; border-top: 1px solid var(--theme-line); color: var(--theme-muted); font-size: 9px; }
     .directory-footer .icon { width: 13px; height: 13px; color: var(--cat-meow, var(--theme-accent)); }
@@ -1969,6 +1970,65 @@
       .announcement-mode-copy span { display: none; }
       .announcement-mode-exit { min-height: 27px; padding: 0 9px; font-size: 8px; }
     }
+
+    /* ═══════════ Admin: tổng quan, cấm chat, nhật ký ═══════════ */
+    .admin-overview-hero { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 14px; border: 1px solid var(--theme-line); border-radius: 16px; background: radial-gradient(circle at 100% 0%, var(--cat-glow), transparent 66%), var(--theme-panel-alt); }
+    .admin-overview-cat { display: grid; width: 44px; height: 44px; flex: 0 0 auto; place-items: center; border-radius: 15px; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); box-shadow: 0 10px 22px var(--cat-glow); }
+    .admin-overview-cat .icon { width: 24px; height: 24px; }
+    .admin-overview-hero h3 { margin: 0; color: var(--theme-text); font-size: 13px; font-weight: 800; letter-spacing: -.02em; }
+    .admin-overview-hero p { margin: 4px 0 0; color: var(--theme-muted); font-size: 9px; }
+    .admin-overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .admin-overview-card { display: flex; align-items: center; gap: 9px; padding: 11px; border: 1px solid var(--theme-line); border-radius: 13px; background: var(--theme-panel-alt); }
+    .admin-overview-icon { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border-radius: 10px; background: var(--theme-accent-soft); color: var(--theme-accent); }
+    .admin-overview-icon .icon { width: 15px; height: 15px; }
+    .admin-overview-icon.online { background: color-mix(in srgb, #2fa06a 16%, transparent); color: #2fa06a; }
+    .admin-overview-icon.warn { background: color-mix(in srgb, #d99a24 18%, transparent); color: #cf8c12; }
+    .admin-overview-icon.danger { background: color-mix(in srgb, var(--theme-danger) 16%, transparent); color: var(--theme-danger); }
+    .admin-overview-card strong { display: block; color: var(--theme-text); font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+    .admin-overview-card span:not(.admin-overview-icon) { display: block; margin-top: 3px; color: var(--theme-muted); font-size: 8px; }
+    .admin-quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+    .admin-quick { display: flex; min-height: 36px; align-items: center; gap: 7px; padding: 0 11px; border: 1px solid var(--theme-line); border-radius: 11px; background: var(--theme-panel-alt); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; text-align: left; transition: border-color .16s, background .16s, color .16s; }
+    .admin-quick:hover { border-color: var(--theme-accent); background: var(--theme-panel); color: var(--theme-accent); }
+    .admin-quick .icon { width: 14px; height: 14px; flex: 0 0 auto; }
+    .admin-muted-block, .admin-log-block { margin-top: 16px; }
+    .admin-block-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .admin-block-heading h4 { margin: 0; color: var(--theme-text); font-size: 10px; font-weight: 800; letter-spacing: .02em; }
+    .admin-block-heading span { color: var(--theme-muted); font-size: 8px; }
+    .admin-log-clear { border: 0; border-radius: 7px; background: transparent; color: var(--theme-muted); cursor: pointer; font-size: 8px; font-weight: 700; padding: 3px 6px; }
+    .admin-log-clear:hover { background: var(--theme-hover); color: var(--theme-danger); }
+    .admin-muted-row { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border: 1px solid color-mix(in srgb, #d99a24 34%, transparent); border-radius: 11px; background: color-mix(in srgb, #d99a24 9%, var(--theme-panel-alt)); margin-bottom: 7px; }
+    .admin-muted-row .avatar { width: 28px; height: 28px; border-radius: 9px; font-size: 8px; }
+    .admin-muted-copy { min-width: 0; flex: 1; }
+    .admin-muted-copy strong { display: block; overflow: hidden; color: var(--theme-text); font-size: 9px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .admin-muted-copy span { display: block; margin-top: 3px; color: var(--theme-muted); font-size: 8px; }
+    .admin-muted-row button { flex: 0 0 auto; min-height: 26px; padding: 0 9px; border: 1px solid var(--theme-line); border-radius: 8px; background: var(--theme-panel); color: var(--theme-secondary); cursor: pointer; font-size: 8px; font-weight: 700; }
+    .admin-muted-row button:hover { border-color: #2fa06a; color: #2fa06a; }
+    .admin-log-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 9px; border-bottom: 1px solid var(--theme-line); }
+    .admin-log-item:last-child { border-bottom: 0; }
+    .admin-log-icon { display: grid; width: 24px; height: 24px; flex: 0 0 auto; place-items: center; border-radius: 8px; background: var(--theme-accent-soft); color: var(--theme-accent); }
+    .admin-log-icon .icon { width: 12px; height: 12px; }
+    .admin-log-copy { min-width: 0; flex: 1; }
+    .admin-log-copy strong { display: block; color: var(--theme-text); font-size: 9px; font-weight: 700; overflow-wrap: anywhere; }
+    .admin-log-copy span { display: block; margin-top: 3px; color: var(--theme-muted); font-size: 8px; }
+    .admin-log-empty { padding: 14px; color: var(--theme-muted); font-size: 9px; text-align: center; }
+
+    /* Cấm chat */
+    .mute-dialog { width: min(400px, 100%); }
+    .mute-durations { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 16px 0 12px; }
+    .mute-duration { min-height: 34px; border: 1px solid var(--theme-line); border-radius: 10px; background: var(--theme-panel-alt); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; transition: border-color .16s, background .16s, color .16s; }
+    .mute-duration:hover { border-color: var(--theme-accent); }
+    .mute-duration.selected { border-color: transparent; background: var(--theme-accent); color: var(--theme-accent-contrast); }
+    .mute-banner { display: flex; align-items: center; gap: 9px; margin: 0 19px 10px; padding: 9px 12px; border: 1px solid color-mix(in srgb, #d99a24 42%, transparent); border-radius: 12px; background: color-mix(in srgb, #d99a24 12%, var(--theme-panel)); color: var(--theme-secondary); font-size: 9px; }
+    .mute-banner .icon { width: 14px; height: 14px; color: #cf8c12; flex: 0 0 auto; }
+    .mute-banner strong { color: var(--theme-text); font-weight: 800; }
+    .tag-muted { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; background: color-mix(in srgb, #d99a24 18%, transparent); color: #cf8c12; font-size: 7.5px; font-weight: 800; }
+    .tag-muted .icon { width: 9px; height: 9px; }
+    @media (max-width: 760px) {
+      .admin-overview-grid { grid-template-columns: 1fr 1fr; }
+      .admin-quick-actions { grid-template-columns: 1fr; }
+      .mute-durations { grid-template-columns: 1fr 1fr; }
+      .mute-banner { margin: 0 9px 8px; }
+    }
   </style>
 </head>
 <body>
@@ -2006,6 +2066,7 @@
     <symbol id="i-cat" viewBox="0 0 32 32"><path d="m5 11 1-7 7 4a13 13 0 0 1 6 0l7-4 1 7a12 12 0 0 1 2 7c0 7-5.7 11-13 11S3 25 3 18a12 12 0 0 1 2-7Z" fill="currentColor"/><path d="M10 17h.2M22 17h.2M14 21q2 2 4 0M16 20v2" fill="none" stroke="var(--cat-ink,#4b3448)" stroke-width="1.7" stroke-linecap="round"/><path d="m8 21-4 1m4 1-4 2m20-3 4 1m-4 2 4 2" fill="none" stroke="var(--cat-ink,#4b3448)" stroke-width="1.2" stroke-linecap="round"/></symbol>
     <symbol id="i-paw" viewBox="0 0 24 24"><path d="M8.2 11.1c-1.6 1-3.3 2.2-3.3 4.3 0 2 1.5 3.1 3.4 3.1 1.4 0 2.4-.7 3.7-.7s2.3.7 3.7.7c1.9 0 3.4-1.1 3.4-3.1 0-2.1-1.7-3.3-3.3-4.3-1.2-.7-2.4-1.2-3.8-1.2s-2.6.5-3.8 1.2ZM5.4 9.4c1.1 0 1.8-1.2 1.6-2.6-.2-1.5-1.2-2.7-2.4-2.7S2.8 5.3 3 6.8c.2 1.4 1.3 2.6 2.4 2.6Zm5-2.4c1.2 0 2-1.2 1.9-2.7C12.2 2.8 11.3 2 10.1 2s-2.1 1.2-2 2.7c.1 1.4 1.1 2.3 2.3 2.3Zm8.2 2.4c1.2 0 2.2-1.2 2.4-2.6.2-1.5-.4-2.7-1.6-2.7S17.2 5.3 17 6.8c-.2 1.4.5 2.6 1.6 2.6Zm-5-2.4c1.2 0 2.2-.9 2.3-2.3.1-1.5-.8-2.7-2-2.7s-2.1.8-2.2 2.3c-.1 1.5.7 2.7 1.9 2.7Z" fill="currentColor"/></symbol>
     <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 4.8A1.8 1.8 0 0 1 7.8 3h8.4A1.8 1.8 0 0 1 18 4.8V21l-6-4-6 4V4.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h3l4 3.5v-11L7 10H4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m15.5 9 4.5 4.5M20 9l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
     <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 14.2c.9 1.4 2.1 2.1 3.5 2.1s2.6-.7 3.5-2.1M9 9.6h.01M15 9.6h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
     <symbol id="i-sparkle-star" viewBox="0 0 24 24"><path d="m12 3 2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2L12 3Z" fill="currentColor"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -2189,6 +2250,10 @@
               </div>
               <button class="announcement-mode-exit" id="exitAnnouncementModeButton" type="button">Xem trò chuyện</button>
             </div>
+            <div class="mute-banner" id="muteBanner" hidden>
+              <svg class="icon"><use href="#i-mute"></use></svg>
+              <span id="muteBannerText"></span>
+            </div>
             <div class="message-search-bar" id="messageSearchBar" hidden>
               <svg class="icon"><use href="#i-search"></use></svg>
               <input id="messageSearchInput" type="search" maxlength="120" placeholder="Tìm trong 100 tin nhắn gần nhất..." aria-label="Tìm trong tin nhắn">
@@ -2316,11 +2381,44 @@
         <button class="admin-close" id="closeAdminButton" type="button" aria-label="Đóng quản trị"><svg class="icon"><use href="#i-close"></use></svg></button>
       </header>
       <div class="admin-tabs" role="tablist" aria-label="Tác vụ quản trị">
-        <button class="admin-tab active" id="adminMembersTabButton" type="button" role="tab" aria-selected="true" data-tab="members"><svg class="icon"><use href="#i-users"></use></svg>Thành viên <span class="admin-tab-count" id="adminTabMemberCount">0</span></button>
+        <button class="admin-tab active" id="adminOverviewTabButton" type="button" role="tab" aria-selected="true" data-tab="overview"><svg class="icon"><use href="#i-sparkles"></use></svg>Tổng quan</button>
+        <button class="admin-tab" id="adminMembersTabButton" type="button" role="tab" aria-selected="false" data-tab="members"><svg class="icon"><use href="#i-users"></use></svg>Thành viên <span class="admin-tab-count" id="adminTabMemberCount">0</span></button>
         <button class="admin-tab" id="adminMessagesTabButton" type="button" role="tab" aria-selected="false" data-tab="messages"><svg class="icon"><use href="#i-trash"></use></svg>Tin nhắn <span class="admin-tab-count" id="adminTabMessageCount">0</span></button>
         <button class="admin-tab" id="adminAnnouncementsTabButton" type="button" role="tab" aria-selected="false" data-tab="announcements"><svg class="icon"><use href="#i-megaphone"></use></svg>Thông báo</button>
       </div>
-      <div class="admin-body" id="adminMembersTab" role="tabpanel">
+      <div class="admin-body" id="adminOverviewTab" role="tabpanel">
+        <div class="admin-overview-hero">
+          <div class="admin-overview-cat"><svg class="icon"><use href="#i-cat"></use></svg></div>
+          <div>
+            <h3 id="adminOverviewTitle">Tổng quan tổ mèo</h3>
+            <p id="adminOverviewSubtitle">Toàn bộ số liệu được cập nhật realtime</p>
+          </div>
+        </div>
+        <div class="admin-overview-grid">
+          <div class="admin-overview-card"><span class="admin-overview-icon"><svg class="icon"><use href="#i-users"></use></svg></span><div><strong id="overviewMembers">0</strong><span>Thành viên</span></div></div>
+          <div class="admin-overview-card"><span class="admin-overview-icon online"><svg class="icon"><use href="#i-wifi"></use></svg></span><div><strong id="overviewOnline">0</strong><span>Trực tuyến</span></div></div>
+          <div class="admin-overview-card"><span class="admin-overview-icon warn"><svg class="icon"><use href="#i-mute"></use></svg></span><div><strong id="overviewMuted">0</strong><span>Đang bị cấm chat</span></div></div>
+          <div class="admin-overview-card"><span class="admin-overview-icon danger"><svg class="icon"><use href="#i-ban"></use></svg></span><div><strong id="overviewBanned">0</strong><span>Đang bị cấm</span></div></div>
+          <div class="admin-overview-card"><span class="admin-overview-icon"><svg class="icon"><use href="#i-chat"></use></svg></span><div><strong id="overviewMessages">0</strong><span>Tin nhắn kênh này</span></div></div>
+          <div class="admin-overview-card"><span class="admin-overview-icon"><svg class="icon"><use href="#i-hash"></use></svg></span><div><strong id="overviewChannels">0</strong><span>Kênh</span></div></div>
+        </div>
+        <div class="admin-quick-actions">
+          <button class="admin-quick" id="adminQuickAnnouncement" type="button"><svg class="icon"><use href="#i-megaphone"></use></svg><span>Đăng thông báo</span></button>
+          <button class="admin-quick" id="adminQuickMessages" type="button"><svg class="icon"><use href="#i-trash"></use></svg><span>Kiểm duyệt tin nhắn</span></button>
+          <button class="admin-quick" id="adminQuickExport" type="button"><svg class="icon"><use href="#i-download"></use></svg><span>Xuất dữ liệu kênh</span></button>
+          <button class="admin-quick" id="adminQuickMuted" type="button"><svg class="icon"><use href="#i-mute"></use></svg><span>Danh sách cấm chat</span></button>
+        </div>
+        <div class="admin-muted-block">
+          <div class="admin-block-heading"><h4>Đang bị cấm chat</h4><span id="adminMutedCountLabel">0 người</span></div>
+          <div id="adminMutedList"><div class="admin-empty">Chưa có ai bị cấm chat.</div></div>
+        </div>
+        <div class="admin-log-block">
+          <div class="admin-block-heading"><h4>Nhật ký quản trị</h4><button class="admin-log-clear" id="adminClearLogButton" type="button">Xoá nhật ký</button></div>
+          <div id="adminLogList"><div class="admin-empty">Chưa có hoạt động quản trị nào.</div></div>
+        </div>
+        <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Cấm chat và nhật ký quản trị được lưu trên Firebase. Thêm nhánh /mutes và /adminLog vào Rules (mình gửi kèm trong chat) để admin dùng được đầy đủ.</span></p>
+      </div>
+      <div class="admin-body" id="adminMembersTab" role="tabpanel" hidden>
         <div class="admin-stats-grid">
           <div class="admin-stat-card"><span>Tổng thành viên</span><strong id="adminTotalCount">0</strong></div>
           <div class="admin-stat-card"><span>Đang trực tuyến</span><strong id="adminOnlineCount">0</strong></div>
@@ -2381,6 +2479,21 @@
       <div class="theme-divider"><span>Con trỏ mèo</span><small>Dành cho máy tính có chuột</small></div>
       <div class="cursor-options" id="cursorOptions" role="group" aria-label="Chọn con trỏ mèo"></div>
       <p class="theme-status" id="themeStatus" aria-live="polite">Đang dùng giao diện Sữa ấm</p>
+    </section>
+  </div>
+  <div class="confirm-layer mute-dialog-layer" id="muteDialog" aria-hidden="true" hidden>
+    <section class="confirm-dialog mute-dialog" role="dialog" aria-modal="true" aria-labelledby="muteDialogTitle">
+      <div class="confirm-icon"><svg class="icon"><use href="#i-mute"></use></svg></div>
+      <h2 id="muteDialogTitle">Cấm chat thành viên</h2>
+      <p id="muteDialogDescription">Thành viên sẽ không gửi được tin nhắn cho tới khi hết thời hạn hoặc được bỏ cấm.</p>
+      <div class="mute-durations" id="muteDurations" role="group" aria-label="Chọn thời hạn cấm chat">
+        <button class="mute-duration" type="button" data-mute-duration="10" aria-pressed="false">10 phút</button>
+        <button class="mute-duration" type="button" data-mute-duration="60" aria-pressed="false">1 giờ</button>
+        <button class="mute-duration selected" type="button" data-mute-duration="1440" aria-pressed="true">1 ngày</button>
+        <button class="mute-duration" type="button" data-mute-duration="0" aria-pressed="false">Vĩnh viễn</button>
+      </div>
+      <div class="confirm-reason"><label for="muteReason">Lý do (không bắt buộc)</label><textarea id="muteReason" maxlength="160" placeholder="Ví dụ: spam quá nhiều tin nhắn..."></textarea></div>
+      <div class="confirm-actions"><button class="dialog-button" id="muteCancel" type="button">Hủy</button><button class="dialog-button danger" id="muteConfirm" type="button">Cấm chat</button></div>
     </section>
   </div>
   <div class="confirm-layer" id="confirmLayer" aria-hidden="true">
@@ -2508,6 +2621,8 @@
       let presenceRef = null;
       let adminsRef = null;
       let bansRef = null;
+      let mutesRef = null;
+      let adminLogRef = null;
       let messageReactionsRef = null;
       let storage = null;
       let firebaseReady = false;
@@ -2519,6 +2634,9 @@
       let memberEmails = {};
       let presence = {};
       let bans = {};
+      let mutes = {};
+      let adminLogEntries = [];
+      let muteDurationMinutes = 1440;
       let channels = {};
       let activeChannelId = 'general';
       let messages = new Map();
@@ -2539,6 +2657,10 @@
       let channelGeneration = 0;
       let stopAdminBanListener = null;
       let stopAdminEmailListener = null;
+      let stopMuteListener = null;
+      let stopAdminLogListener = null;
+      let stopOwnMuteListener = null;
+      let muteResolver = null;
       let authGeneration = 0;
       let connectionIsOnline = false;
       let announcementDismissedId = null;
@@ -2560,6 +2682,29 @@
         if (className) element.className = className;
         if (text !== undefined && text !== null) element.textContent = String(text);
         return element;
+      }
+
+      function isMuted(uid) {
+        const entry = uid ? mutes[uid] : null;
+        if (!entry) return false;
+        const until = Number(entry.until) || 0;
+        return until === 0 || until > Date.now();
+      }
+
+      function activeMutes() {
+        return Object.entries(mutes).filter(([uid]) => isMuted(uid));
+      }
+
+      function muteRemainingLabel(entry) {
+        const until = Number(entry?.until) || 0;
+        if (!until) return 'vĩnh viễn';
+        const remaining = until - Date.now();
+        if (remaining <= 0) return 'đã hết hạn';
+        const minutes = Math.ceil(remaining / 60000);
+        if (minutes < 60) return `còn ${minutes} phút`;
+        const hours = Math.ceil(minutes / 60);
+        if (hours < 24) return `còn ${hours} giờ`;
+        return `còn ${Math.ceil(hours / 24)} ngày`;
       }
 
       function isAdminEmail(user = currentUser) {
@@ -2863,6 +3008,9 @@
         stopChannelRealtime();
         stopAdminBanListener = null;
         stopAdminEmailListener = null;
+        stopMuteListener = null;
+        stopAdminLogListener = null;
+        stopOwnMuteListener = null;
         hasAdminMarker = false;
         hasAdminClaim = false;
         hasAdminEmail = false;
@@ -2875,6 +3023,8 @@
         memberEmails = {};
         presence = {};
         bans = {};
+        mutes = {};
+        adminLogEntries = [];
         clearReplyTarget();
         clearPendingImage();
       }
@@ -2954,6 +3104,39 @@
           stopAdminBanListener = null;
           bans = {};
         }
+        if (isAdmin && mutesRef && !stopMuteListener) {
+          stopMuteListener = subscribe(mutesRef, 'value', (snapshot) => {
+            mutes = snapshot.val() || {};
+            renderMembers();
+            renderAdminPanel();
+            renderMuteBanner();
+          }, (error) => {
+            if (hasAdminEmail && !hasAdminMarker && !hasAdminClaim) console.warn('Chưa đọc được /mutes (cần thêm email admin vào Rules):', error);
+            else showDatabaseError(error, 'Không thể tải danh sách cấm chat.');
+          });
+        } else if (!isAdmin && stopMuteListener) {
+          stopMuteListener();
+          stopMuteListener = null;
+        }
+        if (isAdmin && adminLogRef && !stopAdminLogListener) {
+          stopAdminLogListener = subscribe(adminLogRef, 'value', (snapshot) => {
+            const raw = snapshot.val() || {};
+            adminLogEntries = Object.entries(raw)
+              .map(([id, entry]) => ({ id, ...(entry || {}) }))
+              .sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0))
+              .slice(0, 60);
+            renderAdminLog();
+          }, (error) => {
+            if (hasAdminEmail && !hasAdminMarker && !hasAdminClaim) console.warn('Chưa đọc được /adminLog (cần thêm email admin vào Rules):', error);
+            else showDatabaseError(error, 'Không thể tải nhật ký quản trị.');
+          });
+        } else if (!isAdmin && stopAdminLogListener) {
+          stopAdminLogListener();
+          stopAdminLogListener = null;
+          adminLogEntries = [];
+        }
+        if (!isAdmin) mutes = {};
+        renderMuteBanner();
         if (isAdmin && memberEmailsRef && !stopAdminEmailListener) {
           stopAdminEmailListener = subscribe(memberEmailsRef, 'value', (snapshot) => {
             memberEmails = snapshot.val() || {};
@@ -3108,6 +3291,7 @@
           renderChannelList();
           closeChannelDialog();
           toast(`Đã tạo #${channelId}.`, 'success');
+          void logAdminAction('channel', `Tạo kênh #${channelId}`);
           if (currentUser?.uid === user.uid) await switchChannel(channelId);
         } catch (error) {
           showDatabaseError(error, 'Không thể tạo kênh. Hãy kiểm tra quyền ghi /channels trong Firebase Rules.');
@@ -3364,6 +3548,15 @@
           toast('Tài khoản của bạn đã bị chặn truy cập ứng dụng.', 'error');
           void auth.signOut();
         }, (error) => showDatabaseError(error, 'Không thể theo dõi trạng thái tài khoản.'));
+        if (mutesRef) {
+          stopOwnMuteListener = subscribe(mutesRef.child(user.uid), 'value', (snapshot) => {
+            if (generation !== authGeneration) return;
+            mutes[user.uid] = snapshot.val() || null;
+            if (!snapshot.exists()) delete mutes[user.uid];
+            renderMuteBanner();
+            updateMessageComposer();
+          }, (error) => console.warn('Không đọc được trạng thái cấm chat:', error));
+        }
         hasAdminMarker = false;
         hasAdminClaim = false;
         hasAdminEmail = isAdminEmail(user);
@@ -3824,11 +4017,27 @@
           meta.append(textElement('span', '', memberEmails[uid]?.email || safeMember.email || uid));
           row.appendChild(meta);
           const actions = textElement('div', 'admin-member-actions');
+          const muted = isMuted(uid);
           const status = textElement('span', `status-tag${isBanned ? ' banned' : ''}`);
           status.appendChild(textElement('span', 'tag-dot'));
           status.append(document.createTextNode(isBanned ? 'Bị cấm' : isOnline ? 'Trực tuyến' : 'Ngoại tuyến'));
           actions.appendChild(status);
+          if (muted) {
+            const mutedTag = textElement('span', 'tag-muted');
+            mutedTag.appendChild(icon('mute'));
+            mutedTag.append(document.createTextNode(`Cấm chat · ${muteRemainingLabel(mutes[uid])}`));
+            actions.appendChild(mutedTag);
+          }
           if (uid !== currentUser?.uid) {
+            const muteButton = document.createElement('button');
+            muteButton.type = 'button';
+            muteButton.className = `admin-action${muted ? ' unban' : ''}`;
+            muteButton.dataset.memberAction = muted ? 'unmute' : 'mute';
+            muteButton.dataset.uid = uid;
+            muteButton.title = muted ? 'Bỏ cấm chat' : 'Cấm chat thành viên';
+            muteButton.setAttribute('aria-label', muteButton.title);
+            muteButton.appendChild(icon(muted ? 'smile' : 'mute'));
+            actions.appendChild(muteButton);
             const button = document.createElement('button');
             button.type = 'button';
             button.className = `admin-action${isBanned ? ' unban' : ''}`;
@@ -3855,6 +4064,12 @@
         avatarWrap.appendChild(status);
         const copy = textElement('div', 'member-copy');
         copy.appendChild(textElement('strong', '', name));
+        if (isMuted(uid)) {
+          const mutedBadge = textElement('span', 'tag-muted');
+          mutedBadge.appendChild(icon('mute'));
+          mutedBadge.append(document.createTextNode('Cấm chat'));
+          copy.appendChild(mutedBadge);
+        }
         if (currentUser?.uid === uid && isAdmin) {
           const badge = textElement('span', 'member-badge');
           badge.appendChild(icon('crown'));
@@ -3947,6 +4162,7 @@
         }
         els.adminAnnouncementList.replaceChildren(announcementList);
         renderAdminMessages();
+        renderAdminOverview();
       }
 
       function updateMessageComposer() {
@@ -3956,10 +4172,13 @@
         els.messageInput.maxLength = limit;
         els.messageCharCount.textContent = `${length} / ${limit}`;
         const blockedByPermission = postingAnnouncement && !isAdmin;
-        els.messageInput.placeholder = postingAnnouncement
-          ? (isAdmin ? 'Viết thông báo gửi tới toàn bộ tổ mèo...' : 'Chỉ quản trị viên được đăng thông báo')
-          : `Nhắn tin trong #${channelNameFor(activeChannelId)}...`;
-        els.sendButton.disabled = isSendingMessage || !currentUser || blockedByPermission || (!els.messageInput.value.trim() && !pendingImageFile) || length > limit;
+        const muted = Boolean(currentUser && isMuted(currentUser.uid));
+        els.messageInput.placeholder = muted
+          ? `Bạn đang bị cấm chat ${muteRemainingLabel(mutes[currentUser?.uid])}`
+          : postingAnnouncement
+            ? (isAdmin ? 'Viết thông báo gửi tới toàn bộ tổ mèo...' : 'Chỉ quản trị viên được đăng thông báo')
+            : `Nhắn tin trong #${channelNameFor(activeChannelId)}...`;
+        els.sendButton.disabled = isSendingMessage || !currentUser || blockedByPermission || muted || (!els.messageInput.value.trim() && !pendingImageFile) || length > limit;
         els.messageInput.disabled = isSendingMessage || blockedByPermission;
         els.attachImageButton.disabled = isSendingMessage || (postingAnnouncement && !isAdmin);
         els.chatImageInput.disabled = isSendingMessage;
@@ -4007,11 +4226,20 @@
       async function sendMessage(event) {
         event?.preventDefault();
         const user = currentUser;
-        if (!user || !messagesRef || isSendingMessage) return;
+        const postingAnnouncement = announcementMode && activeChannelId === 'general';
+        const targetRef = postingAnnouncement ? (generalMessagesRef || messagesRef) : messagesRef;
+        if (!user || isSendingMessage) return;
+        if (!targetRef) {
+          toast('Chưa kết nối được phòng chat. Hãy tải lại trang rồi thử lại.', 'error');
+          return;
+        }
         const text = els.messageInput.value.trim();
         const imageFile = pendingImageFile;
         const reply = replyTarget ? { ...replyTarget } : null;
-        const postingAnnouncement = announcementMode && activeChannelId === 'general';
+        if (isMuted(user.uid)) {
+          toast(`Bạn đang bị cấm chat ${muteRemainingLabel(mutes[user.uid])}.`, 'error');
+          return;
+        }
         if (postingAnnouncement) {
           if (!isAdmin) {
             toast('Chỉ quản trị viên được đăng thông báo.', 'error');
@@ -4059,16 +4287,26 @@
             message.replyText = reply.text;
           }
           if (currentUser?.uid !== user.uid) throw new Error('Phiên đăng nhập đã thay đổi.');
-          await messagesRef.push(message);
+          await targetRef.push(message);
           if (currentUser?.uid === user.uid) {
             els.messageInput.value = '';
             clearReplyTarget();
             clearPendingImage();
-            if (postingAnnouncement) toast('Đã đăng thông báo tới toàn bộ tổ mèo.', 'success');
+            if (postingAnnouncement) {
+              toast('Đã đăng thông báo tới toàn bộ tổ mèo.', 'success');
+              void logAdminAction('announcement', `Đăng thông báo: ${text.slice(0, 120)}`);
+            }
           }
         } catch (error) {
           if (uploadedImageRef) await uploadedImageRef.delete().catch(() => {});
-          showDatabaseError(error, error?.code?.startsWith('storage/') ? 'Không gửi được ảnh. Hãy kiểm tra Firebase Storage Rules.' : 'Không gửi được tin nhắn. Hãy thử lại sau.');
+          const denied = error?.code === 'PERMISSION_DENIED' || /permission_denied/i.test(error?.message || '');
+          if (denied && postingAnnouncement) {
+            toast('Firebase Rules đang chặn đăng thông báo. Thêm email admin vào Rules của /messages (mình đã gửi JSON kèm).', 'error');
+          } else if (error?.code?.startsWith('storage/')) {
+            showDatabaseError(error, 'Không gửi được ảnh. Hãy kiểm tra Firebase Storage Rules.');
+          } else {
+            showDatabaseError(error, 'Không gửi được tin nhắn. Hãy thử lại sau.');
+          }
         } finally {
           isSendingMessage = false;
           updateMessageComposer();
@@ -4104,6 +4342,7 @@
           els.announcementInput.value = '';
           $('#announcementCharCount').textContent = '0 / 500';
           toast('Thông báo đã được gửi tới toàn bộ máy chủ.', 'success');
+          void logAdminAction('announcement', `Đăng thông báo: ${text.slice(0, 120)}`);
         } catch (error) {
           showDatabaseError(error, 'Không gửi được thông báo. Hãy kiểm tra quyền quản trị trong Firebase.');
         } finally {
@@ -4159,6 +4398,7 @@
           await targetRef.child(messageId).remove();
           await messageReactionsRef.child(messageId).remove().catch((error) => console.warn('Không dọn được reactions cũ:', error));
           toast(isAnnouncement ? 'Đã xóa thông báo.' : 'Đã xóa tin nhắn.', 'success');
+          void logAdminAction('delete', `${isAnnouncement ? 'Xoá thông báo' : 'Xoá tin nhắn'} của ${data.name || 'thành viên'}: ${String(data.text || '[ảnh]').slice(0, 80)}`, data.uid || '');
         } catch (error) {
           showDatabaseError(error, 'Không thể xóa nội dung. Hãy kiểm tra quyền admin trong Firebase.');
         }
@@ -4199,6 +4439,7 @@
             updateAnnouncementBanner();
           }
           renderAdminPanel();
+          void logAdminAction('clear', `Dọn toàn bộ #${name} (${ids.length} tin nhắn)`);
           toast(failedReactionCleanups
             ? `Đã xóa ${ids.length} tin nhắn. Một số reaction cũ chưa được dọn; kiểm tra Rules.`
             : `Đã xóa ${ids.length} tin nhắn trong #${name}.`, failedReactionCleanups ? 'error' : 'success');
@@ -4229,6 +4470,7 @@
               bannedAt: currentTimestamp()
             });
             toast(`Đã cấm truy cập của ${name}.`, 'success');
+            void logAdminAction('ban', `Cấm truy cập ${name}${result.reason ? ` · ${result.reason}` : ''}`, uid);
           } catch (error) {
             showDatabaseError(error, 'Không thể cấm thành viên. Hãy kiểm tra Firebase Security Rules.');
           }
@@ -4242,6 +4484,7 @@
           try {
             await bansRef.child(uid).remove();
             toast(`Đã bỏ cấm ${name}.`, 'success');
+            void logAdminAction('unban', `Bỏ cấm truy cập ${name}`, uid);
           } catch (error) {
             showDatabaseError(error, 'Không thể bỏ cấm thành viên. Hãy kiểm tra Firebase Security Rules.');
           }
@@ -4258,6 +4501,8 @@
         document.body.classList.add('body-locked');
         renderAdminPanel();
         renderAdminMessages();
+        renderAdminOverview();
+        switchAdminTab('overview');
         window.setTimeout(() => $('#closeAdminButton').focus(), 60);
       }
 
@@ -4269,15 +4514,16 @@
       }
 
       function switchAdminTab(name) {
-        const tab = ['members', 'messages', 'announcements'].includes(name) ? name : 'members';
-        const panels = { members: 'adminMembersTab', messages: 'adminMessagesTab', announcements: 'adminAnnouncementsTab' };
-        const buttons = { members: 'adminMembersTabButton', messages: 'adminMessagesTabButton', announcements: 'adminAnnouncementsTabButton' };
+        const tab = ['overview', 'members', 'messages', 'announcements'].includes(name) ? name : 'overview';
+        const panels = { overview: 'adminOverviewTab', members: 'adminMembersTab', messages: 'adminMessagesTab', announcements: 'adminAnnouncementsTab' };
+        const buttons = { overview: 'adminOverviewTabButton', members: 'adminMembersTabButton', messages: 'adminMessagesTabButton', announcements: 'adminAnnouncementsTabButton' };
         Object.entries(panels).forEach(([key, panelId]) => {
           const active = key === tab;
           $(`#${buttons[key]}`).classList.toggle('active', active);
           $(`#${buttons[key]}`).setAttribute('aria-selected', String(active));
           $(`#${panelId}`).hidden = !active;
         });
+        if (tab === 'overview') renderAdminOverview();
         if (tab === 'messages') renderAdminMessages();
         if (tab === 'announcements') els.announcementInput.focus();
       }
@@ -4712,6 +4958,12 @@ ${extra}
           const copy = textElement('span', 'directory-copy');
           copy.appendChild(textElement('strong', '', name));
           copy.appendChild(textElement('small', '', online ? 'Đang hoạt động' : banned ? 'Bị cấm bởi quản trị viên' : 'Thành viên tổ mèo'));
+          if (isMuted(uid)) {
+            const mutedBadge = textElement('span', 'directory-badge muted');
+            mutedBadge.appendChild(icon('mute'));
+            mutedBadge.append(document.createTextNode(`Cấm chat · ${muteRemainingLabel(mutes[uid])}`));
+            copy.appendChild(mutedBadge);
+          }
           if (uid === currentUser?.uid && isAdmin) {
             const badge = textElement('span', 'directory-badge');
             badge.appendChild(icon('crown'));
@@ -4752,6 +5004,7 @@ ${extra}
         addTag(online ? 'Trực tuyến' : 'Ngoại tuyến', online ? 'online' : '', 'wifi');
         if (isSelf && isAdmin) addTag('Quản trị viên', 'admin', 'crown');
         if (banned) addTag('Đang bị cấm', 'banned', 'ban');
+        if (isMuted(uid)) addTag(`Cấm chat · ${muteRemainingLabel(mutes[uid])}`, 'banned', 'mute');
         if (isSelf) addTag('Bạn', '', 'user');
 
         const facts = $('#profileFacts');
@@ -4775,6 +5028,10 @@ ${extra}
         if (member.createdAt) addFact('Tham gia', formatDateTime(timestampOf(member.createdAt)), 'clock');
         if (member.lastSeen) addFact('Hoạt động gần nhất', formatDateTime(timestampOf(member.lastSeen)), 'clock');
         if (banned && bans[uid]?.reason) addFact('Lý do cấm', bans[uid].reason, 'info');
+        if (isMuted(uid)) {
+          addFact('Cấm chat', muteRemainingLabel(mutes[uid]), 'mute');
+          if (mutes[uid]?.reason) addFact('Lý do cấm chat', mutes[uid].reason, 'info');
+        }
 
         const actions = $('#profileActions');
         actions.replaceChildren();
@@ -4799,6 +5056,11 @@ ${extra}
           addAction('Mở ảnh đại diện', '', 'eye', () => window.open(safeImageUrl(member.photoURL), '_blank', 'noopener,noreferrer'));
         }
         if (isAdmin && !isSelf) {
+          const mutedNow = isMuted(uid);
+          addAction(mutedNow ? 'Bỏ cấm chat' : 'Cấm chat', '', mutedNow ? 'smile' : 'mute', () => {
+            closeMemberProfile();
+            void manageMute(uid, !mutedNow);
+          });
           addAction(banned ? 'Bỏ cấm' : 'Cấm thành viên', banned ? '' : 'danger', banned ? 'unban' : 'ban', () => {
             closeMemberProfile();
             void manageBan(uid, !banned);
@@ -4972,6 +5234,250 @@ ${extra}
         $('#navMembers')?.classList.add('admin-hint');
         window.setTimeout(() => $('#navMembers')?.classList.remove('admin-hint'), 3400);
         window.setTimeout(() => layer.remove(), 1700);
+      }
+
+      /* ───────────────────────────────────────────────────────────────
+         Quản trị nâng cao: cấm chat có thời hạn, bảng tổng quan,
+         nhật ký quản trị và xuất dữ liệu kênh.
+         ─────────────────────────────────────────────────────────────── */
+      const ADMIN_LOG_ICONS = {
+        ban: 'ban', unban: 'unban', mute: 'mute', unmute: 'smile',
+        delete: 'trash', clear: 'trash', announcement: 'megaphone', export: 'download', channel: 'hash'
+      };
+
+      function renderMuteBanner() {
+        const banner = $('#muteBanner');
+        if (!banner) return;
+        const uid = currentUser?.uid;
+        const entry = uid ? mutes[uid] : null;
+        const active = uid ? isMuted(uid) : false;
+        if (!active) {
+          banner.hidden = true;
+          return;
+        }
+        banner.hidden = false;
+        const label = muteRemainingLabel(entry);
+        const reason = String(entry?.reason || '').trim();
+        $('#muteBannerText').innerHTML = '';
+        const text = document.createElement('span');
+        text.append(document.createTextNode('Bạn đang bị cấm chat '));
+        const strong = document.createElement('strong');
+        strong.textContent = label;
+        text.append(strong, document.createTextNode(reason ? ` · Lý do: ${reason}` : '.'));
+        $('#muteBannerText').appendChild(text);
+      }
+
+      function openMuteDialog(uid, name) {
+        if (!isAdmin) return;
+        const dialog = $('#muteDialog');
+        if (!dialog) return;
+        muteDurationMinutes = 1440;
+        $('#muteReason').value = '';
+        $('#muteDialogDescription').textContent = `${name || 'Thành viên'} sẽ không gửi được tin nhắn cho tới khi hết thời hạn hoặc được bỏ cấm.`;
+        $$('[data-mute-duration]').forEach((button) => {
+          const active = button.dataset.muteDuration === '1440';
+          button.classList.toggle('selected', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        dialog.hidden = false;
+        dialog.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => dialog.classList.add('open'));
+        document.body.classList.add('body-locked');
+        window.setTimeout(() => $('#muteReason').focus(), 40);
+        return new Promise((resolve) => { muteResolver = resolve; });
+      }
+
+      function closeMuteDialog(result) {
+        const dialog = $('#muteDialog');
+        if (!dialog || dialog.hidden) return;
+        dialog.classList.remove('open');
+        dialog.setAttribute('aria-hidden', 'true');
+        dialog.hidden = true;
+        if (!els.confirmLayer.classList.contains('open') && !els.adminOverlay.classList.contains('open') && els.channelDialog.hidden) {
+          document.body.classList.remove('body-locked');
+        }
+        if (muteResolver) {
+          const resolve = muteResolver;
+          muteResolver = null;
+          resolve(result || null);
+        }
+      }
+
+      async function logAdminAction(type, detail, targetUid = '') {
+        if (!isAdmin || !adminLogRef || !currentUser) return;
+        try {
+          await adminLogRef.push({
+            type,
+            detail: String(detail || '').slice(0, 220),
+            targetUid: targetUid || '',
+            adminUid: currentUser.uid,
+            adminName: displayNameFor(currentUser).slice(0, 32),
+            timestamp: currentTimestamp()
+          });
+        } catch (error) {
+          console.warn('Không ghi được nhật ký quản trị:', error);
+        }
+      }
+
+      async function manageMute(uid, shouldMute) {
+        if (!isAdmin || !currentUser || !uid || !mutesRef) {
+          toast('Không thể thay đổi quyền chat lúc này.', 'error');
+          return;
+        }
+        if (uid === currentUser.uid) {
+          toast('Bạn không thể tự cấm chat chính mình.', 'error');
+          return;
+        }
+        const member = members[uid] || {};
+        const name = memberDisplayName(uid, member);
+        if (shouldMute) {
+          const result = await openMuteDialog(uid, name);
+          if (!result) return;
+          const until = result.minutes > 0 ? Date.now() + result.minutes * 60000 : 0;
+          try {
+            await mutesRef.child(uid).set({
+              reason: result.reason || '',
+              mutedBy: currentUser.uid,
+              mutedByName: displayNameFor(currentUser).slice(0, 32),
+              mutedAt: currentTimestamp(),
+              until
+            });
+            mutes[uid] = { reason: result.reason || '', until };
+            toast(`Đã cấm chat ${name}${result.minutes ? ` trong ${result.minutes < 60 ? `${result.minutes} phút` : result.minutes < 1440 ? `${Math.round(result.minutes / 60)} giờ` : `${Math.round(result.minutes / 1440)} ngày`}` : ' vĩnh viễn'}.`, 'success');
+            void logAdminAction('mute', `Cấm chat ${name}${result.minutes ? '' : ' (vĩnh viễn)'}${result.reason ? ` · ${result.reason}` : ''}`, uid);
+            renderMembers();
+            renderAdminPanel();
+          } catch (error) {
+            showDatabaseError(error, 'Không cấm chat được. Hãy kiểm tra quyền /mutes trong Firebase Rules.');
+          }
+        } else {
+          const result = await openConfirm({
+            title: `Bỏ cấm chat ${name}?`,
+            description: 'Thành viên có thể gửi tin nhắn trở lại ngay sau khi bạn xác nhận.',
+            acceptLabel: 'Bỏ cấm chat',
+            tone: 'primary',
+            iconName: 'smile'
+          });
+          if (!result) return;
+          try {
+            await mutesRef.child(uid).remove();
+            delete mutes[uid];
+            toast(`Đã bỏ cấm chat ${name}.`, 'success');
+            void logAdminAction('unmute', `Bỏ cấm chat ${name}`, uid);
+            renderMembers();
+            renderAdminPanel();
+          } catch (error) {
+            showDatabaseError(error, 'Không bỏ cấm chat được. Hãy kiểm tra quyền /mutes trong Firebase Rules.');
+          }
+        }
+        renderMuteBanner();
+        updateMessageComposer();
+      }
+
+      function renderAdminLog() {
+        const list = $('#adminLogList');
+        if (!list) return;
+        if (!adminLogEntries.length) {
+          list.replaceChildren(textElement('div', 'admin-log-empty', 'Chưa có hoạt động quản trị nào.'));
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        adminLogEntries.slice(0, 24).forEach((entry) => {
+          const item = textElement('div', 'admin-log-item');
+          const badge = textElement('span', 'admin-log-icon');
+          badge.appendChild(icon(ADMIN_LOG_ICONS[entry.type] || 'shield'));
+          const copy = textElement('div', 'admin-log-copy');
+          copy.appendChild(textElement('strong', '', entry.detail || 'Thao tác quản trị'));
+          copy.appendChild(textElement('span', '', `${entry.adminName || 'Quản trị viên'} · ${formatDateTime(Number(entry.timestamp) || Date.now())}`));
+          item.append(badge, copy);
+          fragment.appendChild(item);
+        });
+        list.replaceChildren(fragment);
+      }
+
+      function renderAdminOverview() {
+        const entries = memberEntries();
+        const mutedCount = activeMutes().length;
+        const setText = (selector, value) => { const node = $(selector); if (node) node.textContent = String(value); };
+        setText('#overviewMembers', entries.length);
+        setText('#overviewOnline', Object.keys(presence).length);
+        setText('#overviewMuted', mutedCount);
+        setText('#overviewBanned', Object.keys(bans).length);
+        setText('#overviewMessages', messages.size);
+        setText('#overviewChannels', Math.max(1, Object.keys(channels).length));
+        const navAdminCount = $('#navAdminCount');
+        if (navAdminCount && isAdmin) {
+          const pending = Object.keys(bans).length + mutedCount;
+          navAdminCount.textContent = pending ? String(pending) : '';
+          navAdminCount.hidden = !pending;
+        }
+
+        const mutedList = $('#adminMutedList');
+        if (mutedList) {
+          const active = activeMutes();
+          setText('#adminMutedCountLabel', `${active.length} người`);
+          if (!active.length) {
+            mutedList.replaceChildren(textElement('div', 'admin-empty', 'Chưa có ai bị cấm chat.'));
+          } else {
+            const fragment = document.createDocumentFragment();
+            active
+              .sort((a, b) => (Number(a[1].until) || 0) - (Number(b[1].until) || 0))
+              .forEach(([uid, entry]) => {
+                const name = memberDisplayName(uid, members[uid]);
+                const row = textElement('div', 'admin-muted-row');
+                row.appendChild(makeAvatar(name, uid, 'avatar', members[uid]?.photoURL || ''));
+                const copy = textElement('div', 'admin-muted-copy');
+                copy.appendChild(textElement('strong', '', name));
+                copy.appendChild(textElement('span', '', `${muteRemainingLabel(entry)}${entry.reason ? ` · ${entry.reason}` : ''}`));
+                row.appendChild(copy);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.dataset.muteAction = 'unmute';
+                button.dataset.uid = uid;
+                button.textContent = 'Bỏ cấm';
+                row.appendChild(button);
+                fragment.appendChild(row);
+              });
+            mutedList.replaceChildren(fragment);
+          }
+        }
+        renderAdminLog();
+      }
+
+      function exportChannelData() {
+        if (!isAdmin) return;
+        const channelId = activeChannelId;
+        const payload = {
+          channel: channelId,
+          channelName: channelNameFor(channelId),
+          exportedAt: new Date().toISOString(),
+          exportedBy: displayNameFor(currentUser),
+          count: messages.size,
+          messages: Array.from(messages.entries())
+            .sort((a, b) => timestampOf(a[1]) - timestampOf(b[1]))
+            .map(([id, data]) => ({
+              id,
+              uid: data.uid || '',
+              name: data.name || '',
+              text: data.text || '',
+              kind: data.kind || 'message',
+              timestamp: timestampOf(data),
+              imageURL: data.imageURL || '',
+              replyTo: data.replyTo || '',
+              replyText: data.replyText || ''
+            }))
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `catchat-${channelId}-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 4000);
+        toast(`Đã xuất ${payload.count} tin nhắn của #${payload.channelName}.`, 'success');
+        void logAdminAction('export', `Xuất dữ liệu #${payload.channelName} (${payload.count} tin nhắn)`);
       }
 
       function attachEvents() {
@@ -5186,9 +5692,54 @@ ${extra}
         els.announcementInput.addEventListener('input', () => { $('#announcementCharCount').textContent = `${els.announcementInput.value.length} / 500`; });
         els.publishAnnouncementButton.addEventListener('click', sendAnnouncement);
         els.adminMemberList.addEventListener('click', (event) => {
-          const button = event.target.closest('[data-member-action]');
+          const button = event.target instanceof Element ? event.target.closest('[data-member-action]') : null;
           if (!button) return;
-          void manageBan(button.dataset.uid, button.dataset.memberAction === 'ban');
+          const action = button.dataset.memberAction;
+          if (action === 'mute') void manageMute(button.dataset.uid, true);
+          else if (action === 'unmute') void manageMute(button.dataset.uid, false);
+          else void manageBan(button.dataset.uid, action === 'ban');
+        });
+        $('#adminOverviewTabButton').addEventListener('click', () => switchAdminTab('overview'));
+        $('#muteDurations').addEventListener('click', (event) => {
+          const button = event.target instanceof Element ? event.target.closest('[data-mute-duration]') : null;
+          if (!button) return;
+          muteDurationMinutes = Number(button.dataset.muteDuration) || 0;
+          $$('[data-mute-duration]').forEach((item) => {
+            const active = item === button;
+            item.classList.toggle('selected', active);
+            item.setAttribute('aria-pressed', String(active));
+          });
+        });
+        $('#muteConfirm').addEventListener('click', () => {
+          closeMuteDialog({ minutes: muteDurationMinutes, reason: $('#muteReason').value.trim() });
+        });
+        $('#muteCancel').addEventListener('click', () => closeMuteDialog(null));
+        $('#muteDialog').addEventListener('click', (event) => { if (event.target === $('#muteDialog')) closeMuteDialog(null); });
+        $('#adminMutedList').addEventListener('click', (event) => {
+          const button = event.target instanceof Element ? event.target.closest('[data-mute-action="unmute"]') : null;
+          if (button) void manageMute(button.dataset.uid, false);
+        });
+        $('#adminQuickAnnouncement').addEventListener('click', () => { closeAdmin(); $('#channelAnnouncements').click(); });
+        $('#adminQuickMessages').addEventListener('click', () => switchAdminTab('messages'));
+        $('#adminQuickExport').addEventListener('click', exportChannelData);
+        $('#adminQuickMuted').addEventListener('click', () => switchAdminTab('overview'));
+        $('#adminClearLogButton').addEventListener('click', async () => {
+          const confirm = await openConfirm({
+            title: 'Xoá nhật ký quản trị?',
+            description: 'Toàn bộ nhật ký thao tác quản trị sẽ bị xoá khỏi Firebase. Hành động này không thể hoàn tác.',
+            acceptLabel: 'Xoá nhật ký',
+            tone: 'danger',
+            iconName: 'trash'
+          });
+          if (!confirm || !adminLogRef) return;
+          try {
+            await adminLogRef.remove();
+            adminLogEntries = [];
+            renderAdminLog();
+            toast('Đã xoá nhật ký quản trị.', 'success');
+          } catch (error) {
+            showDatabaseError(error, 'Không xoá được nhật ký. Kiểm tra quyền /adminLog.');
+          }
         });
         document.addEventListener('click', (event) => {
           const target = event.target instanceof Element ? event.target : event.target.parentElement;
@@ -5231,7 +5782,8 @@ ${extra}
             setMessageSearchOpen(true);
           }
           if (event.key === 'Escape') {
-            if (!$('#emojiPopover').hidden) setEmojiPickerOpen(false);
+            if (!$('#muteDialog').hidden) closeMuteDialog(null);
+            else if (!$('#emojiPopover').hidden) setEmojiPickerOpen(false);
             else if (!$('#memberProfileLayer').hidden) closeMemberProfile();
             else if (!$('#savedLayer').hidden) closeSavedPanel();
             else if (!els.themeDialog.hidden) closeThemeDialog();
@@ -5270,6 +5822,8 @@ ${extra}
           presenceRef = database.ref('presence');
           adminsRef = database.ref('admins');
           bansRef = database.ref('bans');
+          mutesRef = database.ref('mutes');
+          adminLogRef = database.ref('adminLog');
           messageReactionsRef = database.ref('messageReactions');
           storage = firebase.storage ? firebase.storage() : null;
           firebaseReady = true;
