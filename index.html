@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0a0a0a">
+  <meta name="theme-color" content="#313338">
   <meta name="description" content="Chạm — không gian trò chuyện riêng tư, realtime và thân thiện.">
   <title>Chạm — Không gian trò chuyện</title>
   <style>
@@ -799,6 +799,101 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
     @keyframes orbit-drift { from { transform: translateX(-50%) rotate(-12deg); } to { transform: translateX(-50%) rotate(-6deg); } }
+
+    /* Discord-inspired workspace: clearer surfaces, channel navigation, and readable message rows. */
+    .app-view {
+      --page: #313338;
+      --surface: #2b2d31;
+      --surface-2: #232428;
+      --surface-3: #1e1f22;
+      --line: rgba(255,255,255,.075);
+      --line-strong: rgba(255,255,255,.12);
+      --text: #f2f3f5;
+      --muted: #b5bac1;
+      --muted-2: #949ba4;
+      --silver: #d6d9de;
+      --silver-bright: #f2f3f5;
+    }
+    .sidebar { background: #2b2d31; border-right-color: rgba(0,0,0,.25); }
+    .workspace-switch { background: #1e1f22; border-color: rgba(0,0,0,.25); }
+    .workspace-icon { background: #383a40; border-color: rgba(255,255,255,.08); color: #e1e3e6; }
+    .nav-link.active { background: #404249; border-color: transparent; color: #fff; }
+    .sidebar-channel-block { margin-top: 23px; }
+    .sidebar-section-title { color: #949ba4; letter-spacing: .08em; }
+    .channel-list { display: grid; max-height: min(48vh, 480px); gap: 2px; overflow-x: hidden; overflow-y: auto; scrollbar-color: #484a50 transparent; scrollbar-width: thin; }
+    .channel-link { min-height: 34px; padding: 0 9px; border-radius: 6px; color: #b5bac1; font-size: 11px; }
+    .channel-link:hover { background: #35373c; color: #f2f3f5; }
+    .channel-link.active { background: #404249; color: #fff; }
+    .channel-link.active .channel-mark { color: #f2f3f5; }
+    .channel-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .announcements-link { margin-top: 7px; }
+    .sidebar-section-title button:hover { background: #3b3d43; color: #fff; }
+    .main-layout, .chat-panel { background: #313338; }
+    .topbar { background: #313338; border-bottom-color: rgba(0,0,0,.22); }
+    .channel-toolbar { background: #313338; border-bottom-color: rgba(0,0,0,.22); }
+    .channel-symbol { border-radius: 10px; background: #383a40; border-color: rgba(255,255,255,.08); color: #b5bac1; }
+    .right-panel { background: #2b2d31; }
+    .composer-wrap { background: #313338; border-top-color: rgba(0,0,0,.25); }
+    .composer-box { background: #383a40; border-color: rgba(0,0,0,.25); }
+    .composer-box:focus-within { border-color: rgba(198,200,205,.42); box-shadow: 0 0 0 3px rgba(198,200,205,.08); }
+    .message-input, .composer-box textarea { color: #dbdee1; }
+    .messages-area { gap: 4px; padding: 18px 20px 14px; }
+    .message-row { width: 100%; max-width: 100%; gap: 12px; padding: 7px 8px; border-radius: 7px; transition: background .15s; }
+    .message-row:hover { background: rgba(255,255,255,.035); }
+    .message-row.mine { align-self: stretch; flex-direction: row; }
+    .message-content { min-width: 0; flex: 1; }
+    .message-row.mine .message-content { text-align: left; }
+    .message-row.mine .message-meta { justify-content: flex-start; }
+    .message-avatar { width: 38px; height: 38px; border-radius: 50%; }
+    .message-meta { gap: 9px; margin-bottom: 3px; }
+    .message-name { color: #f2f3f5; font-size: 12px; }
+    .message-time { font-size: 9px; }
+    .message-bubble, .message-row.mine .message-bubble { display: block; width: fit-content; max-width: 100%; padding: 1px 0; border: 0; border-radius: 0; background: transparent; color: #dbdee1; font-size: 13px; line-height: 1.55; }
+    .message-row.mine .message-delete, .message-row .message-delete { right: 8px; left: auto; top: 6px; z-index: 2; }
+    .message-reply { opacity: 0; }
+    .message-row:hover .message-reply, .message-reply:focus-visible { opacity: 1; }
+    .message-image-link { max-width: min(100%, 520px); }
+    .announcement-banner { background: #383a40; border-color: rgba(255,255,255,.1); }
+    .reaction-button { background: #2b2d31; border-color: rgba(255,255,255,.1); }
+    .reaction-button.active { background: #404249; border-color: rgba(255,255,255,.28); }
+    .channel-create-dialog { background: #2b2d31; }
+    .channel-name-field { margin-top: 17px; }
+    .channel-name-field label { display: block; margin-bottom: 7px; color: #c9ccd1; font-size: 10px; font-weight: 700; }
+    .channel-name-field > div { display: flex; height: 42px; align-items: center; gap: 9px; padding: 0 11px; border: 1px solid rgba(255,255,255,.13); border-radius: 9px; background: #1e1f22; color: #aeb3bb; }
+    .channel-name-field > div:focus-within { border-color: #8b8f98; box-shadow: 0 0 0 3px rgba(255,255,255,.06); }
+    .channel-name-field > div > span { font-weight: 700; }
+    .channel-name-field input { min-width: 0; height: 100%; flex: 1; border: 0; outline: 0; background: transparent; color: #f2f3f5; font-size: 12px; }
+    .channel-name-field input::placeholder { color: #737982; }
+    .channel-name-field small { display: block; margin-top: 6px; color: #949ba4; font-size: 9px; }
+    .channel-create-dialog .confirm-actions { align-items: center; }
+    .channel-create-dialog .dialog-button.primary { display: inline-flex; align-items: center; gap: 6px; background: #4e5058; border-color: #656871; color: #fff; }
+    .channel-create-dialog .dialog-button.primary .icon { width: 14px; height: 14px; }
+    .mobile-channel-select, .mobile-create-channel { display: none; }
+    .clear-channel-button:hover { background: rgba(255,90,90,.1); color: #ffb3b3; }
+    .channel-create-dialog:focus-within { outline: none; }
+    @media (max-width: 1080px) {
+      .mobile-channel-select { display: block; max-width: min(170px, 31vw); height: 34px; padding: 0 28px 0 9px; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; background: #2b2d31; color: #dbdee1; font-size: 10px; }
+      .mobile-create-channel { display: grid; }
+      .channel-tools { gap: 5px; }
+    }
+    @media (max-width: 760px) {
+      .messages-area { gap: 3px; padding: 14px 9px 12px; }
+      .message-row { gap: 9px; padding: 6px 4px; }
+      .message-reply { opacity: 1; }
+      .message-avatar { width: 33px; height: 33px; }
+      .message-bubble, .message-row.mine .message-bubble { font-size: 12px; }
+      .mobile-channel-select { max-width: min(132px, 36vw); }
+      .clear-channel-button { width: 29px; height: 29px; }
+    }
+    @media (max-width: 390px) {
+      .mobile-channel-select { max-width: 112px; font-size: 9px; }
+      .channel-tools { gap: 1px; }
+      .channel-tools > .icon-button { width: 29px; height: 29px; }
+    }
+    @media (max-width: 360px) {
+      .mobile-channel-select { max-width: 80px; }
+      .channel-title-group { gap: 6px; }
+    }
   </style>
 </head>
 <body>
@@ -946,9 +1041,9 @@
           </button>
         </nav>
         <div class="sidebar-channel-block">
-          <div class="sidebar-section-title"><span>KÊNH CỦA BẠN</span><button id="channelAddButton" type="button" aria-label="Tạo kênh" title="Kênh hiện tại"><svg class="icon"><use href="#i-plus"></use></svg></button></div>
-          <button class="channel-link" id="channelGeneral" type="button"><span class="channel-mark">#</span><span>phòng-chung</span></button>
-          <button class="channel-link" id="channelAnnouncements" type="button"><svg class="icon"><use href="#i-bell"></use></svg><span>thông-báo</span><span class="channel-unread" id="announcementUnread" hidden></span></button>
+          <div class="sidebar-section-title"><span>KÊNH CỦA BẠN</span><button id="channelAddButton" type="button" aria-label="Tạo kênh" title="Chỉ quản trị viên được tạo kênh" hidden><svg class="icon"><use href="#i-plus"></use></svg></button></div>
+          <div class="channel-list" id="channelList" aria-label="Danh sách kênh"></div>
+          <button class="channel-link announcements-link" id="channelAnnouncements" type="button"><svg class="icon"><use href="#i-bell"></use></svg><span>thông-báo</span><span class="channel-unread" id="announcementUnread" hidden></span></button>
         </div>
         <div class="sidebar-spacer"></div>
         <div class="sidebar-tip">
@@ -982,13 +1077,16 @@
           <section class="chat-panel" aria-label="Phòng trò chuyện chung">
             <div class="channel-toolbar">
               <div class="channel-title-group">
-                <div class="channel-symbol">#</div>
-                <div class="channel-title-copy"><h2>phòng-chung</h2><p><span class="small-online"></span><span id="channelMemberSummary">Nơi mọi người cùng trò chuyện</span></p></div>
+                <div class="channel-symbol" id="channelSymbol">#</div>
+                <div class="channel-title-copy"><h2 id="channelTitle">phòng-chung</h2><p><span class="small-online"></span><span id="channelMemberSummary">Nơi mọi người cùng trò chuyện</span></p></div>
               </div>
               <div class="channel-tools">
+                <select class="mobile-channel-select" id="mobileChannelSelect" aria-label="Chọn kênh"></select>
+                <button class="icon-button mobile-create-channel" id="mobileCreateChannelButton" type="button" title="Tạo kênh mới" aria-label="Tạo kênh mới" hidden><svg class="icon"><use href="#i-plus"></use></svg></button>
                 <div class="tool-avatars" id="headerAvatars" aria-hidden="true"></div>
                 <span class="tool-caption" id="headerMemberCount">0 thành viên</span>
                 <span class="tool-divider"></span>
+                <button class="icon-button clear-channel-button" id="clearChannelButton" type="button" title="Xóa toàn bộ tin nhắn trong kênh" aria-label="Xóa toàn bộ tin nhắn trong kênh" hidden><svg class="icon"><use href="#i-trash"></use></svg></button>
                 <button class="icon-button" id="searchMessagesButton" type="button" title="Tìm tin nhắn" aria-label="Tìm tin nhắn" aria-expanded="false"><svg class="icon"><use href="#i-search"></use></svg></button>
                 <button class="icon-button" id="jumpLatestButton" type="button" title="Tin nhắn mới nhất" aria-label="Đi tới tin nhắn mới nhất"><svg class="icon"><use href="#i-clock"></use></svg></button>
               </div>
@@ -1092,6 +1190,15 @@
     </aside>
   </div>
 
+  <div class="confirm-layer channel-dialog-layer" id="channelDialog" aria-hidden="true" hidden>
+    <form class="confirm-dialog channel-create-dialog" id="channelCreateForm" role="dialog" aria-modal="true" aria-labelledby="channelDialogTitle" aria-describedby="channelDialogDescription">
+      <div class="confirm-icon"><svg class="icon"><use href="#i-hash"></use></svg></div>
+      <h2 id="channelDialogTitle">Tạo kênh mới</h2>
+      <p id="channelDialogDescription">Kênh sẽ xuất hiện với mọi thành viên. Quyền tạo kênh được kiểm tra bằng Firebase.</p>
+      <div class="channel-name-field"><label for="channelNameInput">Tên kênh</label><div><span>#</span><input id="channelNameInput" name="channelName" type="text" maxlength="32" autocomplete="off" placeholder="ví dụ: hoi-dap" required></div><small id="channelNameHint">Chỉ dùng chữ, số và dấu gạch ngang.</small></div>
+      <div class="confirm-actions"><button class="dialog-button" id="cancelCreateChannelButton" type="button">Hủy</button><button class="dialog-button primary" id="createChannelSubmit" type="submit"><svg class="icon"><use href="#i-plus"></use></svg>Tạo kênh</button></div>
+    </form>
+  </div>
   <div class="confirm-layer" id="confirmLayer" aria-hidden="true">
     <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmDescription">
       <div class="confirm-icon"><svg class="icon" id="confirmIcon"><use href="#i-ban"></use></svg></div>
@@ -1114,8 +1221,9 @@
       /*
        * QUYỀN QUẢN TRỊ:
        * Vai trò được đọc từ Firebase: /admins/<UID> = true hoặc custom claim admin=true.
-       * Không có email/mật khẩu admin hardcode trong client. Firebase Security Rules vẫn phải
-       * bảo vệ việc đọc/ghi /admins, /memberEmails, /bans, messages và reactions.
+       * Không có email/mật khẩu admin hardcode trong client. Chỉ cấp role admin cho tài khoản
+       * được chỉ định tại Firebase. Security Rules phải bảo vệ /channels, /channelMessages,
+       * /admins, /memberEmails, /bans, /messages và /messageReactions.
        * Ban trong UI chặn quyền truy cập ứng dụng; vô hiệu hóa Firebase Auth cần Admin SDK.
        * Giới hạn một tài khoản/IP/thiết bị cần Firebase Auth blocking functions hoặc backend tin cậy;
        * trình duyệt tĩnh không thể thực thi giới hạn này an toàn.
@@ -1148,6 +1256,11 @@
         forgotPassword: $('#forgotPassword'), togglePassword: $('#togglePassword'), sidebarName: $('#sidebarName'), sidebarEmail: $('#sidebarEmail'),
         sidebarAvatar: $('#sidebarAvatar'), avatarFileInput: $('#avatarFileInput'), connectionPill: $('#connectionPill'), connectionLabel: $('#connectionLabel'),
         openAdminButton: $('#openAdminButton'), rolePill: $('#rolePill'), membersPanel: $('#membersPanel'), memberList: $('#memberList'),
+        channelList: $('#channelList'), channelAddButton: $('#channelAddButton'), mobileChannelSelect: $('#mobileChannelSelect'),
+        mobileCreateChannelButton: $('#mobileCreateChannelButton'), channelDialog: $('#channelDialog'), channelCreateForm: $('#channelCreateForm'),
+        channelNameInput: $('#channelNameInput'), cancelCreateChannelButton: $('#cancelCreateChannelButton'),
+        createChannelSubmit: $('#createChannelSubmit'), clearChannelButton: $('#clearChannelButton'), channelTitle: $('#channelTitle'),
+        channelMemberSummary: $('#channelMemberSummary'), channelSymbol: $('#channelSymbol'),
         adminOverlay: $('#adminOverlay'), adminMemberList: $('#adminMemberList'), adminMembersTab: $('#adminMembersTab'),
         adminAnnouncementsTab: $('#adminAnnouncementsTab'), adminMemberSearch: $('#adminMemberSearch'),
         announcementInput: $('#announcementInput'), publishAnnouncementButton: $('#publishAnnouncementButton'),
@@ -1166,6 +1279,8 @@
       let auth = null;
       let database = null;
       let messagesRef = null;
+      let generalMessagesRef = null;
+      let channelsRef = null;
       let membersRef = null;
       let memberEmailsRef = null;
       let presenceRef = null;
@@ -1182,7 +1297,10 @@
       let memberEmails = {};
       let presence = {};
       let bans = {};
+      let channels = {};
+      let activeChannelId = 'general';
       let messages = new Map();
+      let announcementMessages = new Map();
       let messageReactions = {};
       let reactionStops = new Map();
       let messageSearchQuery = '';
@@ -1193,6 +1311,8 @@
       let hasAdminMarker = false;
       let hasAdminClaim = false;
       let cleanupFns = [];
+      let channelCleanupFns = [];
+      let channelGeneration = 0;
       let stopAdminBanListener = null;
       let stopAdminEmailListener = null;
       let authGeneration = 0;
@@ -1444,27 +1564,37 @@
         }
       }
 
-      function subscribe(ref, eventName, callback, onError) {
+      function subscribe(ref, eventName, callback, onError, cleanupBucket = cleanupFns) {
         const cancel = (error) => {
           if (onError) onError(error);
           else showDatabaseError(error, 'Không thể tải dữ liệu realtime.');
         };
         ref.on(eventName, callback, cancel);
         const stop = () => ref.off(eventName, callback);
-        cleanupFns.push(stop);
+        cleanupBucket.push(stop);
         return stop;
+      }
+
+      function stopChannelRealtime() {
+        channelGeneration += 1;
+        channelCleanupFns.forEach((stop) => { try { stop(); } catch (_) {} });
+        channelCleanupFns = [];
+        reactionStops.clear();
+        messageReactions = {};
       }
 
       function cleanupRealtime() {
         cleanupFns.forEach((stop) => { try { stop(); } catch (_) {} });
         cleanupFns = [];
+        stopChannelRealtime();
         stopAdminBanListener = null;
         stopAdminEmailListener = null;
         hasAdminMarker = false;
         hasAdminClaim = false;
         messages.clear();
-        messageReactions = {};
-        reactionStops.clear();
+        announcementMessages.clear();
+        channels = {};
+        activeChannelId = 'general';
         members = {};
         memberEmails = {};
         presence = {};
@@ -1473,14 +1603,14 @@
         clearPendingImage();
       }
 
-      function syncReactionListeners(generation) {
+      function syncReactionListeners(generation, channelRun) {
         if (!messageReactionsRef) return;
         const activeIds = new Set(messages.keys());
         for (const [messageId, stop] of reactionStops) {
           if (!activeIds.has(messageId)) {
             stop();
-            const cleanupIndex = cleanupFns.indexOf(stop);
-            if (cleanupIndex !== -1) cleanupFns.splice(cleanupIndex, 1);
+            const cleanupIndex = channelCleanupFns.indexOf(stop);
+            if (cleanupIndex !== -1) channelCleanupFns.splice(cleanupIndex, 1);
             reactionStops.delete(messageId);
             delete messageReactions[messageId];
           }
@@ -1488,11 +1618,11 @@
         for (const messageId of activeIds) {
           if (reactionStops.has(messageId)) continue;
           const stop = subscribe(messageReactionsRef.child(messageId), 'value', (snapshot) => {
-            if (generation !== authGeneration) return;
+            if (generation !== authGeneration || channelRun !== channelGeneration) return;
             if (snapshot.exists()) messageReactions[messageId] = snapshot.val() || {};
             else delete messageReactions[messageId];
             renderAllMessages(false);
-          }, (error) => showDatabaseError(error, 'Không thể tải reaction. Hãy kiểm tra quyền /messageReactions.'));
+          }, (error) => showDatabaseError(error, 'Không thể tải reaction. Hãy kiểm tra quyền /messageReactions.'), channelCleanupFns);
           reactionStops.set(messageId, stop);
         }
       }
@@ -1512,6 +1642,10 @@
         isAdmin = next;
         els.openAdminButton.hidden = !isAdmin;
         els.rolePill.hidden = !isAdmin;
+        els.channelAddButton.hidden = !isAdmin;
+        $('#mobileCreateChannelButton').hidden = !isAdmin;
+        els.clearChannelButton.hidden = !isAdmin;
+        if (!isAdmin && !els.channelDialog.hidden) closeChannelDialog();
         if (isAdmin && bansRef && !stopAdminBanListener) {
           stopAdminBanListener = subscribe(bansRef, 'value', (snapshot) => {
             bans = snapshot.val() || {};
@@ -1536,6 +1670,273 @@
         renderMembers();
         renderAdminPanel();
         renderAllMessages(false);
+      }
+
+      function channelNameFor(channelId) {
+        if (channelId === 'general') return channels.general?.name || 'phòng-chung';
+        const entry = channels[channelId];
+        return typeof entry?.name === 'string' && entry.name.trim() ? entry.name : channelId;
+      }
+
+      function channelDescriptionFor(channelId) {
+        if (channelId === 'general') return channels.general?.description || 'Nơi mọi người cùng trò chuyện';
+        const entry = channels[channelId];
+        return typeof entry?.description === 'string' && entry.description.trim() ? entry.description : 'Kênh cộng đồng';
+      }
+
+      function renderChannelList() {
+        if (!channels.general) channels.general = { name: 'phòng-chung', description: 'Nơi mọi người cùng trò chuyện', system: true };
+        const entries = Object.entries(channels)
+          .filter(([id, value]) => id === 'general' || (value && typeof value === 'object'))
+          .sort(([idA], [idB]) => idA === 'general' ? -1 : idB === 'general' ? 1 : channelNameFor(idA).localeCompare(channelNameFor(idB), 'vi'));
+        const channelFragment = document.createDocumentFragment();
+        const selectFragment = document.createDocumentFragment();
+        entries.forEach(([id]) => {
+          const name = channelNameFor(id);
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = `channel-link${id === activeChannelId ? ' active' : ''}`;
+          button.dataset.channelId = id;
+          button.setAttribute('aria-current', String(id === activeChannelId));
+          button.title = `#${name}`;
+          button.append(textElement('span', 'channel-mark', '#'), textElement('span', 'channel-name', name));
+          channelFragment.appendChild(button);
+          const option = document.createElement('option');
+          option.value = id;
+          option.textContent = `# ${name}`;
+          selectFragment.appendChild(option);
+        });
+        const announcementsOption = document.createElement('option');
+        announcementsOption.value = '__announcements';
+        announcementsOption.textContent = 'Thông báo';
+        selectFragment.appendChild(announcementsOption);
+        els.channelList.replaceChildren(channelFragment);
+        els.mobileChannelSelect.replaceChildren(selectFragment);
+        els.mobileChannelSelect.value = activeChannelId;
+      }
+
+      function updateActiveChannelUI() {
+        const name = channelNameFor(activeChannelId);
+        els.channelTitle.textContent = name;
+        els.channelSymbol.textContent = '#';
+        els.channelMemberSummary.textContent = channelDescriptionFor(activeChannelId);
+        els.chatMessages.setAttribute('aria-label', `Tin nhắn trong kênh ${name}`);
+        els.messageInput.placeholder = `Nhắn tin trong #${name}...`;
+        els.chatEmptyState.querySelector('h3').textContent = `Bắt đầu trò chuyện tại #${name}`;
+        els.chatEmptyState.querySelector('p').textContent = channelDescriptionFor(activeChannelId);
+        els.mobileChannelSelect.value = activeChannelId;
+        $$('.channel-link[data-channel-id]', els.channelList).forEach((button) => {
+          const active = button.dataset.channelId === activeChannelId;
+          button.classList.toggle('active', active);
+          button.setAttribute('aria-current', String(active));
+        });
+        els.clearChannelButton.title = `Xóa toàn bộ tin nhắn trong #${name}`;
+        els.clearChannelButton.setAttribute('aria-label', `Xóa toàn bộ tin nhắn trong #${name}`);
+      }
+
+      function openChannelDialog() {
+        if (!isAdmin || !currentUser) {
+          toast('Chỉ quản trị viên được cấp quyền trên Firebase mới có thể tạo kênh.', 'error');
+          return;
+        }
+        els.channelNameInput.value = '';
+        els.channelDialog.hidden = false;
+        els.channelDialog.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => els.channelDialog.classList.add('open'));
+        document.body.classList.add('body-locked');
+        window.setTimeout(() => els.channelNameInput.focus(), 30);
+      }
+
+      function closeChannelDialog() {
+        els.channelDialog.classList.remove('open');
+        els.channelDialog.setAttribute('aria-hidden', 'true');
+        els.channelDialog.hidden = true;
+        if (!els.confirmLayer.classList.contains('open') && !els.adminOverlay.classList.contains('open')) document.body.classList.remove('body-locked');
+      }
+
+      function normalizeChannelId(value) {
+        return String(value || '').trim().toLocaleLowerCase('vi')
+          .replace(/đ/g, 'd')
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 32).replace(/-+$/g, '');
+      }
+
+      async function createChannel(event) {
+        event.preventDefault();
+        if (!isAdmin || !currentUser || !channelsRef) {
+          toast('Bạn không có quyền tạo kênh.', 'error');
+          return;
+        }
+        const channelId = normalizeChannelId(els.channelNameInput.value);
+        if (!channelId) {
+          toast('Nhập tên kênh gồm chữ, số hoặc dấu gạch ngang.', 'error');
+          els.channelNameInput.focus();
+          return;
+        }
+        if (['general', 'thong-bao', 'constructor', 'prototype'].includes(channelId)) {
+          toast('Tên này đã được dành riêng cho kênh hệ thống.', 'error');
+          return;
+        }
+        if (Object.keys(channels).length >= 50) {
+          toast('Không gian đã đạt giới hạn 50 kênh.', 'error');
+          return;
+        }
+        const user = currentUser;
+        const channel = { name: channelId, description: 'Kênh cộng đồng', createdBy: user.uid, createdAt: currentTimestamp() };
+        els.createChannelSubmit.disabled = true;
+        try {
+          const result = await channelsRef.child(channelId).transaction((existing) => existing === null ? channel : undefined);
+          if (!result.committed) {
+            toast('Tên kênh này đã tồn tại. Hãy chọn tên khác.', 'error');
+            els.channelNameInput.focus();
+            return;
+          }
+          if (currentUser?.uid !== user.uid) return;
+          channels[channelId] = result.snapshot.val() || channel;
+          renderChannelList();
+          closeChannelDialog();
+          toast(`Đã tạo #${channelId}.`, 'success');
+          if (currentUser?.uid === user.uid) await switchChannel(channelId);
+        } catch (error) {
+          showDatabaseError(error, 'Không thể tạo kênh. Hãy kiểm tra quyền ghi /channels trong Firebase Rules.');
+        } finally {
+          els.createChannelSubmit.disabled = false;
+        }
+      }
+
+      async function switchChannel(channelId, { skipConfirm = false, force = false } = {}) {
+        if (!currentUser || !database) return false;
+        if (channelId !== 'general' && (!Object.prototype.hasOwnProperty.call(channels, channelId) || !channels[channelId] || typeof channels[channelId] !== 'object')) return false;
+        if (!force && activeChannelId === channelId) return true;
+        const requestedUser = currentUser;
+        const requestedGeneration = authGeneration;
+        if (isSendingMessage) {
+          toast('Đợi tin nhắn đang gửi xong rồi mới đổi kênh nhé.', 'info');
+          return false;
+        }
+        const hasDraft = Boolean(els.messageInput.value.trim() || pendingImageFile || replyTarget);
+        if (!skipConfirm && hasDraft) {
+          const result = await openConfirm({
+            title: 'Bỏ bản nháp và đổi kênh?',
+            description: 'Nội dung, ảnh đính kèm hoặc trả lời đang soạn sẽ bị xóa khi chuyển sang kênh khác.',
+            acceptLabel: 'Đổi kênh', tone: 'primary', iconName: 'hash'
+          });
+          if (!result) return false;
+        }
+        if (currentUser?.uid !== requestedUser.uid || authGeneration !== requestedGeneration) return false;
+        const user = requestedUser;
+        const generation = requestedGeneration;
+        const ref = channelId === 'general' ? generalMessagesRef : database.ref(`channelMessages/${channelId}`);
+        if (!ref) return false;
+        stopChannelRealtime();
+        const channelRun = ++channelGeneration;
+        activeChannelId = channelId;
+        messagesRef = ref;
+        messages.clear();
+        messageReactions = {};
+        clearReplyTarget();
+        clearPendingImage();
+        els.messageInput.value = '';
+        messageSearchQuery = '';
+        els.messageSearchInput.value = '';
+        els.messageSearchBar.hidden = true;
+        $('#searchMessagesButton').setAttribute('aria-expanded', 'false');
+        announcementDismissedId = null;
+        renderChannelList();
+        updateActiveChannelUI();
+        renderAllMessages(false);
+        updateAnnouncementBanner();
+        await startChannelMessageListeners(user, generation, channelId, channelRun, ref);
+        return true;
+      }
+
+      async function startChannelMessageListeners(user, generation, channelId, channelRun, channelRef) {
+        const messageQuery = channelRef.orderByChild('timestamp').limitToLast(100);
+        const isCurrent = () => generation === authGeneration && channelRun === channelGeneration && activeChannelId === channelId && currentUser?.uid === user.uid;
+        els.chatMessages.replaceChildren(els.chatEmptyState);
+        try {
+          const snapshot = await messageQuery.once('value');
+          if (!isCurrent()) return;
+          messages.clear();
+          snapshot.forEach((child) => messages.set(child.key, child.val() || {}));
+          renderAllMessages(true);
+          updateAnnouncementBanner();
+          renderAdminPanel();
+          syncReactionListeners(generation, channelRun);
+          subscribe(messageQuery, 'child_added', (child) => {
+            if (!isCurrent()) return;
+            const isNew = !messages.has(child.key);
+            messages.set(child.key, child.val() || {});
+            if (isNew) {
+              renderAllMessages(false, true);
+              syncReactionListeners(generation, channelRun);
+            }
+            updateAnnouncementBanner();
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, `Không thể tải tin nhắn trong #${channelNameFor(channelId)}.`), channelCleanupFns);
+          subscribe(messageQuery, 'child_changed', (child) => {
+            if (!isCurrent()) return;
+            messages.set(child.key, child.val() || {});
+            renderAllMessages(false);
+            updateAnnouncementBanner();
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, 'Không thể cập nhật tin nhắn.'), channelCleanupFns);
+          subscribe(messageQuery, 'child_removed', (child) => {
+            if (!isCurrent()) return;
+            messages.delete(child.key);
+            syncReactionListeners(generation, channelRun);
+            renderAllMessages(false);
+            updateAnnouncementBanner();
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, 'Không thể đồng bộ thao tác xóa tin nhắn.'), channelCleanupFns);
+        } catch (error) {
+          if (!isCurrent()) return;
+          showDatabaseError(error, 'Không thể tải tin nhắn. Kiểm tra quyền đọc kênh trong Firebase.');
+          renderAllMessages(true);
+        }
+      }
+
+      function startAnnouncementListeners(user, generation) {
+        const announcementQuery = generalMessagesRef.orderByChild('timestamp').limitToLast(100);
+        const isCurrent = () => generation === authGeneration && currentUser?.uid === user.uid;
+        announcementQuery.once('value').then((snapshot) => {
+          if (!isCurrent()) return;
+          announcementMessages.clear();
+          snapshot.forEach((child) => {
+            const data = child.val() || {};
+            if (data.kind === 'announcement') announcementMessages.set(child.key, data);
+          });
+          updateAnnouncementBanner();
+          renderAdminPanel();
+          subscribe(announcementQuery, 'child_added', (child) => {
+            if (!isCurrent()) return;
+            const data = child.val() || {};
+            if (data.kind !== 'announcement') return;
+            announcementMessages.set(child.key, data);
+            updateAnnouncementBanner();
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, 'Không thể đồng bộ thông báo máy chủ.'));
+          subscribe(announcementQuery, 'child_changed', (child) => {
+            if (!isCurrent()) return;
+            const wasAnnouncement = announcementMessages.has(child.key);
+            const data = child.val() || {};
+            if (data.kind === 'announcement') announcementMessages.set(child.key, data);
+            else announcementMessages.delete(child.key);
+            if (wasAnnouncement || data.kind === 'announcement') {
+              updateAnnouncementBanner();
+              renderAdminPanel();
+            }
+          }, (error) => showDatabaseError(error, 'Không thể cập nhật thông báo máy chủ.'));
+          subscribe(announcementQuery, 'child_removed', (child) => {
+            if (!isCurrent() || !announcementMessages.delete(child.key)) return;
+            updateAnnouncementBanner();
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, 'Không thể đồng bộ thao tác xóa thông báo.'));
+        }).catch((error) => {
+          if (isCurrent()) showDatabaseError(error, 'Không thể tải thông báo trong /messages.');
+        });
       }
 
       async function enterWorkspace(user, generation) {
@@ -1570,6 +1971,7 @@
         const generation = ++authGeneration;
         const previousUid = currentUser?.uid || null;
         cleanupRealtime();
+        closeChannelDialog();
         currentUser = user || null;
         if (previousUid !== (currentUser?.uid || null)) els.messageInput.value = '';
         updateMessageComposer();
@@ -1603,46 +2005,21 @@
       }
 
       function startRealtimeListeners(user, generation) {
-        const messageQuery = messagesRef.orderByChild('timestamp').limitToLast(100);
-        els.chatMessages.replaceChildren(els.chatEmptyState);
-        messageQuery.once('value').then((snapshot) => {
+        channels = Object.create(null);
+        channels.general = { name: 'phòng-chung', description: 'Nơi mọi người cùng trò chuyện', system: true };
+        renderChannelList();
+        void switchChannel('general', { skipConfirm: true, force: true });
+        startAnnouncementListeners(user, generation);
+        subscribe(channelsRef, 'value', (snapshot) => {
           if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
-          messages.clear();
-          snapshot.forEach((child) => messages.set(child.key, child.val() || {}));
-          renderAllMessages(true);
-          updateAnnouncementBanner();
-          renderAdminPanel();
-          syncReactionListeners(generation);
-          subscribe(messageQuery, 'child_added', (child) => {
-            if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
-            const isNew = !messages.has(child.key);
-            messages.set(child.key, child.val() || {});
-            if (isNew) {
-              renderAllMessages(false, true);
-              syncReactionListeners(generation);
-            }
-            updateAnnouncementBanner();
-            renderAdminPanel();
-          }, (error) => showDatabaseError(error, 'Không thể tải tin nhắn.'));
-          subscribe(messageQuery, 'child_changed', (child) => {
-            if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
-            messages.set(child.key, child.val() || {});
-            renderAllMessages(false);
-            updateAnnouncementBanner();
-            renderAdminPanel();
-          }, (error) => showDatabaseError(error, 'Không thể cập nhật tin nhắn.'));
-          subscribe(messageQuery, 'child_removed', (child) => {
-            if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
-            messages.delete(child.key);
-            syncReactionListeners(generation);
-            renderAllMessages(false);
-            updateAnnouncementBanner();
-            renderAdminPanel();
-          }, (error) => showDatabaseError(error, 'Không thể đồng bộ thao tác xóa tin nhắn.'));
-        }).catch((error) => {
-          showDatabaseError(error, 'Không thể tải tin nhắn. Kiểm tra quyền đọc /messages trong Firebase.');
-          if (generation === authGeneration) renderAllMessages(true);
-        });
+          const savedChannels = snapshot.val() || {};
+          channels = Object.assign(Object.create(null), savedChannels);
+          if (!channels.general) channels.general = { name: 'phòng-chung', description: 'Nơi mọi người cùng trò chuyện', system: true };
+          renderChannelList();
+          if (activeChannelId !== 'general' && !Object.prototype.hasOwnProperty.call(channels, activeChannelId)) {
+            void switchChannel('general', { skipConfirm: true, force: true });
+          } else updateActiveChannelUI();
+        }, (error) => showDatabaseError(error, 'Không thể tải danh sách kênh trong /channels.'));
 
         subscribe(membersRef, 'value', (snapshot) => {
           if (generation !== authGeneration) return;
@@ -2026,8 +2403,7 @@
       }
 
       function updateAnnouncementBanner() {
-        const latest = Array.from(messages.entries())
-          .filter(([, data]) => data?.kind === 'announcement')
+        const latest = Array.from(announcementMessages.entries())
           .sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0];
         if (!latest) {
           els.announcementBanner.hidden = true;
@@ -2151,8 +2527,7 @@
         else filtered.forEach(([uid, member]) => list.appendChild(makeMemberRow(uid, member, true)));
         els.adminMemberList.replaceChildren(list);
 
-        const announcementEntries = Array.from(messages.entries())
-          .filter(([, message]) => message?.kind === 'announcement')
+        const announcementEntries = Array.from(announcementMessages.entries())
           .sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]));
         const announcementList = document.createDocumentFragment();
         if (!announcementEntries.length) {
@@ -2293,7 +2668,7 @@
         }
         els.publishAnnouncementButton.disabled = true;
         try {
-          await messagesRef.push({
+          await generalMessagesRef.push({
             uid: currentUser.uid,
             name: displayNameFor(currentUser).slice(0, 32),
             text,
@@ -2339,10 +2714,12 @@
       }
 
       async function deleteMessage(messageId) {
-        if (!isAdmin || !messagesRef) return;
-        const data = messages.get(messageId);
+        if (!isAdmin) return;
+        const data = messages.get(messageId) || announcementMessages.get(messageId);
         if (!data) return;
         const isAnnouncement = data.kind === 'announcement';
+        const targetRef = isAnnouncement ? generalMessagesRef : messagesRef;
+        if (!targetRef) return;
         const confirm = await openConfirm({
           title: isAnnouncement ? 'Xóa thông báo này?' : 'Xóa tin nhắn này?',
           description: 'Thao tác này sẽ xóa nội dung khỏi máy chủ và tất cả thành viên sẽ không còn nhìn thấy tin nhắn.',
@@ -2352,11 +2729,54 @@
         });
         if (!confirm) return;
         try {
-          await messagesRef.child(messageId).remove();
+          await targetRef.child(messageId).remove();
           await messageReactionsRef.child(messageId).remove().catch((error) => console.warn('Không dọn được reactions cũ:', error));
           toast(isAnnouncement ? 'Đã xóa thông báo.' : 'Đã xóa tin nhắn.', 'success');
         } catch (error) {
           showDatabaseError(error, 'Không thể xóa nội dung. Hãy kiểm tra quyền admin trong Firebase.');
+        }
+      }
+
+      async function clearCurrentChannel() {
+        if (isSendingMessage) {
+          toast('Đợi tin nhắn đang gửi xong rồi mới dọn kênh nhé.', 'info');
+          return;
+        }
+        if (!isAdmin || !messagesRef) {
+          toast('Bạn không có quyền dọn toàn bộ tin nhắn.', 'error');
+          return;
+        }
+        const name = channelNameFor(activeChannelId);
+        const confirm = await openConfirm({
+          title: `Xóa toàn bộ #${name}?`,
+          description: 'Toàn bộ lịch sử trong kênh này sẽ bị xóa với mọi thành viên. Thao tác này không thể hoàn tác.',
+          acceptLabel: 'Xóa toàn bộ', tone: 'danger', iconName: 'trash'
+        });
+        if (!confirm) return;
+        try {
+          const snapshot = await messagesRef.once('value');
+          const ids = [];
+          snapshot.forEach((child) => ids.push(child.key));
+          await messagesRef.remove();
+          let failedReactionCleanups = 0;
+          for (let index = 0; index < ids.length; index += 100) {
+            const chunk = ids.slice(index, index + 100);
+            const results = await Promise.allSettled(chunk.map((id) => messageReactionsRef.child(id).remove()));
+            failedReactionCleanups += results.filter((result) => result.status === 'rejected').length;
+          }
+          messages.clear();
+          messageReactions = {};
+          renderAllMessages(true);
+          if (activeChannelId === 'general') {
+            announcementMessages.clear();
+            updateAnnouncementBanner();
+          }
+          renderAdminPanel();
+          toast(failedReactionCleanups
+            ? `Đã xóa ${ids.length} tin nhắn. Một số reaction cũ chưa được dọn; kiểm tra Rules.`
+            : `Đã xóa ${ids.length} tin nhắn trong #${name}.`, failedReactionCleanups ? 'error' : 'success');
+        } catch (error) {
+          showDatabaseError(error, 'Không thể xóa toàn bộ kênh. Kiểm tra quyền ghi của admin trong Firebase Rules.');
         }
       }
 
@@ -2514,9 +2934,29 @@
           else els.memberList.scrollTop = 0;
         });
         $('#mobileMembersButton').addEventListener('click', toggleMembersPanel);
-        $('#channelGeneral').addEventListener('click', () => els.messageInput.focus());
-        $('#channelAnnouncements').addEventListener('click', () => {
-          const latestId = Array.from(messages.entries()).filter(([, m]) => m.kind === 'announcement').sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0]?.[0];
+        els.channelList.addEventListener('click', (event) => {
+          const target = event.target instanceof Element ? event.target.closest('[data-channel-id]') : null;
+          if (!target) return;
+          void switchChannel(target.dataset.channelId);
+        });
+        els.mobileChannelSelect.addEventListener('change', () => {
+          if (els.mobileChannelSelect.value === '__announcements') {
+            els.mobileChannelSelect.value = activeChannelId;
+            $('#channelAnnouncements').click();
+            return;
+          }
+          void switchChannel(els.mobileChannelSelect.value);
+        });
+        els.channelAddButton.addEventListener('click', openChannelDialog);
+        $('#mobileCreateChannelButton').addEventListener('click', openChannelDialog);
+        els.channelCreateForm.addEventListener('submit', createChannel);
+        els.cancelCreateChannelButton.addEventListener('click', closeChannelDialog);
+        els.channelDialog.addEventListener('click', (event) => { if (event.target === els.channelDialog) closeChannelDialog(); });
+        els.clearChannelButton.addEventListener('click', () => { void clearCurrentChannel(); });
+        $('#channelAnnouncements').addEventListener('click', async () => {
+          const switched = await switchChannel('general');
+          if (!switched) return;
+          const latestId = Array.from(announcementMessages.entries()).sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0]?.[0];
           if (latestId) document.querySelector(`[data-message-id="${CSS.escape(latestId)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           else toast('Chưa có thông báo mới.', 'info');
         });
@@ -2538,7 +2978,7 @@
         });
         $('#jumpLatestButton').addEventListener('click', () => els.chatMessages.scrollTo({ top: els.chatMessages.scrollHeight, behavior: 'smooth' }));
         $('#closeAnnouncementBanner').addEventListener('click', () => {
-          const latest = Array.from(messages.entries()).filter(([, m]) => m.kind === 'announcement').sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0];
+          const latest = Array.from(announcementMessages.entries()).sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0];
           announcementDismissedId = latest?.[0] || null;
           els.announcementBanner.hidden = true;
         });
@@ -2587,12 +3027,13 @@
         els.confirmLayer.addEventListener('click', (event) => { if (event.target === els.confirmLayer) closeConfirm(null); });
         els.adminOverlay.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeAdmin(); });
         document.addEventListener('keydown', (event) => {
-          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && currentUser && !els.adminOverlay.classList.contains('open') && !els.confirmLayer.classList.contains('open')) {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && currentUser && !els.adminOverlay.classList.contains('open') && !els.confirmLayer.classList.contains('open') && els.channelDialog.hidden) {
             event.preventDefault();
             setMessageSearchOpen(true);
           }
           if (event.key === 'Escape') {
-            if (els.confirmLayer.classList.contains('open')) closeConfirm(null);
+            if (!els.channelDialog.hidden) closeChannelDialog();
+            else if (els.confirmLayer.classList.contains('open')) closeConfirm(null);
             else if (els.adminOverlay.classList.contains('open')) closeAdmin();
             else if (!els.messageSearchBar.hidden) setMessageSearchOpen(false);
             else els.membersPanel.classList.remove('open');
@@ -2617,7 +3058,9 @@
           if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
           auth = firebase.auth();
           database = firebase.database();
-          messagesRef = database.ref('messages');
+          generalMessagesRef = database.ref('messages');
+          messagesRef = generalMessagesRef;
+          channelsRef = database.ref('channels');
           membersRef = database.ref('members');
           memberEmailsRef = database.ref('memberEmails');
           presenceRef = database.ref('presence');
