@@ -1,70 +1,1053 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Online Realtime - Có Đăng Nhập</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #121212; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
-        
-        /* Form Auth */
-        .auth-container { width: 100%; max-width: 400px; background: #1e1e1e; padding: 25px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 8px 24px rgba(0,0,0,0.5); text-align: center; }
-        .auth-container h2 { margin-bottom: 20px; color: #4facfe; }
-        .auth-container input { width: 100%; padding: 12px; margin-bottom: 12px; background: #2a2a2a; border: 1px solid #444; color: #fff; border-radius: 6px; outline: none; }
-        .auth-container button { width: 100%; padding: 12px; background: linear-gradient(135deg, #00f2fe, #4facfe); border: none; color: #fff; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        .auth-container p { margin-top: 15px; font-size: 0.85rem; color: #aaa; cursor: pointer; }
-        .auth-container p span { color: #00f2fe; text-decoration: underline; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="Chạm — không gian trò chuyện riêng tư, realtime và thân thiện.">
+  <title>Chạm — Không gian trò chuyện</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #0a0e1b;
+      --surface: #111729;
+      --surface-2: #171f34;
+      --surface-3: #202a43;
+      --line: rgba(180, 195, 232, .12);
+      --line-strong: rgba(180, 195, 232, .2);
+      --text: #eff3ff;
+      --muted: #9ba8c2;
+      --muted-2: #74809b;
+      --purple: #9a8cff;
+      --purple-strong: #8170ff;
+      --mint: #62e4c1;
+      --gold: #ffcf7a;
+      --red: #ff7188;
+      --shadow: 0 28px 90px rgba(0, 0, 0, .35);
+      --ease: cubic-bezier(.2, .75, .25, 1);
+    }
 
-        /* Giao diện Chat */
-        .chat-container { width: 100%; max-width: 500px; background: #1e1e1e; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.5); border: 1px solid #333; display: none; flex-direction: column; height: 80vh; }
-        .chat-header { background: #252525; padding: 12px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-        .chat-header .user-info { font-size: 0.9rem; color: #4facfe; font-weight: bold; }
-        .chat-header button { background: #ff4757; padding: 6px 12px; font-size: 0.8rem; border-radius: 4px; border: none; color: #fff; cursor: pointer; font-weight: bold; }
-        
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .message-item { background: #2a2a2a; padding: 10px 14px; border-radius: 8px; max-width: 80%; word-break: break-word; }
-        .message-item.my-msg { align-self: flex-end; background: #1e3c72; }
-        .message-item .user { font-size: 0.75rem; color: #00f2fe; margin-bottom: 3px; font-weight: 600; }
-        .message-item .text { font-size: 0.95rem; }
+    * { box-sizing: border-box; }
+    html { min-width: 320px; min-height: 100%; scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 13% 8%, rgba(103, 87, 219, .16), transparent 32%),
+        radial-gradient(ellipse at 91% 88%, rgba(45, 185, 164, .09), transparent 28%),
+        var(--page);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(154, 140, 255, .48);
+      outline-offset: 2px;
+    }
+    [hidden] { display: none !important; }
+    .icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .icon { display: inline-block; width: 20px; height: 20px; flex: 0 0 auto; }
+    .muted { color: var(--muted); }
 
-        .chat-input-area { display: flex; padding: 12px; background: #252525; gap: 8px; border-top: 1px solid #333; }
-        .chat-input-area input { flex: 1; background: #181818; border: 1px solid #444; color: #fff; padding: 10px 12px; border-radius: 6px; outline: none; }
-        .chat-input-area button { background: linear-gradient(135deg, #00f2fe, #4facfe); border: none; color: #fff; padding: 10px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    </style>
+    /* ───────────────────────── Authentication ───────────────────────── */
+    .auth-screen {
+      position: relative;
+      display: flex;
+      min-height: 100vh;
+      min-height: 100dvh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 34px 24px;
+      overflow-y: auto;
+      animation: screen-in .55s var(--ease) both;
+    }
+    .auth-screen::before, .auth-screen::after {
+      position: fixed;
+      z-index: -1;
+      width: 460px;
+      height: 460px;
+      border: 1px solid rgba(167, 155, 255, .08);
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+    .auth-screen::before { top: -255px; right: -100px; box-shadow: 0 0 0 55px rgba(167, 155, 255, .018), 0 0 0 110px rgba(167, 155, 255, .012); }
+    .auth-screen::after { bottom: -340px; left: -175px; width: 590px; height: 590px; border-color: rgba(98, 228, 193, .07); }
+    .auth-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(390px, .88fr);
+      width: min(1100px, 100%);
+      min-height: 660px;
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: 30px;
+      background: rgba(16, 22, 39, .88);
+      box-shadow: var(--shadow), inset 0 1px rgba(255,255,255,.035);
+      backdrop-filter: blur(22px);
+      animation: card-in .75s var(--ease) both;
+    }
+    .auth-showcase {
+      position: relative;
+      display: flex;
+      min-height: 100%;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 42px 46px 30px;
+      background:
+        radial-gradient(ellipse at 15% 72%, rgba(73, 212, 196, .13), transparent 36%),
+        radial-gradient(ellipse at 85% 20%, rgba(165, 146, 255, .22), transparent 40%),
+        linear-gradient(145deg, #1c2340 0%, #191d35 45%, #121a2b 100%);
+    }
+    .auth-showcase::before {
+      position: absolute;
+      top: 112px;
+      left: -30px;
+      width: 520px;
+      height: 520px;
+      border: 1px solid rgba(197, 189, 255, .08);
+      border-radius: 50%;
+      box-shadow: 0 0 0 48px rgba(197, 189, 255, .018), 0 0 0 96px rgba(197, 189, 255, .012);
+      content: "";
+      pointer-events: none;
+    }
+    .brand-lockup { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 15px;
+      background: linear-gradient(145deg, #a99aff, #786aff);
+      box-shadow: 0 8px 24px rgba(120, 106, 255, .32), inset 0 1px rgba(255,255,255,.35);
+      color: #fff;
+    }
+    .brand-mark .icon { width: 23px; height: 23px; }
+    .brand-name { display: block; font-size: 19px; font-weight: 760; letter-spacing: -.045em; line-height: 1.1; }
+    .brand-caption { display: block; margin-top: 4px; color: #aab2ce; font-size: 8px; font-weight: 750; letter-spacing: .19em; }
+    .showcase-copy { position: relative; z-index: 1; max-width: 500px; margin-top: 74px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 16px;
+      color: #beb5ff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { width: 21px; height: 1px; background: currentColor; content: ""; }
+    .showcase-copy h1 {
+      max-width: 470px;
+      margin: 0;
+      font-size: clamp(36px, 4.25vw, 51px);
+      font-weight: 730;
+      letter-spacing: -.055em;
+      line-height: 1.12;
+    }
+    .showcase-copy h1 em { color: #a99aff; font-style: normal; }
+    .showcase-copy > p { max-width: 410px; margin: 18px 0 0; color: #b5bfd7; font-size: 14px; line-height: 1.8; }
+    .orbit-scene { position: relative; min-height: 175px; flex: 1; margin-top: 12px; }
+    .orbit-ring {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 280px;
+      height: 150px;
+      transform: translateX(-50%) rotate(-12deg);
+      border: 1px solid rgba(192, 181, 255, .22);
+      border-radius: 50%;
+      animation: orbit-drift 8s ease-in-out infinite alternate;
+    }
+    .orbit-ring::before, .orbit-ring::after { position: absolute; border: 1px solid rgba(192, 181, 255, .11); border-radius: 50%; content: ""; }
+    .orbit-ring::before { inset: 15px 35px; transform: rotate(28deg); }
+    .orbit-ring::after { inset: -20px 65px; transform: rotate(-44deg); }
+    .orbit-core {
+      position: absolute;
+      top: 55px;
+      left: 50%;
+      display: grid;
+      width: 61px;
+      height: 61px;
+      transform: translateX(-50%);
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.32);
+      border-radius: 22px;
+      background: linear-gradient(145deg, #ad9aff, #7669ee);
+      box-shadow: 0 12px 42px rgba(119, 105, 238, .45), inset 0 1px rgba(255,255,255,.38);
+      animation: float 4s ease-in-out infinite;
+    }
+    .orbit-core .icon { width: 30px; height: 30px; }
+    .orbit-particle { position: absolute; z-index: 1; display: grid; width: 35px; height: 35px; place-items: center; border: 1px solid rgba(255,255,255,.14); border-radius: 13px; background: rgba(39, 47, 77, .88); color: #d9d2ff; box-shadow: 0 8px 22px rgba(0,0,0,.2); }
+    .orbit-particle .icon { width: 17px; height: 17px; }
+    .particle-one { top: 9px; left: calc(50% - 151px); animation: float 4.8s ease-in-out infinite .3s; }
+    .particle-two { top: 85px; right: calc(50% - 156px); color: #86efd3; animation: float 5.1s ease-in-out infinite .7s; }
+    .particle-three { top: 115px; left: calc(50% - 105px); color: #ffda96; animation: float 4.5s ease-in-out infinite 1s; }
+    .chat-float {
+      position: absolute;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      background: rgba(29, 38, 65, .9);
+      box-shadow: 0 13px 30px rgba(0,0,0,.22);
+      color: #dce3fa;
+      font-size: 10px;
+      font-weight: 650;
+      backdrop-filter: blur(10px);
+      animation: float 5s ease-in-out infinite;
+    }
+    .chat-float .mini-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 12px rgba(98,228,193,.7); }
+    .float-left { top: 33px; left: calc(50% - 188px); }
+    .float-right { right: calc(50% - 187px); bottom: 11px; animation-delay: .8s; }
+    .showcase-footer { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 14px; color: #8792b0; font-size: 10px; }
+    .secure-note { display: inline-flex; align-items: center; gap: 7px; }
+    .secure-note .icon { width: 14px; height: 14px; color: #93e5ce; }
+    .showcase-footer .online-note { color: #c4cce1; }
+
+    .auth-panel { display: flex; flex-direction: column; justify-content: center; padding: 50px clamp(35px, 5vw, 66px); background: rgba(13, 18, 32, .78); }
+    .mobile-brand { display: none; margin-bottom: 34px; }
+    .auth-heading { margin-bottom: 29px; }
+    .auth-heading .eyebrow { margin-bottom: 11px; color: var(--mint); font-size: 9px; }
+    .auth-heading h2 { margin: 0; font-size: clamp(29px, 3vw, 35px); font-weight: 730; letter-spacing: -.05em; }
+    .auth-heading p:last-child { margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .auth-form { display: grid; gap: 17px; }
+    .auth-form.mode-pulse { animation: form-switch .3s var(--ease) both; }
+    .form-field { min-width: 0; animation: field-in .36s var(--ease) both; }
+    .field-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .field-heading label, .form-field > label { display: block; color: #d3dbef; font-size: 11px; font-weight: 690; }
+    .text-button { padding: 0; border: 0; background: transparent; color: #a99aff; cursor: pointer; font-size: 10px; font-weight: 700; transition: color .18s ease; }
+    .text-button:hover { color: #cec6ff; }
+    .field-shell { position: relative; display: flex; align-items: center; min-width: 0; }
+    .field-shell > .icon { position: absolute; left: 14px; width: 17px; height: 17px; color: #7f8ba6; pointer-events: none; }
+    .field-shell input {
+      width: 100%;
+      height: 49px;
+      padding: 0 46px 0 42px;
+      border: 1px solid rgba(168, 183, 219, .14);
+      border-radius: 12px;
+      outline: none;
+      background: rgba(27, 35, 56, .72);
+      color: var(--text);
+      font-size: 12px;
+      transition: border .2s, background .2s, box-shadow .2s;
+    }
+    .field-shell input::placeholder { color: #73809a; }
+    .field-shell input:focus { border-color: rgba(154,140,255,.72); background: rgba(31, 40, 65, .9); box-shadow: 0 0 0 4px rgba(154,140,255,.1); }
+    .field-action { position: absolute; right: 9px; display: grid; width: 31px; height: 31px; place-items: center; border: 0; border-radius: 8px; background: transparent; color: #8290ac; cursor: pointer; transition: color .18s, background .18s; }
+    .field-action:hover { background: rgba(255,255,255,.06); color: #e7ebf8; }
+    .field-action .icon { width: 16px; height: 16px; }
+    .auth-notice { display: flex; align-items: flex-start; gap: 9px; padding: 11px 12px; border: 1px solid rgba(255,113,136,.2); border-radius: 11px; background: rgba(255,113,136,.075); color: #ffc0ca; font-size: 11px; line-height: 1.5; animation: field-in .25s var(--ease) both; }
+    .auth-notice.success { border-color: rgba(98,228,193,.2); background: rgba(98,228,193,.07); color: #acf4df; }
+    .auth-notice.info { border-color: rgba(154,140,255,.2); background: rgba(154,140,255,.08); color: #d2cbff; }
+    .auth-notice .icon { width: 15px; height: 15px; margin-top: 1px; }
+    .auth-submit {
+      display: flex;
+      width: 100%;
+      min-height: 50px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin-top: 2px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 12px;
+      background: linear-gradient(110deg, #9b8cff, #7968f0 72%, #7262e5);
+      box-shadow: 0 10px 26px rgba(111, 94, 227, .22), inset 0 1px rgba(255,255,255,.32);
+      color: white;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 760;
+      transition: transform .2s var(--ease), box-shadow .2s, filter .2s;
+    }
+    .auth-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(111, 94, 227, .31), inset 0 1px rgba(255,255,255,.32); filter: brightness(1.06); }
+    .auth-submit:active:not(:disabled) { transform: translateY(0); }
+    .auth-submit:disabled { cursor: wait; opacity: .75; }
+    .auth-submit .icon { width: 17px; height: 17px; }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; }
+    .auth-switch { margin: 22px 0 0; color: var(--muted); text-align: center; font-size: 11px; }
+    .auth-switch button { padding: 0; border: 0; background: transparent; color: #b4aaff; cursor: pointer; font-size: inherit; font-weight: 730; }
+    .auth-switch button:hover { color: #d4ceff; }
+    .auth-divider { display: flex; align-items: center; gap: 12px; margin: 25px 0 16px; color: #707d97; font-size: 9px; font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
+    .auth-divider::before, .auth-divider::after { height: 1px; flex: 1; background: var(--line); content: ""; }
+    .auth-footnote { display: flex; align-items: flex-start; gap: 8px; margin: 0; color: #77839d; font-size: 10px; line-height: 1.55; }
+    .auth-footnote .icon { width: 14px; height: 14px; color: #8d9ab7; }
+    .auth-bottom { margin-top: 19px; color: #69758f; font-size: 10px; text-align: center; }
+
+    /* ───────────────────────── Main workspace ───────────────────────── */
+    .app-view { position: relative; width: 100%; height: 100vh; height: 100dvh; animation: screen-in .4s var(--ease) both; }
+    .app-shell { display: grid; width: 100%; height: 100%; grid-template-columns: 238px minmax(0, 1fr); }
+    .sidebar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      padding: 24px 15px 15px;
+      border-right: 1px solid var(--line);
+      background: rgba(13, 18, 32, .78);
+      backdrop-filter: blur(18px);
+    }
+    .sidebar .brand-lockup { padding: 0 7px; }
+    .sidebar .brand-mark { width: 37px; height: 37px; border-radius: 13px; }
+    .sidebar .brand-mark .icon { width: 21px; height: 21px; }
+    .sidebar .brand-name { font-size: 17px; }
+    .sidebar .brand-caption { font-size: 7px; }
+    .workspace-switch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 30px 0 21px;
+      padding: 11px 10px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(255,255,255,.025);
+    }
+    .workspace-icon { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(154,140,255,.2); border-radius: 11px; background: rgba(154,140,255,.12); color: #b9afff; }
+    .workspace-icon .icon { width: 17px; height: 17px; }
+    .workspace-copy { min-width: 0; flex: 1; }
+    .workspace-copy strong { display: block; overflow: hidden; color: #e9edfa; font-size: 10px; font-weight: 720; text-overflow: ellipsis; white-space: nowrap; }
+    .workspace-copy span { display: block; margin-top: 4px; color: var(--muted-2); font-size: 9px; }
+    .workspace-switch > .icon { width: 14px; height: 14px; color: #7c89a4; }
+    .side-label { margin: 0 0 9px 10px; color: #6f7c96; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+    .side-nav { display: grid; gap: 5px; }
+    .nav-link {
+      display: flex;
+      width: 100%;
+      min-height: 40px;
+      align-items: center;
+      gap: 11px;
+      padding: 0 11px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      color: #9ba7c0;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 620;
+      text-align: left;
+      transition: background .18s, border .18s, color .18s, transform .18s;
+    }
+    .nav-link .icon { width: 17px; height: 17px; color: #8490aa; }
+    .nav-link:hover { background: rgba(255,255,255,.045); color: #e5e9f6; }
+    .nav-link.active { border-color: rgba(154,140,255,.14); background: rgba(154,140,255,.11); color: #d1caff; }
+    .nav-link.active .icon { color: #ae9fff; }
+    .nav-count { min-width: 22px; margin-left: auto; padding: 3px 6px; border-radius: 7px; background: rgba(255,255,255,.07); color: #aeb9d0; font-size: 9px; text-align: center; }
+    .sidebar-channel-block { margin-top: 29px; }
+    .sidebar-section-title { display: flex; align-items: center; justify-content: space-between; padding: 0 8px 7px 10px; color: #6f7c96; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+    .sidebar-section-title button { display: grid; width: 23px; height: 23px; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #74809a; cursor: pointer; }
+    .sidebar-section-title button:hover { background: rgba(255,255,255,.06); color: white; }
+    .sidebar-section-title button .icon { width: 13px; height: 13px; }
+    .channel-link { display: flex; width: 100%; min-height: 37px; align-items: center; gap: 9px; padding: 0 10px; border: 0; border-radius: 9px; background: transparent; color: #aab5cb; cursor: pointer; font-size: 11px; text-align: left; transition: background .18s, color .18s; }
+    .channel-link:hover { background: rgba(255,255,255,.045); color: white; }
+    .channel-link > .icon { width: 15px; height: 15px; color: #8190ae; }
+    .channel-mark { color: #8792aa; font-size: 14px; font-weight: 700; }
+    .channel-link .channel-unread { width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: var(--mint); box-shadow: 0 0 9px rgba(98,228,193,.55); }
+    .sidebar-spacer { flex: 1; min-height: 20px; }
+    .sidebar-tip { margin: 18px 3px 19px; padding: 13px 12px; border: 1px solid rgba(154,140,255,.13); border-radius: 12px; background: linear-gradient(135deg, rgba(154,140,255,.09), rgba(98,228,193,.035)); }
+    .sidebar-tip-head { display: flex; align-items: center; gap: 7px; color: #d0c9ff; font-size: 10px; font-weight: 720; }
+    .sidebar-tip-head .icon { width: 14px; height: 14px; }
+    .sidebar-tip p { margin: 7px 0 0; color: #939fba; font-size: 9px; line-height: 1.5; }
+    .profile-chip { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 11px 7px 2px; border-top: 1px solid var(--line); }
+    .avatar {
+      position: relative;
+      display: grid;
+      width: 35px;
+      height: 35px;
+      flex: 0 0 auto;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid hsla(var(--avatar-hue, 257), 75%, 76%, .28);
+      border-radius: 13px;
+      background: linear-gradient(145deg, hsla(var(--avatar-hue, 257), 60%, 50%, .33), hsla(var(--avatar-hue, 257), 52%, 27%, .5));
+      color: hsl(var(--avatar-hue, 257), 88%, 86%);
+      font-size: 11px;
+      font-weight: 780;
+      letter-spacing: -.02em;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-text { min-width: 0; flex: 1; }
+    .profile-text strong { display: block; overflow: hidden; color: #e4e9f6; font-size: 10px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-text span { display: block; overflow: hidden; margin-top: 4px; color: #8490aa; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-logout { display: grid; width: 31px; height: 31px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 9px; background: transparent; color: #7f8ba5; cursor: pointer; transition: background .18s, color .18s; }
+    .profile-logout:hover { background: rgba(255,113,136,.1); color: #ff9cab; }
+    .profile-logout .icon { width: 16px; height: 16px; }
+
+    .main-layout { display: grid; min-width: 0; min-height: 0; grid-template-rows: 77px minmax(0, 1fr); }
+    .topbar { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 18px; padding: 0 26px; border-bottom: 1px solid var(--line); background: rgba(13, 18, 32, .45); }
+    .topbar-heading { min-width: 0; }
+    .breadcrumbs { margin: 0 0 4px; color: #707d98; font-size: 9px; font-weight: 720; letter-spacing: .08em; text-transform: uppercase; }
+    .breadcrumbs span { color: #a9b2c8; }
+    .topbar-heading h1 { overflow: hidden; margin: 0; color: #eef2ff; font-size: 16px; font-weight: 720; letter-spacing: -.025em; text-overflow: ellipsis; white-space: nowrap; }
+    .topbar-actions { display: flex; align-items: center; gap: 9px; }
+    .connection-pill { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 99px; background: rgba(255,255,255,.025); color: #a8b3ca; font-size: 9px; font-weight: 650; white-space: nowrap; }
+    .connection-dot { width: 7px; height: 7px; border-radius: 50%; background: #7e8aa5; box-shadow: 0 0 0 3px rgba(126,138,165,.1); }
+    .connection-pill.online .connection-dot { background: var(--mint); box-shadow: 0 0 0 3px rgba(98,228,193,.12), 0 0 12px rgba(98,228,193,.55); }
+    .connection-pill.offline .connection-dot { background: var(--red); box-shadow: 0 0 0 3px rgba(255,113,136,.12); }
+    .role-pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 9px; border: 1px solid rgba(255,207,122,.19); border-radius: 99px; background: rgba(255,207,122,.07); color: #f1cc8d; font-size: 9px; font-weight: 720; }
+    .role-pill .icon { width: 13px; height: 13px; }
+    .topbar-button { display: inline-flex; min-height: 35px; align-items: center; justify-content: center; gap: 7px; padding: 0 11px; border: 1px solid rgba(154,140,255,.24); border-radius: 10px; background: rgba(154,140,255,.1); color: #d1caff; cursor: pointer; font-size: 10px; font-weight: 720; transition: background .18s, transform .18s; }
+    .topbar-button:hover { transform: translateY(-1px); background: rgba(154,140,255,.17); }
+    .topbar-button .icon { width: 15px; height: 15px; }
+    .topbar-button.secondary { border-color: var(--line); background: rgba(255,255,255,.025); color: #a8b3ca; }
+    .mobile-members-button, .mobile-logout-button { display: none; }
+
+    .content-grid { display: grid; min-width: 0; min-height: 0; grid-template-columns: minmax(0, 1fr) 277px; }
+    .chat-panel { display: flex; min-width: 0; min-height: 0; flex-direction: column; overflow: hidden; border-right: 1px solid var(--line); }
+    .channel-toolbar { display: flex; min-height: 75px; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 23px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.012); }
+    .channel-title-group { display: flex; min-width: 0; align-items: center; gap: 12px; }
+    .channel-symbol { display: grid; width: 39px; height: 39px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(154,140,255,.2); border-radius: 13px; background: rgba(154,140,255,.11); color: #b8adff; font-size: 19px; font-weight: 700; }
+    .channel-title-copy { min-width: 0; }
+    .channel-title-copy h2 { overflow: hidden; margin: 0; color: #e8edfa; font-size: 12px; font-weight: 740; text-overflow: ellipsis; white-space: nowrap; }
+    .channel-title-copy p { display: flex; align-items: center; gap: 6px; margin: 5px 0 0; color: #8491ac; font-size: 9px; }
+    .channel-title-copy p .small-online { width: 5px; height: 5px; border-radius: 50%; background: var(--mint); }
+    .channel-tools { display: flex; align-items: center; gap: 8px; }
+    .tool-avatars { display: flex; align-items: center; padding-left: 7px; }
+    .tool-avatars .avatar { width: 25px; height: 25px; margin-left: -7px; border: 2px solid #111729; border-radius: 9px; font-size: 8px; }
+    .tool-avatars .avatar.more { border-color: #252e45; background: #252e45; color: #b1bdd5; }
+    .tool-caption { color: #8a97b1; font-size: 9px; }
+    .tool-divider { width: 1px; height: 24px; margin: 0 4px; background: var(--line-strong); }
+    .icon-button { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #8d9ab4; cursor: pointer; transition: background .18s, border .18s, color .18s; }
+    .icon-button:hover { border-color: var(--line); background: rgba(255,255,255,.05); color: #edf0fb; }
+    .icon-button .icon { width: 17px; height: 17px; }
+
+    .announcement-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      margin: 13px 19px 0;
+      padding: 11px 13px;
+      border: 1px solid rgba(255,207,122,.2);
+      border-radius: 12px;
+      background: linear-gradient(105deg, rgba(255,207,122,.09), rgba(154,140,255,.055));
+      animation: field-in .35s var(--ease) both;
+    }
+    .announcement-icon { display: grid; width: 28px; height: 28px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255,207,122,.17); border-radius: 9px; background: rgba(255,207,122,.1); color: var(--gold); }
+    .announcement-icon .icon { width: 15px; height: 15px; }
+    .announcement-copy { min-width: 0; flex: 1; }
+    .announcement-copy strong { display: block; color: #f6d89e; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .announcement-copy p { overflow: hidden; margin: 4px 0 0; color: #d4d6df; font-size: 10px; line-height: 1.55; text-overflow: ellipsis; }
+    .announcement-copy small { display: block; margin-top: 4px; color: #a99672; font-size: 8px; }
+    .banner-close { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #b5a783; cursor: pointer; }
+    .banner-close:hover { background: rgba(255,255,255,.06); color: white; }
+    .banner-close .icon { width: 14px; height: 14px; }
+
+    .messages-area { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 14px; overflow-x: hidden; overflow-y: auto; padding: 23px 23px 18px; scrollbar-color: #343e58 transparent; scrollbar-width: thin; }
+    .messages-area::-webkit-scrollbar, .member-list::-webkit-scrollbar, .admin-list::-webkit-scrollbar { width: 6px; }
+    .messages-area::-webkit-scrollbar-thumb, .member-list::-webkit-scrollbar-thumb, .admin-list::-webkit-scrollbar-thumb { border-radius: 99px; background: #343e58; }
+    .chat-empty { display: flex; min-height: 210px; flex: 1; flex-direction: column; align-items: center; justify-content: center; text-align: center; animation: field-in .5s var(--ease) both; }
+    .empty-illustration { display: grid; width: 60px; height: 60px; place-items: center; border: 1px solid rgba(154,140,255,.18); border-radius: 21px; background: linear-gradient(145deg, rgba(154,140,255,.14), rgba(98,228,193,.06)); color: #b4aaff; box-shadow: 0 14px 40px rgba(0,0,0,.13); }
+    .empty-illustration .icon { width: 26px; height: 26px; }
+    .chat-empty h3 { margin: 15px 0 0; color: #dce2f2; font-size: 13px; font-weight: 720; }
+    .chat-empty p { max-width: 285px; margin: 7px 0 0; color: #8290ab; font-size: 10px; line-height: 1.6; }
+
+    .message-row { position: relative; display: flex; max-width: min(82%, 680px); align-items: flex-start; gap: 10px; animation: message-in .28s var(--ease) both; }
+    .message-row.mine { align-self: flex-end; flex-direction: row-reverse; }
+    .message-avatar { width: 31px; height: 31px; border-radius: 11px; font-size: 9px; }
+    .message-content { min-width: 0; }
+    .message-row.mine .message-content { text-align: right; }
+    .message-meta { display: flex; align-items: baseline; gap: 8px; margin: 1px 0 5px; }
+    .message-row.mine .message-meta { justify-content: flex-end; }
+    .message-name { color: #b8c2d9; font-size: 9px; font-weight: 720; }
+    .message-time { color: #6f7b94; font-size: 8px; font-variant-numeric: tabular-nums; }
+    .message-bubble { position: relative; display: inline-block; max-width: 100%; padding: 10px 12px; border: 1px solid rgba(175,190,224,.1); border-radius: 4px 13px 13px 13px; background: #192238; color: #dfe5f4; font-size: 11px; line-height: 1.65; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .message-row.mine .message-bubble { border-color: rgba(154,140,255,.18); border-radius: 13px 4px 13px 13px; background: linear-gradient(135deg, rgba(104,91,205,.3), rgba(91,77,183,.22)); color: #f0edff; }
+    .message-delete { position: absolute; top: 0; right: -36px; display: grid; width: 27px; height: 27px; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: #1a2237; color: #9ba7c0; cursor: pointer; opacity: 0; transform: translateX(-3px); transition: opacity .15s, transform .15s, color .15s, background .15s; }
+    .message-row.mine .message-delete { right: auto; left: -36px; }
+    .message-row:hover .message-delete, .message-delete:focus-visible { opacity: 1; transform: translateX(0); }
+    .message-delete:hover { background: rgba(255,113,136,.13); color: #ff9cab; }
+    .message-delete .icon { width: 14px; height: 14px; }
+    .message-row.announcement-row { width: min(100%, 620px); max-width: 100%; align-self: center; justify-content: center; padding: 8px 0; }
+    .server-announcement {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,207,122,.22);
+      border-radius: 15px;
+      background: linear-gradient(120deg, rgba(255,207,122,.09), rgba(154,140,255,.075));
+      box-shadow: inset 0 1px rgba(255,255,255,.025);
+      text-align: left;
+    }
+    .server-announcement-head { display: flex; align-items: center; gap: 8px; color: #f1cb88; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .server-announcement-head .icon { width: 15px; height: 15px; }
+    .server-announcement p { margin: 9px 0; color: #f0e6d4; font-size: 11px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .server-announcement-meta { display: flex; justify-content: space-between; gap: 12px; color: #aa9879; font-size: 8px; }
+    .announcement-row .message-delete { top: 8px; right: -35px; }
+    .announcement-row.mine .message-delete { right: -35px; left: auto; }
+
+    .composer-wrap { padding: 12px 19px 16px; border-top: 1px solid var(--line); background: rgba(13,18,32,.38); }
+    .composer-box { display: flex; align-items: flex-end; gap: 10px; padding: 10px 10px 10px 14px; border: 1px solid rgba(175,190,224,.15); border-radius: 15px; background: #151d30; box-shadow: 0 8px 24px rgba(0,0,0,.1); transition: border .2s, box-shadow .2s; }
+    .composer-box:focus-within { border-color: rgba(154,140,255,.5); box-shadow: 0 0 0 3px rgba(154,140,255,.08), 0 8px 24px rgba(0,0,0,.1); }
+    .composer-box textarea { display: block; width: 100%; min-height: 24px; max-height: 118px; flex: 1; resize: none; border: 0; outline: 0; background: transparent; color: #e8edf9; font-size: 11px; line-height: 1.6; }
+    .composer-box textarea::placeholder { color: #76839d; }
+    .composer-box textarea:focus-visible { outline: 0; }
+    .send-button { display: grid; width: 35px; height: 35px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255,255,255,.2); border-radius: 11px; background: linear-gradient(140deg, #a293ff, #7668e9); color: white; cursor: pointer; box-shadow: 0 6px 15px rgba(112,96,224,.22); transition: transform .18s, filter .18s, opacity .18s; }
+    .send-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+    .send-button:disabled { cursor: default; opacity: .45; box-shadow: none; }
+    .send-button .icon { width: 16px; height: 16px; }
+    .composer-hint { display: flex; justify-content: space-between; gap: 12px; margin: 8px 3px 0; color: #75819a; font-size: 8px; }
+    .composer-hint strong { color: #919db5; font-weight: 650; }
+    .char-count { font-variant-numeric: tabular-nums; }
+
+    .right-panel { display: flex; min-width: 0; min-height: 0; flex-direction: column; overflow: hidden; padding: 20px 16px 16px; background: rgba(14, 19, 33, .42); }
+    .server-card { position: relative; overflow: hidden; padding: 15px 14px 14px; border: 1px solid rgba(154,140,255,.15); border-radius: 15px; background: linear-gradient(145deg, rgba(154,140,255,.11), rgba(98,228,193,.035)); }
+    .server-card::after { position: absolute; top: -30px; right: -22px; width: 95px; height: 95px; border: 1px solid rgba(174,163,255,.14); border-radius: 50%; box-shadow: 0 0 0 16px rgba(174,163,255,.025); content: ""; }
+    .server-card-label { display: flex; align-items: center; gap: 7px; color: #a79aff; font-size: 8px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .server-card-label .icon { width: 14px; height: 14px; }
+    .server-card h2 { position: relative; z-index: 1; margin: 12px 0 0; color: #e9edfa; font-size: 14px; font-weight: 720; letter-spacing: -.025em; }
+    .server-card p { position: relative; z-index: 1; margin: 6px 0 0; color: #929eb8; font-size: 9px; line-height: 1.55; }
+    .server-stats { display: flex; gap: 7px; margin-top: 14px; }
+    .server-stat { min-width: 0; flex: 1; padding: 8px 9px; border: 1px solid rgba(255,255,255,.06); border-radius: 10px; background: rgba(7,11,20,.18); }
+    .server-stat strong { display: block; color: #e4e9f6; font-size: 14px; font-weight: 760; font-variant-numeric: tabular-nums; }
+    .server-stat span { display: block; margin-top: 3px; color: #818da7; font-size: 8px; }
+    .members-section { display: flex; min-height: 0; flex: 1; flex-direction: column; margin-top: 21px; }
+    .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px 12px; }
+    .panel-heading h3 { margin: 0; color: #e2e7f5; font-size: 11px; font-weight: 740; }
+    .panel-heading span { color: #8793ad; font-size: 9px; }
+    .member-list { min-height: 0; flex: 1; overflow-y: auto; padding: 1px 2px 6px; scrollbar-width: thin; scrollbar-color: #343e58 transparent; }
+    .member-row { display: flex; min-width: 0; align-items: center; gap: 9px; padding: 8px 7px; border-radius: 11px; transition: background .16s; }
+    .member-row:hover { background: rgba(255,255,255,.035); }
+    .member-avatar-wrap { position: relative; flex: 0 0 auto; }
+    .member-avatar-wrap .avatar { width: 30px; height: 30px; border-radius: 11px; font-size: 8px; }
+    .presence-indicator { position: absolute; right: -1px; bottom: -1px; width: 9px; height: 9px; border: 2px solid #111729; border-radius: 50%; background: #687590; }
+    .presence-indicator.is-online { background: var(--mint); box-shadow: 0 0 8px rgba(98,228,193,.45); }
+    .member-copy { min-width: 0; flex: 1; }
+    .member-copy strong { display: block; overflow: hidden; color: #cbd3e5; font-size: 9px; font-weight: 660; text-overflow: ellipsis; white-space: nowrap; }
+    .member-copy span { display: block; margin-top: 3px; color: #7d89a3; font-size: 8px; }
+    .member-badge { display: inline-flex; align-items: center; gap: 4px; color: #e4bd79 !important; }
+    .member-badge .icon { width: 10px; height: 10px; }
+    .member-empty { padding: 22px 10px; color: #7d89a3; font-size: 10px; line-height: 1.6; text-align: center; }
+    .members-footer { display: flex; align-items: center; gap: 7px; padding: 11px 5px 0; border-top: 1px solid var(--line); color: #7f8ba5; font-size: 8px; }
+    .members-footer .icon { width: 13px; height: 13px; color: var(--mint); }
+
+    /* ───────────────────────── Admin drawer ───────────────────────── */
+    .admin-overlay { position: fixed; z-index: 50; inset: 0; visibility: hidden; background: rgba(3,6,14,.58); opacity: 0; pointer-events: none; backdrop-filter: blur(5px); transition: opacity .25s, visibility .25s; }
+    .admin-overlay.open { visibility: visible; opacity: 1; pointer-events: auto; }
+    .admin-drawer { position: absolute; top: 0; right: 0; display: flex; width: min(570px, 100%); height: 100%; flex-direction: column; border-left: 1px solid var(--line-strong); background: #101729; box-shadow: -25px 0 70px rgba(0,0,0,.4); transform: translateX(36px); transition: transform .32s var(--ease); }
+    .admin-overlay.open .admin-drawer { transform: translateX(0); }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 22px 23px 18px; border-bottom: 1px solid var(--line); }
+    .admin-title-wrap { display: flex; align-items: center; gap: 12px; }
+    .admin-emblem { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid rgba(255,207,122,.2); border-radius: 14px; background: rgba(255,207,122,.1); color: var(--gold); }
+    .admin-emblem .icon { width: 20px; height: 20px; }
+    .admin-header h2 { margin: 0; color: #f0f3fc; font-size: 15px; font-weight: 740; letter-spacing: -.025em; }
+    .admin-header p { margin: 4px 0 0; color: #8591aa; font-size: 9px; }
+    .admin-close { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.025); color: #a3afc7; cursor: pointer; }
+    .admin-close:hover { background: rgba(255,255,255,.07); color: white; }
+    .admin-close .icon { width: 16px; height: 16px; }
+    .admin-tabs { display: flex; gap: 5px; padding: 14px 20px 0; border-bottom: 1px solid var(--line); }
+    .admin-tab { display: inline-flex; min-height: 39px; align-items: center; gap: 7px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #8793ad; cursor: pointer; font-size: 10px; font-weight: 680; transition: color .18s, border .18s; }
+    .admin-tab .icon { width: 15px; height: 15px; }
+    .admin-tab:hover { color: #d6dcf0; }
+    .admin-tab.active { border-color: #9c8cff; color: #c8beff; }
+    .admin-tab-count { padding: 3px 6px; border-radius: 6px; background: rgba(255,255,255,.06); color: #a7b2c8; font-size: 8px; }
+    .admin-body { min-height: 0; flex: 1; overflow-y: auto; padding: 19px 21px 24px; scrollbar-color: #343e58 transparent; scrollbar-width: thin; }
+    .admin-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-bottom: 18px; }
+    .admin-stat-card { padding: 12px 13px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); }
+    .admin-stat-card span { display: block; color: #8490aa; font-size: 9px; }
+    .admin-stat-card strong { display: block; margin-top: 7px; color: #e7ebf7; font-size: 19px; font-weight: 760; font-variant-numeric: tabular-nums; }
+    .admin-stat-card.banned strong { color: #ff9cab; }
+    .admin-search { position: relative; margin-bottom: 12px; }
+    .admin-search .icon { position: absolute; top: 50%; left: 12px; width: 15px; height: 15px; color: #7c89a3; transform: translateY(-50%); }
+    .admin-search input { width: 100%; height: 39px; padding: 0 12px 0 36px; border: 1px solid var(--line); border-radius: 10px; outline: none; background: #171f33; color: var(--text); font-size: 10px; }
+    .admin-search input::placeholder { color: #71809a; }
+    .admin-search input:focus { border-color: rgba(154,140,255,.55); }
+    .admin-list { display: grid; gap: 7px; max-height: 54vh; overflow: auto; padding: 0 3px 3px 0; scrollbar-width: thin; scrollbar-color: #343e58 transparent; }
+    .admin-member-row { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px; border: 1px solid rgba(175,190,224,.075); border-radius: 12px; background: rgba(255,255,255,.02); }
+    .admin-member-row .avatar { width: 34px; height: 34px; border-radius: 12px; font-size: 9px; }
+    .admin-member-meta { min-width: 0; flex: 1; }
+    .admin-member-meta strong { display: block; overflow: hidden; color: #dce2f0; font-size: 10px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .admin-member-meta span { display: block; overflow: hidden; margin-top: 4px; color: #7f8ba5; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+    .admin-member-actions { display: flex; align-items: center; gap: 6px; }
+    .status-tag { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; border: 1px solid rgba(98,228,193,.13); border-radius: 7px; background: rgba(98,228,193,.055); color: #9ee8d3; font-size: 8px; white-space: nowrap; }
+    .status-tag.banned { border-color: rgba(255,113,136,.18); background: rgba(255,113,136,.07); color: #ff9cab; }
+    .status-tag .tag-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .admin-action { display: grid; width: 29px; height: 29px; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.025); color: #9ba7c0; cursor: pointer; transition: color .18s, background .18s, border .18s; }
+    .admin-action .icon { width: 14px; height: 14px; }
+    .admin-action:hover { border-color: rgba(255,113,136,.25); background: rgba(255,113,136,.1); color: #ff9cab; }
+    .admin-action.unban:hover { border-color: rgba(98,228,193,.25); background: rgba(98,228,193,.1); color: #8ce9ce; }
+    .admin-empty { padding: 30px 15px; color: #8793ad; font-size: 10px; text-align: center; }
+    .admin-info { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0; padding: 10px 11px; border: 1px solid rgba(154,140,255,.13); border-radius: 10px; background: rgba(154,140,255,.055); color: #aeb7ce; font-size: 9px; line-height: 1.6; }
+    .admin-info .icon { width: 14px; height: 14px; flex: 0 0 auto; color: #ab9eff; }
+    .announcement-compose { padding: 15px; border: 1px solid rgba(255,207,122,.15); border-radius: 14px; background: linear-gradient(140deg, rgba(255,207,122,.055), rgba(154,140,255,.035)); }
+    .announcement-compose label { display: block; margin-bottom: 8px; color: #e8d6b2; font-size: 10px; font-weight: 720; }
+    .announcement-compose textarea { display: block; width: 100%; min-height: 96px; resize: vertical; padding: 11px; border: 1px solid rgba(175,190,224,.14); border-radius: 10px; outline: none; background: rgba(10,15,27,.58); color: #e9edf8; font-size: 10px; line-height: 1.6; }
+    .announcement-compose textarea::placeholder { color: #7c879e; }
+    .announcement-compose textarea:focus { border-color: rgba(255,207,122,.4); }
+    .announcement-compose-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+    .announcement-compose-footer span { color: #8e8a7f; font-size: 8px; }
+    .publish-button { display: inline-flex; min-height: 34px; align-items: center; gap: 7px; padding: 0 11px; border: 1px solid rgba(255,207,122,.25); border-radius: 9px; background: rgba(255,207,122,.13); color: #f5d69d; cursor: pointer; font-size: 9px; font-weight: 740; transition: background .18s, transform .18s; }
+    .publish-button:hover:not(:disabled) { transform: translateY(-1px); background: rgba(255,207,122,.2); }
+    .publish-button:disabled { cursor: wait; opacity: .6; }
+    .publish-button .icon { width: 14px; height: 14px; }
+    .announcement-list-heading { display: flex; justify-content: space-between; align-items: center; margin: 21px 0 10px; color: #cdd4e5; font-size: 10px; font-weight: 700; }
+    .announcement-list-heading span { color: #7f8ba5; font-size: 8px; font-weight: 500; }
+    .admin-announcement-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; padding: 11px; border: 1px solid rgba(255,207,122,.12); border-radius: 11px; background: rgba(255,207,122,.035); }
+    .admin-announcement-item > .icon { width: 15px; height: 15px; margin-top: 1px; flex: 0 0 auto; color: #e8c27f; }
+    .admin-announcement-copy { min-width: 0; flex: 1; }
+    .admin-announcement-copy p { margin: 0; color: #ded9cc; font-size: 9px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .admin-announcement-copy span { display: block; margin-top: 5px; color: #94876e; font-size: 8px; }
+    .admin-announcement-item button { display: grid; width: 26px; height: 26px; flex: 0 0 auto; place-items: center; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #8f8b80; cursor: pointer; }
+    .admin-announcement-item button:hover { border-color: rgba(255,113,136,.18); background: rgba(255,113,136,.08); color: #ff9cab; }
+    .admin-announcement-item button .icon { width: 13px; height: 13px; }
+
+    /* ───────────────────────── Confirm dialog & notifications ───────────────────────── */
+    .confirm-layer { position: fixed; z-index: 80; inset: 0; display: grid; visibility: hidden; place-items: center; padding: 20px; background: rgba(3,6,14,.66); opacity: 0; pointer-events: none; backdrop-filter: blur(5px); transition: opacity .2s, visibility .2s; }
+    .confirm-layer.open { visibility: visible; opacity: 1; pointer-events: auto; }
+    .confirm-dialog { width: min(420px, 100%); padding: 23px; border: 1px solid var(--line-strong); border-radius: 20px; background: #151d31; box-shadow: var(--shadow); transform: translateY(9px) scale(.985); transition: transform .22s var(--ease); }
+    .confirm-layer.open .confirm-dialog { transform: translateY(0) scale(1); }
+    .confirm-icon { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid rgba(255,113,136,.18); border-radius: 14px; background: rgba(255,113,136,.09); color: #ff9cab; }
+    .confirm-icon .icon { width: 20px; height: 20px; }
+    .confirm-dialog h2 { margin: 15px 0 7px; color: #eef1fa; font-size: 16px; font-weight: 730; letter-spacing: -.025em; }
+    .confirm-dialog p { margin: 0; color: #a0acc4; font-size: 10px; line-height: 1.65; }
+    .confirm-reason { margin-top: 14px; }
+    .confirm-reason label { display: block; margin-bottom: 7px; color: #cbd3e5; font-size: 9px; font-weight: 690; }
+    .confirm-reason textarea { display: block; width: 100%; min-height: 69px; resize: vertical; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; outline: none; background: #101729; color: var(--text); font-size: 10px; }
+    .confirm-reason textarea:focus { border-color: rgba(154,140,255,.5); }
+    .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 21px; }
+    .dialog-button { min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.035); color: #b6c0d5; cursor: pointer; font-size: 10px; font-weight: 680; transition: background .18s, color .18s; }
+    .dialog-button:hover { background: rgba(255,255,255,.08); color: white; }
+    .dialog-button.danger { border-color: rgba(255,113,136,.25); background: rgba(255,113,136,.14); color: #ffb2be; }
+    .dialog-button.danger:hover { background: rgba(255,113,136,.23); color: white; }
+    .dialog-button.primary { border-color: rgba(154,140,255,.26); background: rgba(154,140,255,.16); color: #d0c9ff; }
+    .dialog-button.primary:hover { background: rgba(154,140,255,.24); color: white; }
+    .toast-region { position: fixed; z-index: 100; right: 20px; bottom: 19px; display: grid; width: min(360px, calc(100vw - 32px)); gap: 8px; pointer-events: none; }
+    .toast { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 13px; background: rgba(25, 34, 55, .96); box-shadow: 0 14px 38px rgba(0,0,0,.34); color: #dce4f3; font-size: 10px; line-height: 1.5; pointer-events: auto; animation: toast-in .32s var(--ease) both; backdrop-filter: blur(15px); }
+    .toast.success { border-color: rgba(98,228,193,.2); }
+    .toast.error { border-color: rgba(255,113,136,.24); }
+    .toast .icon { width: 15px; height: 15px; margin-top: 1px; flex: 0 0 auto; color: #9c8eff; }
+    .toast.success .icon { color: var(--mint); }
+    .toast.error .icon { color: #ff8799; }
+    .toast-message { flex: 1; }
+    .toast-close { display: grid; width: 20px; height: 20px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 6px; background: transparent; color: #8e9ab2; cursor: pointer; }
+    .toast-close:hover { background: rgba(255,255,255,.08); color: white; }
+    .toast-close .icon { width: 12px; height: 12px; margin: 0; color: inherit; }
+    .body-locked { overflow: hidden; }
+
+    /* ───────────────────────── Responsive ───────────────────────── */
+    @media (max-width: 1080px) {
+      .app-shell { grid-template-columns: 72px minmax(0, 1fr); }
+      .sidebar { align-items: center; padding: 18px 9px 12px; }
+      .sidebar .brand-lockup { padding: 0; }
+      .sidebar .brand-lockup > div:last-child, .workspace-switch, .side-label, .nav-link > span:not(.nav-count), .nav-count, .sidebar-channel-block, .sidebar-tip, .profile-text { display: none; }
+      .sidebar .brand-mark { width: 42px; height: 42px; }
+      .side-nav { width: 100%; gap: 8px; margin-top: 34px; }
+      .nav-link { width: 48px; min-height: 45px; justify-content: center; margin: 0 auto; padding: 0; }
+      .nav-link .icon { width: 19px; height: 19px; }
+      .sidebar-spacer { min-height: 15px; }
+      .profile-chip { width: 100%; justify-content: center; padding: 13px 0 0; }
+      .profile-chip .avatar { width: 39px; height: 39px; }
+      .profile-logout { position: absolute; right: 7px; bottom: 59px; width: 27px; height: 27px; border: 1px solid var(--line); background: #151d30; }
+      .content-grid { grid-template-columns: minmax(0, 1fr); }
+      .chat-panel { border-right: 0; }
+      .right-panel { position: fixed; z-index: 30; top: 90px; right: 16px; bottom: 16px; display: none; width: min(320px, calc(100vw - 104px)); border: 1px solid var(--line-strong); border-radius: 18px; background: #111729; box-shadow: 0 22px 60px rgba(0,0,0,.42); }
+      .right-panel.open { display: flex; animation: panel-in .22s var(--ease) both; }
+      .mobile-members-button { display: inline-flex; }
+      .topbar { padding: 0 20px; }
+    }
+    @media (max-width: 760px) {
+      body { overflow: auto; }
+      .auth-screen { justify-content: flex-start; padding: 18px 14px; }
+      .auth-card { display: block; width: min(500px, 100%); min-height: 0; margin: auto; border-radius: 24px; }
+      .auth-showcase { display: none; }
+      .auth-panel { padding: 31px 27px 27px; }
+      .mobile-brand { display: flex; align-items: center; gap: 11px; }
+      .mobile-brand .brand-mark { width: 38px; height: 38px; border-radius: 13px; }
+      .auth-heading { margin-bottom: 24px; }
+      .auth-bottom { max-width: 360px; line-height: 1.5; }
+      .topbar { min-height: 67px; padding: 0 15px; }
+      .main-layout { grid-template-rows: 67px minmax(0,1fr); }
+      .connection-pill { padding: 7px 8px; }
+      .connection-pill .connection-label { display: none; }
+      .role-pill { padding: 7px; }
+      .role-pill span { display: none; }
+      .topbar-button.admin-button { width: 34px; padding: 0; }
+      .topbar-button.admin-button > span { display: none; }
+      .topbar-button.secondary.mobile-members-button { width: 34px; padding: 0; }
+      .topbar-button.secondary.mobile-members-button > span { display: none; }
+      .channel-toolbar { min-height: 66px; padding: 10px 15px; }
+      .channel-symbol { width: 35px; height: 35px; }
+      .tool-caption, .tool-divider, .tool-avatars { display: none; }
+      .messages-area { padding: 18px 14px 14px; }
+      .composer-wrap { padding: 10px 12px 13px; }
+      .announcement-banner { margin: 10px 12px 0; }
+      .message-row { max-width: 91%; }
+      .message-delete { right: -5px; top: -8px; width: 24px; height: 24px; opacity: 1; transform: none; }
+      .message-row.mine .message-delete, .announcement-row .message-delete, .announcement-row.mine .message-delete { right: -5px; left: auto; }
+      .message-row:not(.mine) .message-delete { right: -5px; }
+      .message-delete .icon { width: 12px; height: 12px; }
+      .admin-member-row { gap: 7px; padding: 8px; }
+      .admin-member-actions { gap: 4px; }
+      .status-tag { padding: 5px; }
+    }
+    @media (max-width: 560px) {
+      .app-view { height: 100dvh; }
+      .app-shell { display: block; height: calc(100% - 72px); }
+      .sidebar { position: fixed; z-index: 40; right: 10px; bottom: 9px; left: 10px; display: flex; width: auto; height: 61px; flex-direction: row; justify-content: center; padding: 5px 12px; border: 1px solid var(--line-strong); border-radius: 18px; background: rgba(20, 27, 45, .96); box-shadow: 0 14px 42px rgba(0,0,0,.4); }
+      .sidebar .brand-lockup, .sidebar-spacer, .profile-chip { display: none; }
+      .side-nav { display: flex; width: auto; align-items: center; gap: 8px; margin: 0; }
+      .nav-link { width: 46px; min-height: 43px; margin: 0; }
+      .nav-link .icon { width: 18px; height: 18px; }
+      .main-layout { height: 100%; grid-template-rows: 62px minmax(0,1fr); }
+      .topbar { min-height: 62px; padding: 0 12px; }
+      .breadcrumbs { font-size: 7px; }
+      .topbar-heading h1 { font-size: 14px; }
+      .topbar-actions { gap: 5px; }
+      .connection-pill { padding: 6px; }
+      .connection-dot { width: 6px; height: 6px; }
+      .role-pill { width: 29px; height: 29px; justify-content: center; padding: 0; }
+      .topbar-button { min-height: 31px; }
+      .mobile-logout-button { display: grid; width: 31px; padding: 0; }
+      .channel-toolbar { min-height: 60px; padding: 8px 12px; }
+      .channel-title-group { gap: 9px; }
+      .channel-symbol { width: 33px; height: 33px; border-radius: 11px; }
+      .channel-title-copy h2 { font-size: 11px; }
+      .channel-title-copy p { font-size: 8px; }
+      .channel-tools { gap: 2px; }
+      .messages-area { gap: 12px; padding: 15px 11px 12px; }
+      .message-row { gap: 7px; }
+      .message-avatar { width: 27px; height: 27px; border-radius: 9px; }
+      .message-bubble { padding: 9px 10px; font-size: 10px; }
+      .message-meta { margin-bottom: 4px; }
+      .composer-hint { font-size: 7px; }
+      .right-panel.open { top: 70px; right: 10px; bottom: 81px; width: min(330px, calc(100vw - 20px)); }
+      .admin-drawer { width: 100%; }
+      .admin-header { padding: 17px 16px 14px; }
+      .admin-body { padding: 15px 14px 20px; }
+      .admin-tabs { padding: 10px 13px 0; }
+      .toast-region { right: 12px; bottom: 82px; }
+      .confirm-dialog { padding: 20px; }
+    }
+    @media (max-width: 390px) {
+      .auth-panel { padding-right: 21px; padding-left: 21px; }
+      .topbar-actions .role-pill { display: none; }
+      .topbar-button.admin-button { width: 31px; }
+      .topbar-button.secondary.mobile-members-button { width: 31px; }
+      .composer-hint span:first-child { max-width: 225px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .admin-stats-grid { gap: 6px; }
+      .admin-stat-card { padding: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+
+    @keyframes screen-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes card-in { from { opacity: 0; transform: translateY(17px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes field-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes form-switch { from { opacity: .45; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes message-in { from { opacity: 0; transform: translateY(6px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(9px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes panel-in { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+    @keyframes orbit-drift { from { transform: translateX(-50%) rotate(-12deg); } to { transform: translateX(-50%) rotate(-6deg); } }
+  </style>
 </head>
 <body>
+  <svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-mark" viewBox="0 0 24 24"><path d="M6 5.8A3.8 3.8 0 0 1 9.8 2h4.4A3.8 3.8 0 0 1 18 5.8v3.4a3.8 3.8 0 0 1-3.8 3.8h-1.6l-3.7 3.2c-.7.6-1.7.1-1.7-.8v-2.4A3.8 3.8 0 0 1 4 9.2V5.8A3.8 3.8 0 0 1 7.8 2" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 7.3h7M8.5 10h4.2" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 2v-5.2A7.5 7.5 0 1 1 20 11.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20M9 10.5a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM16 3a4 4 0 0 1 0 7.8M22 20v-1.5a4 4 0 0 0-3-3.87" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3M12 3h5a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="7.3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16.2 16.2 4.3 4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m18 6-12 12M6 6l12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M5.5 7l1 14h11l1-14M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m5.6 5.6 12.8 12.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-unban" viewBox="0 0 24 24"><path d="M8 11V7a4 4 0 1 1 8 0v1M6 11h12v10H6zM12 15v2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a16 16 0 0 1-3 3.8M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7c1.1 0 2.1-.2 3-.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 11v5M12 8h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16ZM5 2l.7 2.3L8 5l-2.3.7L5 8l-.7-2.3L2 5l2.3-.7L5 2Z" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h14M4 15h14M10 3 8 21M16 3l-2 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4 21a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 17-6v14L3 13v-2ZM3 13l2 7h5l-2.2-5.4M20 10a3 3 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 9.5a11 11 0 0 1 14 0M8 13a6.5 6.5 0 0 1 8 0M11 16.5a2 2 0 0 1 2 0M12 20h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="m3 8 5 4 4-7 4 7 5-4-2 12H5L3 8Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M5 16h14" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  </svg>
 
-<!-- Form Đăng ký / Đăng nhập -->
-<div class="auth-container" id="authBox">
-    <h2 id="authTitle">Đăng Nhập</h2>
-    <input type="text" id="displayName" placeholder="Tên hiển thị (Biệt danh)" style="display: none;">
-    <input type="email" id="email" placeholder="Email của bạn...">
-    <input type="password" id="password" placeholder="Mật khẩu (ít nhất 6 ký tự)...">
-    <button id="authBtn" onclick="handleAuth()">Đăng Nhập</button>
-    <p id="toggleAuth" onclick="switchAuthMode()">Chưa có tài khoản? <span>Đăng ký ngay</span></p>
-</div>
+  <main class="auth-screen" id="authView">
+    <section class="auth-card" aria-label="Đăng nhập Chạm">
+      <div class="auth-showcase">
+        <div class="brand-lockup">
+          <div class="brand-mark"><svg class="icon"><use href="#i-mark"></use></svg></div>
+          <div><span class="brand-name">chạm</span><span class="brand-caption">YOUR SPACE, YOUR PEOPLE</span></div>
+        </div>
+        <div class="showcase-copy">
+          <p class="eyebrow">Một nơi để kết nối</p>
+          <h1>Nơi mọi cuộc trò chuyện <em>trở nên đặc biệt.</em></h1>
+          <p>Gặp gỡ mọi người, chia sẻ những điều bạn yêu thích và giữ nhịp kết nối — tất cả trong một không gian thân thiện.</p>
+        </div>
+        <div class="orbit-scene" aria-hidden="true">
+          <div class="orbit-ring"></div>
+          <div class="orbit-core"><svg class="icon"><use href="#i-mark"></use></svg></div>
+          <div class="orbit-particle particle-one"><svg class="icon"><use href="#i-chat"></use></svg></div>
+          <div class="orbit-particle particle-two"><svg class="icon"><use href="#i-users"></use></svg></div>
+          <div class="orbit-particle particle-three"><svg class="icon"><use href="#i-sparkles"></use></svg></div>
+          <div class="chat-float float-left"><span class="mini-dot"></span><span>Một cuộc trò chuyện mới</span></div>
+          <div class="chat-float float-right"><span>✨</span><span>Thật vui khi bạn ở đây!</span></div>
+        </div>
+        <div class="showcase-footer">
+          <span class="secure-note"><svg class="icon"><use href="#i-shield"></use></svg> Kết nối được bảo vệ</span>
+          <span class="online-note">Không gian của bạn, theo cách của bạn.</span>
+        </div>
+      </div>
 
-<!-- Khung Chat -->
-<div class="chat-container" id="chatBoxContainer">
-    <div class="chat-header">
-        <span class="user-info" id="currentUserDisplay">👋 Xin chào</span>
-        <button onclick="logout()">Đăng xuất</button>
+      <div class="auth-panel">
+        <div class="mobile-brand">
+          <div class="brand-mark"><svg class="icon"><use href="#i-mark"></use></svg></div>
+          <div><span class="brand-name">chạm</span><span class="brand-caption">YOUR SPACE, YOUR PEOPLE</span></div>
+        </div>
+        <div class="auth-heading">
+          <p class="eyebrow" id="authEyebrow">RẤT VUI ĐƯỢC GẶP LẠI</p>
+          <h2 id="authTitle">Đăng nhập</h2>
+          <p id="authDescription">Đăng nhập để tiếp tục những câu chuyện còn dang dở.</p>
+        </div>
+        <div class="auth-notice" id="authNotice" role="status" aria-live="polite" hidden>
+          <svg class="icon"><use href="#i-info"></use></svg><span id="authNoticeText"></span>
+        </div>
+        <form class="auth-form" id="authForm" novalidate>
+          <div class="form-field" id="displayNameField" hidden>
+            <label for="displayName">Tên hiển thị</label>
+            <div class="field-shell" style="margin-top:8px">
+              <svg class="icon"><use href="#i-user"></use></svg>
+              <input id="displayName" name="displayName" type="text" maxlength="32" autocomplete="nickname" placeholder="Ví dụ: Linh Nguyễn">
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="email">Địa chỉ email</label>
+            <div class="field-shell" style="margin-top:8px">
+              <svg class="icon"><use href="#i-mail"></use></svg>
+              <input id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="ban@example.com" required>
+            </div>
+          </div>
+          <div class="form-field">
+            <div class="field-heading">
+              <label for="password">Mật khẩu</label>
+              <button class="text-button" id="forgotPassword" type="button">Quên mật khẩu?</button>
+            </div>
+            <div class="field-shell">
+              <svg class="icon"><use href="#i-lock"></use></svg>
+              <input id="password" name="password" type="password" autocomplete="current-password" minlength="6" placeholder="Nhập mật khẩu của bạn" required>
+              <button class="field-action" id="togglePassword" type="button" aria-label="Hiện mật khẩu" title="Hiện mật khẩu"><svg class="icon"><use href="#i-eye"></use></svg></button>
+            </div>
+          </div>
+          <div class="form-field" id="confirmPasswordField" hidden>
+            <label for="confirmPassword">Xác nhận mật khẩu</label>
+            <div class="field-shell" style="margin-top:8px">
+              <svg class="icon"><use href="#i-lock"></use></svg>
+              <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Nhập lại mật khẩu">
+            </div>
+          </div>
+          <div class="auth-notice" id="authError" role="alert" hidden>
+            <svg class="icon"><use href="#i-info"></use></svg><span id="authErrorText"></span>
+          </div>
+          <button class="auth-submit" id="authSubmit" type="submit">
+            <span id="authSubmitText">Đăng nhập</span>
+            <svg class="icon" id="authSubmitArrow"><use href="#i-arrow"></use></svg>
+            <span class="spinner" id="authSpinner" hidden aria-hidden="true"></span>
+          </button>
+        </form>
+        <p class="auth-switch" id="authSwitchText">Chưa có tài khoản? <button id="toggleAuthMode" type="button">Đăng ký ngay</button></p>
+        <div class="auth-divider">Bắt đầu kết nối</div>
+        <p class="auth-footnote"><svg class="icon"><use href="#i-shield"></use></svg><span>Tài khoản được xác thực bằng Firebase. Hãy dùng email và mật khẩu của riêng bạn để đăng nhập an toàn.</span></p>
+      </div>
+    </section>
+    <div class="auth-bottom">© 2026 Chạm · Một góc nhỏ dành cho những kết nối thật.</div>
+  </main>
+
+  <div class="app-view" id="appView" hidden>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Điều hướng">
+        <div class="brand-lockup">
+          <div class="brand-mark"><svg class="icon"><use href="#i-mark"></use></svg></div>
+          <div><span class="brand-name">chạm</span><span class="brand-caption">YOUR SPACE, YOUR PEOPLE</span></div>
+        </div>
+        <div class="workspace-switch">
+          <div class="workspace-icon"><svg class="icon"><use href="#i-sparkles"></use></svg></div>
+          <div class="workspace-copy"><strong>Không gian Chạm</strong><span>Máy chủ cộng đồng</span></div>
+          <svg class="icon"><use href="#i-chevron"></use></svg>
+        </div>
+        <p class="side-label">KHÔNG GIAN</p>
+        <nav class="side-nav">
+          <button class="nav-link active" id="navChat" type="button" title="Trò chuyện">
+            <svg class="icon"><use href="#i-chat"></use></svg><span>Trò chuyện</span>
+          </button>
+          <button class="nav-link" id="navMembers" type="button" title="Thành viên">
+            <svg class="icon"><use href="#i-users"></use></svg><span>Thành viên</span><span class="nav-count" id="navMemberCount">0</span>
+          </button>
+        </nav>
+        <div class="sidebar-channel-block">
+          <div class="sidebar-section-title"><span>KÊNH CỦA BẠN</span><button id="channelAddButton" type="button" aria-label="Tạo kênh" title="Kênh hiện tại"><svg class="icon"><use href="#i-plus"></use></svg></button></div>
+          <button class="channel-link" id="channelGeneral" type="button"><span class="channel-mark">#</span><span>phòng-chung</span></button>
+          <button class="channel-link" id="channelAnnouncements" type="button"><svg class="icon"><use href="#i-bell"></use></svg><span>thông-báo</span><span class="channel-unread" id="announcementUnread" hidden></span></button>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-tip">
+          <div class="sidebar-tip-head"><svg class="icon"><use href="#i-sparkles"></use></svg><span>Góc nhỏ của bạn</span></div>
+          <p>Một lời chào thân thiện có thể mở đầu cho một tình bạn mới.</p>
+        </div>
+        <div class="profile-chip">
+          <div class="avatar" id="sidebarAvatar">?</div>
+          <div class="profile-text"><strong id="sidebarName">Thành viên</strong><span id="sidebarEmail">Đang đăng nhập</span></div>
+          <button class="profile-logout" id="logoutButton" type="button" title="Đăng xuất" aria-label="Đăng xuất"><svg class="icon"><use href="#i-logout"></use></svg></button>
+        </div>
+      </aside>
+
+      <div class="main-layout">
+        <header class="topbar">
+          <div class="topbar-heading">
+            <p class="breadcrumbs">CHẠM <span>/ CỘNG ĐỒNG</span></p>
+            <h1>Không gian trò chuyện</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="connection-pill" id="connectionPill"><span class="connection-dot"></span><span class="connection-label" id="connectionLabel">Đang kết nối</span></div>
+            <span class="role-pill" id="rolePill" hidden><svg class="icon"><use href="#i-crown"></use></svg><span>Quản trị viên</span></span>
+            <button class="topbar-button admin-button" id="openAdminButton" type="button" hidden><svg class="icon"><use href="#i-shield"></use></svg><span>Quản trị</span></button>
+            <button class="topbar-button secondary mobile-members-button" id="mobileMembersButton" type="button" title="Danh sách thành viên"><svg class="icon"><use href="#i-users"></use></svg><span>Thành viên</span></button>
+            <button class="topbar-button secondary mobile-logout-button" id="mobileLogoutButton" type="button" title="Đăng xuất" aria-label="Đăng xuất"><svg class="icon"><use href="#i-logout"></use></svg></button>
+          </div>
+        </header>
+
+        <main class="content-grid">
+          <section class="chat-panel" aria-label="Phòng trò chuyện chung">
+            <div class="channel-toolbar">
+              <div class="channel-title-group">
+                <div class="channel-symbol">#</div>
+                <div class="channel-title-copy"><h2>phòng-chung</h2><p><span class="small-online"></span><span id="channelMemberSummary">Nơi mọi người cùng trò chuyện</span></p></div>
+              </div>
+              <div class="channel-tools">
+                <div class="tool-avatars" id="headerAvatars" aria-hidden="true"></div>
+                <span class="tool-caption" id="headerMemberCount">0 thành viên</span>
+                <span class="tool-divider"></span>
+                <button class="icon-button" id="jumpLatestButton" type="button" title="Tin nhắn mới nhất" aria-label="Đi tới tin nhắn mới nhất"><svg class="icon"><use href="#i-clock"></use></svg></button>
+              </div>
+            </div>
+            <div class="announcement-banner" id="announcementBanner" hidden>
+              <div class="announcement-icon"><svg class="icon"><use href="#i-megaphone"></use></svg></div>
+              <div class="announcement-copy"><strong>Thông báo toàn máy chủ</strong><p id="announcementBannerText"></p><small id="announcementBannerTime"></small></div>
+              <button class="banner-close" id="closeAnnouncementBanner" type="button" title="Ẩn thông báo" aria-label="Ẩn thông báo"><svg class="icon"><use href="#i-close"></use></svg></button>
+            </div>
+            <div class="messages-area" id="chatMessages" role="log" aria-label="Tin nhắn trong phòng" aria-live="polite" aria-relevant="additions text">
+              <div class="chat-empty" id="chatEmptyState">
+                <div class="empty-illustration"><svg class="icon"><use href="#i-chat"></use></svg></div>
+                <h3>Bắt đầu câu chuyện đầu tiên</h3>
+                <p>Hãy gửi một lời chào — mọi người trong không gian này đều có thể cùng tham gia.</p>
+              </div>
+            </div>
+            <div class="composer-wrap">
+              <form id="messageForm" autocomplete="off">
+                <div class="composer-box">
+                  <textarea id="messageInput" rows="1" maxlength="800" placeholder="Viết tin nhắn cho mọi người..." aria-label="Nội dung tin nhắn"></textarea>
+                  <button class="send-button" id="sendButton" type="submit" aria-label="Gửi tin nhắn" disabled><svg class="icon"><use href="#i-send"></use></svg></button>
+                </div>
+                <div class="composer-hint"><span><strong>Enter</strong> để gửi · <strong>Shift + Enter</strong> để xuống dòng</span><span class="char-count" id="messageCharCount">0 / 800</span></div>
+              </form>
+            </div>
+          </section>
+
+          <aside class="right-panel" id="membersPanel" aria-label="Thành viên trong máy chủ">
+            <section class="server-card">
+              <div class="server-card-label"><svg class="icon"><use href="#i-sparkles"></use></svg><span>CỘNG ĐỒNG CỦA BẠN</span></div>
+              <h2>Không gian Chạm</h2>
+              <p>Một nơi thân thiện để chia sẻ và kết nối mỗi ngày.</p>
+              <div class="server-stats">
+                <div class="server-stat"><strong id="totalMemberCount">0</strong><span>Thành viên</span></div>
+                <div class="server-stat"><strong id="onlineMemberCount">0</strong><span>Đang trực tuyến</span></div>
+              </div>
+            </section>
+            <section class="members-section">
+              <div class="panel-heading"><h3>Thành viên</h3><span id="memberPanelCount">0 người</span></div>
+              <div class="member-list" id="memberList"><div class="member-empty">Đang tải danh sách thành viên...</div></div>
+              <div class="members-footer"><svg class="icon"><use href="#i-wifi"></use></svg><span id="membersFooterText">Danh sách được cập nhật realtime</span></div>
+            </section>
+          </aside>
+        </main>
+      </div>
     </div>
-    <div class="chat-messages" id="chatBox"></div>
-    <div class="chat-input-area">
-        <input type="text" id="message" placeholder="Nhập tin nhắn..." onkeydown="if(event.key === 'Enter') sendMessage()">
-        <button onclick="sendMessage()">Gửi</button>
-    </div>
-</div>
+  </div>
 
-<!-- Firebase Compat SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <div class="admin-overlay" id="adminOverlay" aria-hidden="true">
+    <div class="admin-backdrop" id="adminBackdrop" style="position:absolute;inset:0"></div>
+    <aside class="admin-drawer" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <header class="admin-header">
+        <div class="admin-title-wrap">
+          <div class="admin-emblem"><svg class="icon"><use href="#i-shield"></use></svg></div>
+          <div><h2 id="adminTitle">Trung tâm quản trị</h2><p>Quản lý thành viên và thông báo cộng đồng</p></div>
+        </div>
+        <button class="admin-close" id="closeAdminButton" type="button" aria-label="Đóng quản trị"><svg class="icon"><use href="#i-close"></use></svg></button>
+      </header>
+      <div class="admin-tabs" role="tablist" aria-label="Tác vụ quản trị">
+        <button class="admin-tab active" id="adminMembersTabButton" type="button" role="tab" aria-selected="true" data-tab="members"><svg class="icon"><use href="#i-users"></use></svg>Thành viên <span class="admin-tab-count" id="adminTabMemberCount">0</span></button>
+        <button class="admin-tab" id="adminAnnouncementsTabButton" type="button" role="tab" aria-selected="false" data-tab="announcements"><svg class="icon"><use href="#i-megaphone"></use></svg>Thông báo</button>
+      </div>
+      <div class="admin-body" id="adminMembersTab" role="tabpanel">
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card"><span>Tổng thành viên</span><strong id="adminTotalCount">0</strong></div>
+          <div class="admin-stat-card"><span>Đang trực tuyến</span><strong id="adminOnlineCount">0</strong></div>
+          <div class="admin-stat-card banned"><span>Đang bị cấm</span><strong id="adminBannedCount">0</strong></div>
+        </div>
+        <label class="admin-search"><svg class="icon"><use href="#i-search"></use></svg><input id="adminMemberSearch" type="search" placeholder="Tìm theo tên hoặc email..." autocomplete="off" aria-label="Tìm thành viên"></label>
+        <div class="admin-list" id="adminMemberList"><div class="admin-empty">Đang tải thành viên...</div></div>
+        <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Lệnh cấm được lưu ở máy chủ và người bị cấm sẽ bị đăng xuất khỏi ứng dụng. Hãy cấu hình Firebase Security Rules để chỉ quản trị viên được phép ban hoặc bỏ ban.</span></p>
+      </div>
+      <div class="admin-body" id="adminAnnouncementsTab" role="tabpanel" hidden>
+        <div class="announcement-compose">
+          <label for="announcementInput">Gửi thông báo tới toàn bộ máy chủ</label>
+          <textarea id="announcementInput" maxlength="500" placeholder="Viết nội dung quan trọng bạn muốn mọi thành viên nhìn thấy..."></textarea>
+          <div class="announcement-compose-footer"><span id="announcementCharCount">0 / 500</span><button class="publish-button" id="publishAnnouncementButton" type="button"><svg class="icon"><use href="#i-send"></use></svg>Gửi thông báo</button></div>
+        </div>
+        <div class="announcement-list-heading">Thông báo gần đây <span>Chọn thùng rác để xóa</span></div>
+        <div id="adminAnnouncementList"><div class="admin-empty">Chưa có thông báo nào.</div></div>
+        <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Thông báo sẽ xuất hiện trong phòng chung của tất cả thành viên đang đăng nhập. Chỉ tài khoản có quyền admin trên Firebase mới có thể gửi hoặc xóa.</span></p>
+      </div>
+    </aside>
+  </div>
 
-<script>
-    const firebaseConfig = {
+  <div class="confirm-layer" id="confirmLayer" aria-hidden="true">
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmDescription">
+      <div class="confirm-icon"><svg class="icon" id="confirmIcon"><use href="#i-ban"></use></svg></div>
+      <h2 id="confirmTitle">Xác nhận thao tác</h2>
+      <p id="confirmDescription"></p>
+      <div class="confirm-reason" id="confirmReasonWrap" hidden><label for="confirmReason">Lý do (không bắt buộc)</label><textarea id="confirmReason" maxlength="240" placeholder="Ghi chú ngắn để quản trị viên tham khảo..."></textarea></div>
+      <div class="confirm-actions"><button class="dialog-button" id="confirmCancel" type="button">Hủy</button><button class="dialog-button danger" id="confirmAccept" type="button">Xác nhận</button></div>
+    </section>
+  </div>
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="false"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    (() => {
+      'use strict';
+
+      /*
+       * QUYỀN QUẢN TRỊ / BOOTSTRAP:
+       * Trang tĩnh không thể tạo tài khoản đặc quyền an toàn hoặc vô hiệu hóa Firebase Auth.
+       * Tạo tài khoản admin trong Firebase Authentication (đặt mật khẩu mong muốn ở Firebase,
+       * không nhúng mật khẩu vào HTML), sau đó ghi /admins/<UID> = true trong Realtime Database
+       * bằng Firebase Console. Security Rules phải cấm client ghi /admins, chỉ cho admin đọc
+       * /memberEmails và ghi /bans, gửi thông báo hoặc xóa tin nhắn. Các lệnh ban ở đây là ban
+       * truy cập ứng dụng; muốn khóa hẳn tài khoản Firebase cần Cloud Function/Admin SDK phía máy chủ.
+       */
+      const firebaseConfig = {
         apiKey: "AIzaSyAf8xiMmAipgxxrGVDjeLdQIeU1yqVEXu0",
         authDomain: "chat-e58b5.firebaseapp.com",
         databaseURL: "https://chat-e58b5-default-rtdb.firebaseio.com",
@@ -72,113 +1055,1063 @@
         storageBucket: "chat-e58b5.firebasestorage.app",
         messagingSenderId: "723561612208",
         appId: "1:723561612208:web:03f38d2ac4b85e59e18c75"
-    };
+      };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
-    const messagesRef = database.ref("messages");
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+      const els = {
+        authView: $('#authView'), appView: $('#appView'), authForm: $('#authForm'), authTitle: $('#authTitle'),
+        authEyebrow: $('#authEyebrow'), authDescription: $('#authDescription'), authSubmit: $('#authSubmit'),
+        authSubmitText: $('#authSubmitText'), authSubmitArrow: $('#authSubmitArrow'), authSpinner: $('#authSpinner'),
+        authNotice: $('#authNotice'), authNoticeText: $('#authNoticeText'), authError: $('#authError'), authErrorText: $('#authErrorText'),
+        toggleAuthMode: $('#toggleAuthMode'), displayNameField: $('#displayNameField'), displayName: $('#displayName'),
+        email: $('#email'), password: $('#password'), confirmPasswordField: $('#confirmPasswordField'), confirmPassword: $('#confirmPassword'),
+        forgotPassword: $('#forgotPassword'), togglePassword: $('#togglePassword'), sidebarName: $('#sidebarName'), sidebarEmail: $('#sidebarEmail'),
+        sidebarAvatar: $('#sidebarAvatar'), connectionPill: $('#connectionPill'), connectionLabel: $('#connectionLabel'),
+        openAdminButton: $('#openAdminButton'), rolePill: $('#rolePill'), membersPanel: $('#membersPanel'), memberList: $('#memberList'),
+        adminOverlay: $('#adminOverlay'), adminMemberList: $('#adminMemberList'), adminMembersTab: $('#adminMembersTab'),
+        adminAnnouncementsTab: $('#adminAnnouncementsTab'), adminMemberSearch: $('#adminMemberSearch'),
+        announcementInput: $('#announcementInput'), publishAnnouncementButton: $('#publishAnnouncementButton'),
+        adminAnnouncementList: $('#adminAnnouncementList'), chatMessages: $('#chatMessages'), chatEmptyState: $('#chatEmptyState'),
+        messageInput: $('#messageInput'), sendButton: $('#sendButton'), messageCharCount: $('#messageCharCount'),
+        announcementBanner: $('#announcementBanner'), announcementBannerText: $('#announcementBannerText'),
+        announcementBannerTime: $('#announcementBannerTime'), confirmLayer: $('#confirmLayer'), confirmTitle: $('#confirmTitle'),
+        confirmDescription: $('#confirmDescription'), confirmReasonWrap: $('#confirmReasonWrap'), confirmReason: $('#confirmReason'),
+        confirmAccept: $('#confirmAccept'), confirmCancel: $('#confirmCancel'), toastRegion: $('#toastRegion')
+      };
 
-    let isSignUp = false;
-    let currentUser = null;
+      let auth = null;
+      let database = null;
+      let messagesRef = null;
+      let membersRef = null;
+      let memberEmailsRef = null;
+      let presenceRef = null;
+      let adminsRef = null;
+      let bansRef = null;
+      let firebaseReady = false;
 
-    // Chuyển đổi giữa Đăng ký và Đăng nhập
-    function switchAuthMode() {
+      let isSignUp = false;
+      let currentUser = null;
+      let isAdmin = false;
+      let members = {};
+      let memberEmails = {};
+      let presence = {};
+      let bans = {};
+      let messages = new Map();
+      let cleanupFns = [];
+      let stopAdminBanListener = null;
+      let stopAdminEmailListener = null;
+      let authGeneration = 0;
+      let connectionIsOnline = false;
+      let announcementDismissedId = null;
+      let confirmResolver = null;
+      let lastDatabaseErrorAt = 0;
+
+      function icon(name, className = 'icon') {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', className);
+        svg.setAttribute('aria-hidden', 'true');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', `#i-${name}`);
+        svg.appendChild(use);
+        return svg;
+      }
+
+      function textElement(tag, className, text) {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (text !== undefined && text !== null) element.textContent = String(text);
+        return element;
+      }
+
+      function displayNameFor(user = currentUser) {
+        if (!user) return 'Thành viên';
+        return (user.displayName || user.email?.split('@')[0] || 'Thành viên').trim();
+      }
+
+      function initialsFor(name) {
+        const words = String(name || '?').trim().split(/\s+/).filter(Boolean);
+        if (!words.length) return '?';
+        if (words.length === 1) return Array.from(words[0]).slice(0, 2).join('').toLocaleUpperCase('vi-VN');
+        return (Array.from(words[0])[0] + Array.from(words[words.length - 1])[0]).toLocaleUpperCase('vi-VN');
+      }
+
+      function hueFor(seed) {
+        let hash = 0;
+        for (const char of String(seed || 'member')) hash = (hash * 31 + char.charCodeAt(0)) | 0;
+        return Math.abs(hash) % 360;
+      }
+
+      function makeAvatar(name, uid, className = 'avatar') {
+        const avatar = textElement('div', className, initialsFor(name));
+        avatar.style.setProperty('--avatar-hue', hueFor(uid || name));
+        avatar.setAttribute('aria-label', name || 'Thành viên');
+        avatar.title = name || 'Thành viên';
+        return avatar;
+      }
+
+      function setAuthNotice(message, tone = 'error') {
+        if (!message) {
+          els.authNotice.hidden = true;
+          els.authNoticeText.textContent = '';
+          els.authNotice.classList.remove('success', 'info');
+          return;
+        }
+        els.authNotice.hidden = false;
+        els.authNoticeText.textContent = message;
+        els.authNotice.classList.toggle('success', tone === 'success');
+        els.authNotice.classList.toggle('info', tone === 'info');
+      }
+
+      function setAuthError(message) {
+        els.authError.hidden = !message;
+        els.authErrorText.textContent = message || '';
+      }
+
+      function setAuthBusy(busy) {
+        els.authSubmit.disabled = busy;
+        els.authSubmitText.textContent = busy ? 'Đang xử lý...' : (isSignUp ? 'Tạo tài khoản' : 'Đăng nhập');
+        els.authSubmitArrow.hidden = busy;
+        els.authSpinner.hidden = !busy;
+      }
+
+      function friendlyAuthError(error) {
+        const code = error?.code || '';
+        const messagesByCode = {
+          'auth/invalid-email': 'Địa chỉ email chưa đúng định dạng.',
+          'auth/user-not-found': 'Không tìm thấy tài khoản này. Hãy kiểm tra email hoặc đăng ký mới.',
+          'auth/wrong-password': 'Mật khẩu chưa chính xác. Vui lòng thử lại.',
+          'auth/invalid-credential': 'Email hoặc mật khẩu chưa chính xác. Vui lòng kiểm tra lại.',
+          'auth/email-already-in-use': 'Email này đã được sử dụng. Hãy đăng nhập hoặc dùng email khác.',
+          'auth/weak-password': 'Mật khẩu cần có ít nhất 6 ký tự.',
+          'auth/too-many-requests': 'Bạn đã thử quá nhiều lần. Vui lòng chờ một chút rồi thử lại.',
+          'auth/network-request-failed': 'Không thể kết nối máy chủ. Hãy kiểm tra mạng rồi thử lại.',
+          'auth/operation-not-allowed': 'Firebase chưa bật phương thức đăng nhập email/mật khẩu.',
+          'auth/user-disabled': 'Tài khoản này đã bị vô hiệu hóa.',
+          'auth/requires-recent-login': 'Vui lòng đăng nhập lại rồi thử thao tác này.',
+          'auth/invalid-action-code': 'Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.'
+        };
+        return messagesByCode[code] || 'Đã xảy ra lỗi. Vui lòng thử lại sau.';
+      }
+
+      function switchAuthMode() {
         isSignUp = !isSignUp;
-        document.getElementById("authTitle").textContent = isSignUp ? "Đăng Ký Tài Khoản" : "Đăng Nhập";
-        document.getElementById("displayName").style.display = isSignUp ? "block" : "none";
-        document.getElementById("authBtn").textContent = isSignUp ? "Tạo Tài Khoản" : "Đăng Nhập";
-        document.getElementById("toggleAuth").innerHTML = isSignUp 
-            ? "Đã có tài khoản? <span>Đăng nhập</span>" 
-            : "Chưa có tài khoản? <span>Đăng ký ngay</span>";
-    }
+        setAuthError('');
+        setAuthNotice('');
+        els.authForm.classList.remove('mode-pulse');
+        void els.authForm.offsetWidth;
+        els.authForm.classList.add('mode-pulse');
+        els.displayNameField.hidden = !isSignUp;
+        els.confirmPasswordField.hidden = !isSignUp;
+        els.displayName.required = isSignUp;
+        els.confirmPassword.required = isSignUp;
+        els.password.autocomplete = isSignUp ? 'new-password' : 'current-password';
+        els.authTitle.textContent = isSignUp ? 'Tạo tài khoản' : 'Đăng nhập';
+        els.authEyebrow.textContent = isSignUp ? 'BẮT ĐẦU KẾT NỐI' : 'RẤT VUI ĐƯỢC GẶP LẠI';
+        els.authDescription.textContent = isSignUp
+          ? 'Tạo tài khoản miễn phí để tham gia không gian Chạm.'
+          : 'Đăng nhập để tiếp tục những câu chuyện còn dang dở.';
+        els.authSubmitText.textContent = isSignUp ? 'Tạo tài khoản' : 'Đăng nhập';
+        $('#authSwitchText').firstChild.textContent = isSignUp ? 'Đã có tài khoản? ' : 'Chưa có tài khoản? ';
+        els.toggleAuthMode.textContent = isSignUp ? 'Đăng nhập' : 'Đăng ký ngay';
+        els.forgotPassword.hidden = isSignUp;
+        window.setTimeout(() => (isSignUp ? els.displayName : els.email).focus(), 90);
+      }
 
-    // Xử lý Xác thực
-    function handleAuth() {
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
-        const displayName = document.getElementById("displayName").value.trim();
-
+      async function submitAuth(event) {
+        event.preventDefault();
+        setAuthError('');
+        setAuthNotice('');
+        if (!firebaseReady || !auth) {
+          setAuthError('Dịch vụ đăng nhập chưa sẵn sàng. Hãy tải lại trang hoặc kiểm tra kết nối Firebase.');
+          return;
+        }
+        const email = els.email.value.trim();
+        const password = els.password.value;
+        const displayName = els.displayName.value.trim();
+        const confirmPassword = els.confirmPassword.value;
         if (!email || !password) {
-            alert("Vui lòng điền đầy đủ Email và Mật khẩu!");
-            return;
+          setAuthError('Vui lòng nhập email và mật khẩu.');
+          return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          setAuthError('Địa chỉ email chưa đúng định dạng.');
+          els.email.focus();
+          return;
+        }
+        if (password.length < 6) {
+          setAuthError('Mật khẩu cần có ít nhất 6 ký tự.');
+          els.password.focus();
+          return;
+        }
+        if (isSignUp && !displayName) {
+          setAuthError('Vui lòng nhập tên hiển thị.');
+          els.displayName.focus();
+          return;
+        }
+        if (isSignUp && displayName.length > 32) {
+          setAuthError('Tên hiển thị không được dài quá 32 ký tự.');
+          els.displayName.focus();
+          return;
+        }
+        if (isSignUp && password !== confirmPassword) {
+          setAuthError('Mật khẩu xác nhận chưa khớp.');
+          els.confirmPassword.focus();
+          return;
         }
 
-        if (isSignUp) {
-            if (!displayName) { alert("Vui lòng nhập Biệt danh!"); return; }
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    return userCredential.user.updateProfile({ displayName: displayName });
-                })
-                .catch((err) => alert("Lỗi đăng ký: " + err.message));
-        } else {
-            auth.signInWithEmailAndPassword(email, password)
-                .catch((err) => alert("Lỗi đăng nhập: " + err.message));
+        setAuthBusy(true);
+        try {
+          if (isSignUp) {
+            const credential = await auth.createUserWithEmailAndPassword(email, password);
+            await credential.user.updateProfile({ displayName });
+            try { await syncMemberProfile(credential.user); } catch (profileError) { console.warn('Không lưu được hồ sơ thành viên:', profileError); }
+            setAuthNotice('Tài khoản đã được tạo. Đang mở không gian trò chuyện...', 'success');
+          } else {
+            await auth.signInWithEmailAndPassword(email, password);
+          }
+        } catch (error) {
+          setAuthError(friendlyAuthError(error));
+        } finally {
+          setAuthBusy(false);
         }
-    }
+      }
 
-    // Lắng nghe trạng thái Đăng nhập
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            currentUser = user;
-            document.getElementById("authBox").style.display = "none";
-            document.getElementById("chatBoxContainer").style.display = "flex";
-            document.getElementById("currentUserDisplay").textContent = "👤 " + (user.displayName || user.email);
-            loadMessages();
-        } else {
-            currentUser = null;
-            document.getElementById("authBox").style.display = "block";
-            document.getElementById("chatBoxContainer").style.display = "none";
-            document.getElementById("chatBox").innerHTML = "";
+      async function sendPasswordReset() {
+        setAuthError('');
+        const email = els.email.value.trim();
+        if (!email) {
+          setAuthError('Nhập email của bạn trước, sau đó chọn “Quên mật khẩu?”.');
+          els.email.focus();
+          return;
         }
-    });
-
-    // Đăng xuất
-    function logout() {
-        auth.signOut();
-    }
-
-    // Gửi tin nhắn
-    function sendMessage() {
-        const messageInput = document.getElementById("message");
-        const text = messageInput.value.trim();
-
-        if (text !== "" && currentUser) {
-            messagesRef.push({
-                uid: currentUser.uid,
-                name: currentUser.displayName || currentUser.email.split('@')[0],
-                text: text,
-                timestamp: Date.now()
-            });
-            messageInput.value = "";
+        if (!firebaseReady || !auth) {
+          setAuthError('Dịch vụ đăng nhập chưa sẵn sàng.');
+          return;
         }
-    }
+        els.forgotPassword.disabled = true;
+        try {
+          await auth.sendPasswordResetEmail(email);
+          setAuthNotice('Đã gửi hướng dẫn đặt lại mật khẩu tới email của bạn. Hãy kiểm tra cả thư mục spam.', 'success');
+        } catch (error) {
+          setAuthError(friendlyAuthError(error));
+        } finally {
+          els.forgotPassword.disabled = false;
+        }
+      }
 
-    // Lắng nghe tin nhắn
-    function loadMessages() {
-        messagesRef.off(); // Reset listener cũ
-        messagesRef.limitToLast(50).on("child_added", (snapshot) => {
-            const data = snapshot.val();
-            
-            const msgDiv = document.createElement("div");
-            msgDiv.className = "message-item" + (data.uid === currentUser.uid ? " my-msg" : "");
-            
-            const userDiv = document.createElement("div");
-            userDiv.className = "user";
-            userDiv.textContent = data.name;
+      function setConnectionState(state) {
+        connectionIsOnline = state === 'online';
+        els.connectionPill.classList.toggle('online', state === 'online');
+        els.connectionPill.classList.toggle('offline', state === 'offline');
+        els.connectionLabel.textContent = state === 'online' ? 'Đang trực tuyến' : state === 'offline' ? 'Mất kết nối' : 'Đang kết nối';
+      }
 
-            const textDiv = document.createElement("div");
-            textDiv.className = "text";
-            textDiv.textContent = data.text;
+      function currentTimestamp() {
+        return database?.ServerValue?.TIMESTAMP || Date.now();
+      }
 
-            msgDiv.appendChild(userDiv);
-            msgDiv.appendChild(textDiv);
-            const chatBox = document.getElementById("chatBox");
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+      async function syncMemberProfile(user) {
+        if (!database || !user) return;
+        const ref = membersRef.child(user.uid);
+        let existing = {};
+        try { existing = (await ref.once('value')).val() || {}; } catch (_) { /* A write below may still be allowed by rules. */ }
+        await ref.update({
+          uid: user.uid,
+          name: displayNameFor(user).slice(0, 32),
+          createdAt: existing.createdAt || currentTimestamp(),
+          lastSeen: currentTimestamp()
         });
-    }
-</script>
+        if (memberEmailsRef) {
+          try { await memberEmailsRef.child(user.uid).update({ email: user.email || '' }); }
+          catch (error) { console.warn('Không lưu được email riêng tư của thành viên:', error); }
+        }
+      }
 
+      function subscribe(ref, eventName, callback, onError) {
+        const cancel = (error) => {
+          if (onError) onError(error);
+          else showDatabaseError(error, 'Không thể tải dữ liệu realtime.');
+        };
+        ref.on(eventName, callback, cancel);
+        const stop = () => ref.off(eventName, callback);
+        cleanupFns.push(stop);
+        return stop;
+      }
+
+      function cleanupRealtime() {
+        cleanupFns.forEach((stop) => { try { stop(); } catch (_) {} });
+        cleanupFns = [];
+        stopAdminBanListener = null;
+        stopAdminEmailListener = null;
+        messages.clear();
+        members = {};
+        memberEmails = {};
+        presence = {};
+        bans = {};
+      }
+
+      function showDatabaseError(error, fallback) {
+        const now = Date.now();
+        if (now - lastDatabaseErrorAt < 5000) return;
+        lastDatabaseErrorAt = now;
+        const permissionDenied = error?.code === 'PERMISSION_DENIED' || /permission_denied/i.test(error?.message || '');
+        toast(permissionDenied ? 'Firebase Security Rules chưa cấp quyền cho thao tác hoặc dữ liệu này.' : (fallback || 'Không thể kết nối cơ sở dữ liệu.'), 'error');
+        if (error) console.warn('Firebase Realtime Database:', error);
+      }
+
+      function setAdminState(value) {
+        const next = value === true;
+        if (isAdmin === next) return;
+        isAdmin = next;
+        els.openAdminButton.hidden = !isAdmin;
+        els.rolePill.hidden = !isAdmin;
+        if (isAdmin && bansRef && !stopAdminBanListener) {
+          stopAdminBanListener = subscribe(bansRef, 'value', (snapshot) => {
+            bans = snapshot.val() || {};
+            renderMembers();
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, 'Không thể tải danh sách lệnh cấm.'));
+        } else if (!isAdmin && stopAdminBanListener) {
+          stopAdminBanListener();
+          stopAdminBanListener = null;
+          bans = {};
+        }
+        if (isAdmin && memberEmailsRef && !stopAdminEmailListener) {
+          stopAdminEmailListener = subscribe(memberEmailsRef, 'value', (snapshot) => {
+            memberEmails = snapshot.val() || {};
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, 'Không thể tải email thành viên.'));
+        } else if (!isAdmin && stopAdminEmailListener) {
+          stopAdminEmailListener();
+          stopAdminEmailListener = null;
+          memberEmails = {};
+        }
+        renderMembers();
+        renderAdminPanel();
+        renderAllMessages(false);
+      }
+
+      async function enterWorkspace(user, generation) {
+        setConnectionState('connecting');
+        currentUser = user;
+        updateCurrentUserUI();
+        try {
+          const banSnapshot = await bansRef.child(user.uid).once('value');
+          if (generation !== authGeneration) return;
+          if (banSnapshot.exists()) {
+            const reason = banSnapshot.child('reason').val();
+            signedOutNotice = reason ? `Tài khoản của bạn đang bị chặn truy cập ứng dụng. Lý do: ${reason}` : 'Tài khoản của bạn đang bị chặn truy cập ứng dụng. Hãy liên hệ quản trị viên.';
+            await auth.signOut();
+            return;
+          }
+        } catch (error) {
+          // Nếu Security Rules chưa cho đọc bans/<uid>, các listener bảo vệ vẫn cần được cấu hình ở Firebase.
+          console.warn('Không kiểm tra được trạng thái ban:', error);
+        }
+        if (generation !== authGeneration) return;
+        els.authView.hidden = true;
+        els.appView.hidden = false;
+        try { await syncMemberProfile(user); }
+        catch (error) { showDatabaseError(error, 'Không thể lưu hồ sơ thành viên. Hãy kiểm tra Security Rules.'); }
+        if (generation !== authGeneration) return;
+        startRealtimeListeners(user, generation);
+        setupPresence(user, generation);
+      }
+
+      let signedOutNotice = '';
+      function handleAuthState(user) {
+        const generation = ++authGeneration;
+        cleanupRealtime();
+        currentUser = user || null;
+        setAdminState(false);
+        setConnectionState('connecting');
+        if (!user) {
+          els.appView.hidden = true;
+          els.authView.hidden = false;
+          els.sidebarName.textContent = 'Thành viên';
+          els.sidebarEmail.textContent = 'Đang đăng nhập';
+          els.sidebarAvatar.textContent = '?';
+          els.chatMessages.replaceChildren(els.chatEmptyState);
+          els.announcementBanner.hidden = true;
+          if (signedOutNotice) {
+            setAuthNotice(signedOutNotice, 'error');
+            signedOutNotice = '';
+          }
+          return;
+        }
+        setAuthNotice('');
+        setAuthError('');
+        void enterWorkspace(user, generation).catch((error) => {
+          console.error('Không thể khởi tạo phiên trò chuyện:', error);
+          toast('Không thể mở không gian trò chuyện. Hãy tải lại trang và thử lại.', 'error');
+        });
+      }
+
+      function startRealtimeListeners(user, generation) {
+        const messageQuery = messagesRef.orderByChild('timestamp').limitToLast(100);
+        els.chatMessages.replaceChildren(els.chatEmptyState);
+        messageQuery.once('value').then((snapshot) => {
+          if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
+          messages.clear();
+          snapshot.forEach((child) => messages.set(child.key, child.val() || {}));
+          renderAllMessages(true);
+          updateAnnouncementBanner();
+          renderAdminPanel();
+          subscribe(messageQuery, 'child_added', (child) => {
+            if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
+            const isNew = !messages.has(child.key);
+            messages.set(child.key, child.val() || {});
+            if (isNew) renderAllMessages(false, true);
+            updateAnnouncementBanner();
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, 'Không thể tải tin nhắn.'));
+          subscribe(messageQuery, 'child_changed', (child) => {
+            if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
+            messages.set(child.key, child.val() || {});
+            renderAllMessages(false);
+            updateAnnouncementBanner();
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, 'Không thể cập nhật tin nhắn.'));
+          subscribe(messageQuery, 'child_removed', (child) => {
+            if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
+            messages.delete(child.key);
+            renderAllMessages(false);
+            updateAnnouncementBanner();
+            renderAdminPanel();
+          }, (error) => showDatabaseError(error, 'Không thể đồng bộ thao tác xóa tin nhắn.'));
+        }).catch((error) => {
+          showDatabaseError(error, 'Không thể tải tin nhắn. Kiểm tra quyền đọc /messages trong Firebase.');
+          if (generation === authGeneration) renderAllMessages(true);
+        });
+
+        subscribe(membersRef, 'value', (snapshot) => {
+          if (generation !== authGeneration) return;
+          members = snapshot.val() || {};
+          renderMembers();
+          renderAdminPanel();
+        }, (error) => showDatabaseError(error, 'Không thể tải danh sách thành viên.'));
+        subscribe(presenceRef, 'value', (snapshot) => {
+          if (generation !== authGeneration) return;
+          presence = snapshot.val() || {};
+          renderMembers();
+          renderAdminPanel();
+        }, (error) => showDatabaseError(error, 'Không thể tải trạng thái trực tuyến.'));
+        subscribe(bansRef.child(user.uid), 'value', (snapshot) => {
+          if (generation !== authGeneration || !snapshot.exists()) return;
+          const reason = snapshot.child('reason').val();
+          signedOutNotice = reason ? `Tài khoản của bạn đang bị chặn truy cập ứng dụng. Lý do: ${reason}` : 'Tài khoản của bạn đang bị chặn truy cập ứng dụng. Hãy liên hệ quản trị viên.';
+          toast('Tài khoản của bạn đã bị chặn truy cập ứng dụng.', 'error');
+          void auth.signOut();
+        }, (error) => showDatabaseError(error, 'Không thể theo dõi trạng thái tài khoản.'));
+        subscribe(adminsRef.child(user.uid), 'value', (snapshot) => {
+          if (generation !== authGeneration) return;
+          setAdminState(snapshot.val() === true);
+        }, (error) => {
+          setAdminState(false);
+          showDatabaseError(error, 'Không thể xác minh quyền quản trị.');
+        });
+      }
+
+      function setupPresence(user, generation) {
+        const connectedRef = database.ref('.info/connected');
+        const handler = (snapshot) => {
+          if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
+          const connected = snapshot.val() === true;
+          if (!connected) {
+            setConnectionState('offline');
+            return;
+          }
+          setConnectionState('online');
+          const myPresence = presenceRef.child(user.uid);
+          myPresence.onDisconnect().remove().then(() => {
+            if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
+            return myPresence.set({ state: 'online', lastChanged: currentTimestamp() });
+          }).then(() => {
+            if (generation === authGeneration) membersRef.child(user.uid).update({ lastSeen: currentTimestamp() }).catch((error) => console.warn('Presence update:', error));
+          }).catch((error) => console.warn('Presence setup:', error));
+        };
+        connectedRef.on('value', handler, (error) => showDatabaseError(error, 'Không thể xác định trạng thái kết nối.'));
+        cleanupFns.push(() => connectedRef.off('value', handler));
+      }
+
+      function updateCurrentUserUI() {
+        const name = displayNameFor(currentUser);
+        els.sidebarName.textContent = name;
+        els.sidebarEmail.textContent = currentUser?.email || 'Thành viên';
+        els.sidebarAvatar.replaceChildren(document.createTextNode(initialsFor(name)));
+        els.sidebarAvatar.style.setProperty('--avatar-hue', hueFor(currentUser?.uid || name));
+      }
+
+      function timestampOf(data) {
+        const value = data?.timestamp ?? data?.createdAt;
+        const numeric = typeof value === 'number' ? value : Number(value);
+        return Number.isFinite(numeric) && numeric > 0 ? numeric : Date.now();
+      }
+
+      function formatTime(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit' }).format(date);
+      }
+
+      function formatDateTime(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Vừa xong';
+        return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(date);
+      }
+
+      function makeDeleteButton(messageId, label = 'Xóa tin nhắn') {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'message-delete';
+        button.dataset.deleteMessage = messageId;
+        button.setAttribute('aria-label', label);
+        button.title = label;
+        button.appendChild(icon('trash'));
+        return button;
+      }
+
+      function buildMessageNode(id, data) {
+        const isAnnouncement = data.kind === 'announcement';
+        const isMine = data.uid === currentUser?.uid;
+        const name = data.name || 'Thành viên';
+        const time = timestampOf(data);
+        const row = textElement('article', `message-row${isMine ? ' mine' : ''}${isAnnouncement ? ' announcement-row' : ''}`);
+        row.dataset.messageId = id;
+        row.dataset.timestamp = String(time);
+        row.setAttribute('aria-label', isAnnouncement ? 'Thông báo toàn máy chủ' : `Tin nhắn từ ${name}`);
+
+        if (isAnnouncement) {
+          const announcement = textElement('div', 'server-announcement');
+          const head = textElement('div', 'server-announcement-head');
+          head.append(icon('megaphone'));
+          head.append(textElement('span', '', 'Thông báo toàn máy chủ'));
+          const content = textElement('p', '', data.text || '');
+          const meta = textElement('div', 'server-announcement-meta');
+          meta.append(textElement('span', '', `Gửi bởi ${name}`));
+          meta.append(textElement('time', '', formatDateTime(time)));
+          announcement.append(head, content, meta);
+          row.appendChild(announcement);
+        } else {
+          const avatar = makeAvatar(name, data.uid, 'avatar message-avatar');
+          const content = textElement('div', 'message-content');
+          const meta = textElement('div', 'message-meta');
+          meta.append(textElement('span', 'message-name', name));
+          meta.append(textElement('time', 'message-time', formatTime(time)));
+          const bubble = textElement('div', 'message-bubble', data.text || '');
+          content.append(meta, bubble);
+          row.append(avatar, content);
+        }
+        if (isAdmin) row.appendChild(makeDeleteButton(id, isAnnouncement ? 'Xóa thông báo' : 'Xóa tin nhắn'));
+        return row;
+      }
+
+      function renderAllMessages(scrollToEnd = false, newArrival = false) {
+        const wasNearBottom = els.chatMessages.scrollHeight - els.chatMessages.scrollTop - els.chatMessages.clientHeight < 130;
+        const sorted = Array.from(messages.entries()).sort((a, b) => timestampOf(a[1]) - timestampOf(b[1]));
+        const fragment = document.createDocumentFragment();
+        for (const [id, data] of sorted) fragment.appendChild(buildMessageNode(id, data || {}));
+        if (!sorted.length) fragment.appendChild(els.chatEmptyState);
+        els.chatMessages.replaceChildren(fragment);
+        if (scrollToEnd || (newArrival && wasNearBottom)) requestAnimationFrame(() => { els.chatMessages.scrollTop = els.chatMessages.scrollHeight; });
+      }
+
+      function updateAnnouncementBanner() {
+        const latest = Array.from(messages.entries())
+          .filter(([, data]) => data?.kind === 'announcement')
+          .sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0];
+        if (!latest) {
+          els.announcementBanner.hidden = true;
+          $('#announcementUnread').hidden = true;
+          return;
+        }
+        const [id, data] = latest;
+        if (announcementDismissedId === id) {
+          els.announcementBanner.hidden = true;
+        } else {
+          els.announcementBanner.hidden = false;
+          els.announcementBannerText.textContent = data.text || '';
+          els.announcementBannerTime.textContent = `${data.name || 'Quản trị viên'} · ${formatDateTime(timestampOf(data))}`;
+        }
+        $('#announcementUnread').hidden = false;
+      }
+
+      function makeMemberRow(uid, member, adminRow = false) {
+        const safeMember = member || {};
+        const name = safeMember.name || safeMember.displayName || safeMember.email?.split('@')[0] || 'Thành viên';
+        const isOnline = Boolean(presence[uid]);
+        const isBanned = Boolean(bans[uid]);
+        if (adminRow) {
+          const row = textElement('div', 'admin-member-row');
+          row.appendChild(makeAvatar(name, uid));
+          const meta = textElement('div', 'admin-member-meta');
+          meta.append(textElement('strong', '', name));
+          meta.append(textElement('span', '', memberEmails[uid]?.email || safeMember.email || uid));
+          row.appendChild(meta);
+          const actions = textElement('div', 'admin-member-actions');
+          const status = textElement('span', `status-tag${isBanned ? ' banned' : ''}`);
+          status.appendChild(textElement('span', 'tag-dot'));
+          status.append(document.createTextNode(isBanned ? 'Bị cấm' : isOnline ? 'Trực tuyến' : 'Ngoại tuyến'));
+          actions.appendChild(status);
+          if (uid !== currentUser?.uid) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `admin-action${isBanned ? ' unban' : ''}`;
+            button.dataset.memberAction = isBanned ? 'unban' : 'ban';
+            button.dataset.uid = uid;
+            button.title = isBanned ? 'Bỏ cấm thành viên' : 'Cấm thành viên';
+            button.setAttribute('aria-label', button.title);
+            button.appendChild(icon(isBanned ? 'unban' : 'ban'));
+            actions.appendChild(button);
+          }
+          row.appendChild(actions);
+          return row;
+        }
+
+        const row = textElement('div', 'member-row');
+        const avatarWrap = textElement('div', 'member-avatar-wrap');
+        avatarWrap.appendChild(makeAvatar(name, uid));
+        const status = textElement('span', `presence-indicator${isOnline ? ' is-online' : ''}`);
+        status.setAttribute('aria-label', isOnline ? 'Đang trực tuyến' : 'Ngoại tuyến');
+        avatarWrap.appendChild(status);
+        const copy = textElement('div', 'member-copy');
+        copy.appendChild(textElement('strong', '', name));
+        if (currentUser?.uid === uid && isAdmin) {
+          const badge = textElement('span', 'member-badge');
+          badge.appendChild(icon('crown'));
+          badge.append(document.createTextNode('Quản trị viên'));
+          copy.appendChild(badge);
+        } else {
+          copy.appendChild(textElement('span', '', isOnline ? 'Đang hoạt động' : 'Đã tham gia'));
+        }
+        row.append(avatarWrap, copy);
+        return row;
+      }
+
+      function memberEntries() {
+        return Object.entries(members).map(([uid, member]) => [uid, member || {}]).sort((a, b) => {
+          const onlineDiff = Number(Boolean(presence[b[0]])) - Number(Boolean(presence[a[0]]));
+          if (onlineDiff) return onlineDiff;
+          return String(a[1].name || a[1].email || '').localeCompare(String(b[1].name || b[1].email || ''), 'vi');
+        });
+      }
+
+      function renderMembers() {
+        const entries = memberEntries();
+        const onlineCount = Object.keys(presence).length;
+        $('#totalMemberCount').textContent = String(entries.length);
+        $('#onlineMemberCount').textContent = String(onlineCount);
+        $('#memberPanelCount').textContent = `${entries.length} người`;
+        $('#navMemberCount').textContent = String(entries.length);
+        $('#headerMemberCount').textContent = `${entries.length} thành viên`;
+        $('#channelMemberSummary').textContent = `${onlineCount} người đang trò chuyện`;
+        $('#adminTabMemberCount').textContent = String(entries.length);
+        const memberFragment = document.createDocumentFragment();
+        if (!entries.length) {
+          memberFragment.appendChild(textElement('div', 'member-empty', 'Chưa có thành viên nào. Hãy là người đầu tiên bắt đầu trò chuyện!'));
+        } else {
+          entries.slice(0, 100).forEach(([uid, member]) => memberFragment.appendChild(makeMemberRow(uid, member)));
+        }
+        els.memberList.replaceChildren(memberFragment);
+        const avatarFragment = document.createDocumentFragment();
+        entries.filter(([uid]) => presence[uid]).slice(0, 3).forEach(([uid, member]) => {
+          const name = member.name || member.email?.split('@')[0] || 'Thành viên';
+          avatarFragment.appendChild(makeAvatar(name, uid, 'avatar'));
+        });
+        if (onlineCount > 3) avatarFragment.appendChild(textElement('div', 'avatar more', `+${onlineCount - 3}`));
+        $('#headerAvatars').replaceChildren(avatarFragment);
+        renderAdminPanel();
+      }
+
+      function renderAdminPanel() {
+        if (!isAdmin) return;
+        const entries = memberEntries();
+        const onlineCount = Object.keys(presence).length;
+        const bannedCount = Object.keys(bans).length;
+        $('#adminTotalCount').textContent = String(entries.length);
+        $('#adminOnlineCount').textContent = String(onlineCount);
+        $('#adminBannedCount').textContent = String(bannedCount);
+        $('#adminTabMemberCount').textContent = String(entries.length);
+        const query = (els.adminMemberSearch.value || '').trim().toLocaleLowerCase('vi');
+        const filtered = entries.filter(([uid, member]) => {
+          const text = `${member.name || ''} ${memberEmails[uid]?.email || member.email || ''} ${uid}`.toLocaleLowerCase('vi');
+          return !query || text.includes(query);
+        });
+        const list = document.createDocumentFragment();
+        if (!filtered.length) list.appendChild(textElement('div', 'admin-empty', query ? 'Không tìm thấy thành viên phù hợp.' : 'Chưa có thành viên nào.'));
+        else filtered.forEach(([uid, member]) => list.appendChild(makeMemberRow(uid, member, true)));
+        els.adminMemberList.replaceChildren(list);
+
+        const announcementEntries = Array.from(messages.entries())
+          .filter(([, message]) => message?.kind === 'announcement')
+          .sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]));
+        const announcementList = document.createDocumentFragment();
+        if (!announcementEntries.length) {
+          announcementList.appendChild(textElement('div', 'admin-empty', 'Chưa có thông báo nào trong 100 tin nhắn gần nhất.'));
+        } else {
+          announcementEntries.slice(0, 30).forEach(([id, message]) => {
+            const item = textElement('div', 'admin-announcement-item');
+            item.appendChild(icon('megaphone'));
+            const copy = textElement('div', 'admin-announcement-copy');
+            copy.appendChild(textElement('p', '', message.text || ''));
+            copy.appendChild(textElement('span', '', `${message.name || 'Quản trị viên'} · ${formatDateTime(timestampOf(message))}`));
+            item.appendChild(copy);
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.dataset.deleteMessage = id;
+            remove.setAttribute('aria-label', 'Xóa thông báo');
+            remove.title = 'Xóa thông báo';
+            remove.appendChild(icon('trash'));
+            item.appendChild(remove);
+            announcementList.appendChild(item);
+          });
+        }
+        els.adminAnnouncementList.replaceChildren(announcementList);
+      }
+
+      function updateMessageComposer() {
+        const length = els.messageInput.value.length;
+        els.messageCharCount.textContent = `${length} / 800`;
+        els.sendButton.disabled = !currentUser || !els.messageInput.value.trim() || length > 800;
+        els.messageInput.style.height = 'auto';
+        els.messageInput.style.height = `${Math.min(els.messageInput.scrollHeight, 118)}px`;
+      }
+
+      async function sendMessage(event) {
+        event?.preventDefault();
+        if (!currentUser || !messagesRef) return;
+        const text = els.messageInput.value.trim();
+        if (!text) return;
+        if (text.length > 800) {
+          toast('Tin nhắn tối đa 800 ký tự.', 'error');
+          return;
+        }
+        els.sendButton.disabled = true;
+        try {
+          await messagesRef.push({
+            uid: currentUser.uid,
+            name: displayNameFor(currentUser).slice(0, 32),
+            text,
+            kind: 'message',
+            timestamp: currentTimestamp()
+          });
+          els.messageInput.value = '';
+          updateMessageComposer();
+          els.messageInput.focus();
+        } catch (error) {
+          showDatabaseError(error, 'Không gửi được tin nhắn. Hãy thử lại sau.');
+        } finally {
+          updateMessageComposer();
+        }
+      }
+
+      async function sendAnnouncement() {
+        if (!currentUser || !isAdmin) {
+          toast('Bạn không có quyền gửi thông báo toàn máy chủ.', 'error');
+          return;
+        }
+        const text = els.announcementInput.value.trim();
+        if (!text) {
+          toast('Hãy nhập nội dung thông báo trước khi gửi.', 'error');
+          els.announcementInput.focus();
+          return;
+        }
+        els.publishAnnouncementButton.disabled = true;
+        try {
+          await messagesRef.push({
+            uid: currentUser.uid,
+            name: displayNameFor(currentUser).slice(0, 32),
+            text,
+            kind: 'announcement',
+            timestamp: currentTimestamp()
+          });
+          els.announcementInput.value = '';
+          $('#announcementCharCount').textContent = '0 / 500';
+          toast('Thông báo đã được gửi tới toàn bộ máy chủ.', 'success');
+        } catch (error) {
+          showDatabaseError(error, 'Không gửi được thông báo. Hãy kiểm tra quyền quản trị trong Firebase.');
+        } finally {
+          els.publishAnnouncementButton.disabled = false;
+        }
+      }
+
+      function openConfirm({ title, description, acceptLabel = 'Xác nhận', tone = 'danger', reason = false, iconName = 'ban' }) {
+        if (confirmResolver) confirmResolver(null);
+        els.confirmTitle.textContent = title;
+        els.confirmDescription.textContent = description;
+        els.confirmAccept.textContent = acceptLabel;
+        els.confirmAccept.className = `dialog-button ${tone}`;
+        els.confirmReasonWrap.hidden = !reason;
+        els.confirmReason.value = '';
+        const use = $('#confirmIcon use');
+        use.setAttribute('href', `#i-${iconName}`);
+        els.confirmLayer.classList.add('open');
+        els.confirmLayer.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('body-locked');
+        window.setTimeout(() => (reason ? els.confirmReason : els.confirmCancel).focus(), 30);
+        return new Promise((resolve) => { confirmResolver = resolve; });
+      }
+
+      function closeConfirm(result) {
+        els.confirmLayer.classList.remove('open');
+        els.confirmLayer.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('body-locked');
+        if (confirmResolver) {
+          const resolve = confirmResolver;
+          confirmResolver = null;
+          resolve(result);
+        }
+      }
+
+      async function deleteMessage(messageId) {
+        if (!isAdmin || !messagesRef) return;
+        const data = messages.get(messageId);
+        if (!data) return;
+        const isAnnouncement = data.kind === 'announcement';
+        const confirm = await openConfirm({
+          title: isAnnouncement ? 'Xóa thông báo này?' : 'Xóa tin nhắn này?',
+          description: 'Thao tác này sẽ xóa nội dung khỏi máy chủ và tất cả thành viên sẽ không còn nhìn thấy tin nhắn.',
+          acceptLabel: 'Xóa nội dung',
+          tone: 'danger',
+          iconName: 'trash'
+        });
+        if (!confirm) return;
+        try {
+          await messagesRef.child(messageId).remove();
+          toast(isAnnouncement ? 'Đã xóa thông báo.' : 'Đã xóa tin nhắn.', 'success');
+        } catch (error) {
+          showDatabaseError(error, 'Không thể xóa nội dung. Hãy kiểm tra quyền admin trong Firebase.');
+        }
+      }
+
+      async function manageBan(uid, shouldBan) {
+        if (!isAdmin || !currentUser || !uid) return;
+        if (uid === currentUser.uid) {
+          toast('Bạn không thể tự cấm tài khoản quản trị đang sử dụng.', 'error');
+          return;
+        }
+        const member = members[uid] || {};
+        const name = member.name || member.email?.split('@')[0] || 'thành viên này';
+        if (shouldBan) {
+          const result = await openConfirm({
+            title: `Cấm ${name}?`,
+            description: 'Thành viên sẽ bị đăng xuất và không thể truy cập lại ứng dụng cho tới khi được bỏ cấm. Lệnh này không vô hiệu hóa tài khoản Firebase.',
+            acceptLabel: 'Cấm truy cập', tone: 'danger', reason: true, iconName: 'ban'
+          });
+          if (!result) return;
+          try {
+            await bansRef.child(uid).set({
+              reason: result.reason || '',
+              bannedBy: currentUser.uid,
+              bannedAt: currentTimestamp()
+            });
+            toast(`Đã cấm truy cập của ${name}.`, 'success');
+          } catch (error) {
+            showDatabaseError(error, 'Không thể cấm thành viên. Hãy kiểm tra Firebase Security Rules.');
+          }
+        } else {
+          const result = await openConfirm({
+            title: `Bỏ cấm ${name}?`,
+            description: 'Thành viên có thể đăng nhập và sử dụng ứng dụng trở lại sau khi lệnh cấm được gỡ.',
+            acceptLabel: 'Bỏ cấm', tone: 'primary', iconName: 'unban'
+          });
+          if (!result) return;
+          try {
+            await bansRef.child(uid).remove();
+            toast(`Đã bỏ cấm ${name}.`, 'success');
+          } catch (error) {
+            showDatabaseError(error, 'Không thể bỏ cấm thành viên. Hãy kiểm tra Firebase Security Rules.');
+          }
+        }
+      }
+
+      function openAdmin() {
+        if (!isAdmin) {
+          toast('Tài khoản hiện tại chưa được cấp quyền quản trị.', 'error');
+          return;
+        }
+        els.adminOverlay.classList.add('open');
+        els.adminOverlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('body-locked');
+        renderAdminPanel();
+        window.setTimeout(() => $('#closeAdminButton').focus(), 60);
+      }
+
+      function closeAdmin() {
+        els.adminOverlay.classList.remove('open');
+        els.adminOverlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('body-locked');
+        els.openAdminButton.focus();
+      }
+
+      function switchAdminTab(name) {
+        const isMembers = name === 'members';
+        $('#adminMembersTabButton').classList.toggle('active', isMembers);
+        $('#adminAnnouncementsTabButton').classList.toggle('active', !isMembers);
+        $('#adminMembersTabButton').setAttribute('aria-selected', String(isMembers));
+        $('#adminAnnouncementsTabButton').setAttribute('aria-selected', String(!isMembers));
+        els.adminMembersTab.hidden = !isMembers;
+        els.adminAnnouncementsTab.hidden = isMembers;
+        if (!isMembers) els.announcementInput.focus();
+      }
+
+      function toggleMembersPanel() {
+        const open = !els.membersPanel.classList.contains('open');
+        els.membersPanel.classList.toggle('open', open);
+        $('#mobileMembersButton').setAttribute('aria-expanded', String(open));
+      }
+
+      function toast(message, type = 'info') {
+        const item = textElement('div', `toast ${type}`);
+        item.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        const iconName = type === 'success' ? 'check' : type === 'error' ? 'info' : 'sparkles';
+        item.appendChild(icon(iconName));
+        item.appendChild(textElement('span', 'toast-message', message));
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'toast-close';
+        close.setAttribute('aria-label', 'Đóng thông báo');
+        close.appendChild(icon('close'));
+        close.addEventListener('click', () => item.remove());
+        item.appendChild(close);
+        els.toastRegion.appendChild(item);
+        window.setTimeout(() => {
+          if (item.isConnected) {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(6px)';
+            window.setTimeout(() => item.remove(), 220);
+          }
+        }, 4800);
+      }
+
+      function attachEvents() {
+        els.authForm.addEventListener('submit', submitAuth);
+        els.toggleAuthMode.addEventListener('click', switchAuthMode);
+        els.forgotPassword.addEventListener('click', sendPasswordReset);
+        els.email.addEventListener('input', () => { setAuthError(''); if (els.authNotice.classList.contains('success')) setAuthNotice(''); });
+        [els.password, els.confirmPassword, els.displayName].forEach((input) => input.addEventListener('input', () => setAuthError('')));
+        els.togglePassword.addEventListener('click', () => {
+          const show = els.password.type === 'password';
+          els.password.type = show ? 'text' : 'password';
+          $('#togglePassword use').setAttribute('href', show ? '#i-eye-off' : '#i-eye');
+          els.togglePassword.setAttribute('aria-label', show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+          els.togglePassword.title = show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+        });
+        $('#logoutButton').addEventListener('click', async () => {
+          if (!auth) return;
+          try {
+            if (currentUser && database) {
+              await presenceRef.child(currentUser.uid).remove().catch(() => {});
+              await membersRef.child(currentUser.uid).update({ lastSeen: currentTimestamp() }).catch(() => {});
+            }
+            await auth.signOut();
+          } catch (error) { toast(friendlyAuthError(error), 'error'); }
+        });
+        $('#mobileLogoutButton').addEventListener('click', () => $('#logoutButton').click());
+        $('#messageForm').addEventListener('submit', sendMessage);
+        els.messageInput.addEventListener('input', updateMessageComposer);
+        els.messageInput.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage(event);
+          }
+        });
+        $('#navChat').addEventListener('click', () => {
+          $('#navChat').classList.add('active');
+          $('#navMembers').classList.remove('active');
+          els.membersPanel.classList.remove('open');
+          els.messageInput.focus();
+        });
+        $('#navMembers').addEventListener('click', () => {
+          $('#navMembers').classList.add('active');
+          $('#navChat').classList.remove('active');
+          if (window.matchMedia('(max-width: 1080px)').matches) toggleMembersPanel();
+          else els.memberList.scrollTop = 0;
+        });
+        $('#mobileMembersButton').addEventListener('click', toggleMembersPanel);
+        $('#channelGeneral').addEventListener('click', () => els.messageInput.focus());
+        $('#channelAnnouncements').addEventListener('click', () => {
+          const latestId = Array.from(messages.entries()).filter(([, m]) => m.kind === 'announcement').sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0]?.[0];
+          if (latestId) document.querySelector(`[data-message-id="${CSS.escape(latestId)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          else toast('Chưa có thông báo mới.', 'info');
+        });
+        $('#jumpLatestButton').addEventListener('click', () => els.chatMessages.scrollTo({ top: els.chatMessages.scrollHeight, behavior: 'smooth' }));
+        $('#closeAnnouncementBanner').addEventListener('click', () => {
+          const latest = Array.from(messages.entries()).filter(([, m]) => m.kind === 'announcement').sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0];
+          announcementDismissedId = latest?.[0] || null;
+          els.announcementBanner.hidden = true;
+        });
+        els.openAdminButton.addEventListener('click', openAdmin);
+        $('#closeAdminButton').addEventListener('click', closeAdmin);
+        $('#adminBackdrop').addEventListener('click', closeAdmin);
+        $('#adminMembersTabButton').addEventListener('click', () => switchAdminTab('members'));
+        $('#adminAnnouncementsTabButton').addEventListener('click', () => switchAdminTab('announcements'));
+        els.adminMemberSearch.addEventListener('input', renderAdminPanel);
+        $('#announcementCharCount').textContent = '0 / 500';
+        els.announcementInput.addEventListener('input', () => { $('#announcementCharCount').textContent = `${els.announcementInput.value.length} / 500`; });
+        els.publishAnnouncementButton.addEventListener('click', sendAnnouncement);
+        els.adminMemberList.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-member-action]');
+          if (!button) return;
+          void manageBan(button.dataset.uid, button.dataset.memberAction === 'ban');
+        });
+        document.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-delete-message]');
+          if (!button) return;
+          void deleteMessage(button.dataset.deleteMessage);
+        });
+        els.confirmCancel.addEventListener('click', () => closeConfirm(null));
+        els.confirmAccept.addEventListener('click', () => closeConfirm({ confirmed: true, reason: els.confirmReason.value.trim() }));
+        els.confirmLayer.addEventListener('click', (event) => { if (event.target === els.confirmLayer) closeConfirm(null); });
+        els.adminOverlay.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeAdmin(); });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            if (els.confirmLayer.classList.contains('open')) closeConfirm(null);
+            else if (els.adminOverlay.classList.contains('open')) closeAdmin();
+            else els.membersPanel.classList.remove('open');
+          }
+        });
+        document.addEventListener('click', (event) => {
+          if (!els.membersPanel.classList.contains('open')) return;
+          if (window.matchMedia('(max-width: 1080px)').matches && !els.membersPanel.contains(event.target) && !$('#mobileMembersButton').contains(event.target) && !$('#navMembers').contains(event.target)) {
+            els.membersPanel.classList.remove('open');
+            $('#mobileMembersButton').setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+
+      function initializeFirebase() {
+        if (!window.firebase || !window.firebase.auth || !window.firebase.database) {
+          setAuthNotice('Không tải được Firebase SDK. Hãy kiểm tra kết nối Internet rồi tải lại trang.', 'error');
+          els.authSubmit.disabled = true;
+          return;
+        }
+        try {
+          if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+          auth = firebase.auth();
+          database = firebase.database();
+          messagesRef = database.ref('messages');
+          membersRef = database.ref('members');
+          memberEmailsRef = database.ref('memberEmails');
+          presenceRef = database.ref('presence');
+          adminsRef = database.ref('admins');
+          bansRef = database.ref('bans');
+          firebaseReady = true;
+          auth.onAuthStateChanged(handleAuthState, (error) => {
+            setAuthError(friendlyAuthError(error));
+          });
+        } catch (error) {
+          console.error('Firebase init error:', error);
+          setAuthNotice('Không thể khởi tạo Firebase. Hãy kiểm tra cấu hình trong index.html.', 'error');
+          els.authSubmit.disabled = true;
+        }
+      }
+
+      attachEvents();
+      updateMessageComposer();
+      initializeFirebase();
+    })();
+  </script>
 </body>
 </html>
