@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f2f3f5">
-  <meta name="description" content="Chạm — không gian trò chuyện riêng tư, realtime và thân thiện.">
-  <title>Chạm — Không gian trò chuyện</title>
+  <meta name="theme-color" content="#fff7f1">
+  <meta name="description" content="CatChat — ngôi nhà nhỏ để trò chuyện, kết nối và chia sẻ cùng nhau.">
+  <title>CatChat — Ngôi nhà của những cuộc trò chuyện</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: dark;
@@ -37,7 +40,7 @@
         radial-gradient(ellipse at 91% 88%, rgba(154,154,154,.09), transparent 28%),
         var(--page);
       color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Nunito, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       -webkit-font-smoothing: antialiased;
     }
     button, input, textarea { font: inherit; }
@@ -1233,6 +1236,450 @@
     @media (max-width: 390px) {
       .appearance-button { width: 31px; }
     }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CatChat — lớp da "tổ mèo": bảng màu ấm, thẻ bo tròn, mèo dẫn đường
+       ═══════════════════════════════════════════════════════════════ */
+    body[data-theme="light"] {
+      color-scheme: light;
+      --theme-bg: #fdf6ee;
+      --theme-sidebar: #f8eee1;
+      --theme-panel: #fffdfa;
+      --theme-panel-alt: #f7ebdc;
+      --theme-input: #fdf3e7;
+      --theme-line: rgba(122,86,58,.12);
+      --theme-line-strong: rgba(122,86,58,.2);
+      --theme-text: #3c3128;
+      --theme-secondary: #55453a;
+      --theme-muted: #7e6a5a;
+      --theme-subtle: #a38d7b;
+      --theme-accent: #d5763c;
+      --theme-accent-contrast: #fffaf4;
+      --theme-accent-soft: #fbe4d2;
+      --theme-hover: #f3e4d3;
+      --theme-row-hover: rgba(168,114,72,.07);
+      --theme-banner: #fff5e2;
+      --theme-banner-border: #f3ddb6;
+      --theme-danger: #c2555a;
+      --theme-scroll: #e0cbb5;
+      --theme-avatar: linear-gradient(145deg,#ffdcbb,#f6b78b);
+      --theme-shadow: 0 26px 70px rgba(120,80,48,.16);
+      --theme-overlay: rgba(58,40,28,.42);
+      --cat-gradient: linear-gradient(140deg,#f9b56d,#eb7b8d);
+      --cat-glow: rgba(235,140,90,.22);
+      --cat-face-ink: #fff6ec;
+      --cat-ink: #8a4a22;
+      --cat-meow: #d5763c;
+    }
+    body[data-theme="dark"] {
+      color-scheme: dark;
+      --theme-bg: #161219;
+      --theme-sidebar: #1d1822;
+      --theme-panel: #241e2b;
+      --theme-panel-alt: #2c2534;
+      --theme-input: #1b1621;
+      --theme-line: rgba(255,236,224,.09);
+      --theme-line-strong: rgba(255,236,224,.16);
+      --theme-text: #f8ecec;
+      --theme-secondary: #e5d7dd;
+      --theme-muted: #b7a6b3;
+      --theme-subtle: #91818f;
+      --theme-accent: #f3a26c;
+      --theme-accent-contrast: #2a1c14;
+      --theme-accent-soft: rgba(243,162,108,.17);
+      --theme-hover: rgba(255,255,255,.06);
+      --theme-row-hover: rgba(255,255,255,.035);
+      --theme-banner: #302738;
+      --theme-banner-border: rgba(255,236,224,.14);
+      --theme-danger: #f08a92;
+      --theme-scroll: #4a3f52;
+      --theme-avatar: linear-gradient(145deg,#5f4a63,#382c40);
+      --theme-shadow: 0 26px 70px rgba(0,0,0,.5);
+      --theme-overlay: rgba(10,7,14,.66);
+      --cat-gradient: linear-gradient(140deg,#f6b26c,#c978c4);
+      --cat-glow: rgba(201,120,196,.26);
+      --cat-face-ink: #fdf1e4;
+      --cat-ink: #3d2338;
+      --cat-meow: #f3a26c;
+    }
+    body[data-theme="lavender"] {
+      color-scheme: light;
+      --theme-bg: #fdf3f6;
+      --theme-sidebar: #fae7ee;
+      --theme-panel: #fffbfc;
+      --theme-panel-alt: #f9eaf1;
+      --theme-input: #fdf4f8;
+      --theme-line: rgba(122,64,90,.12);
+      --theme-line-strong: rgba(122,64,90,.19);
+      --theme-text: #40303a;
+      --theme-secondary: #574450;
+      --theme-muted: #826b78;
+      --theme-subtle: #a68e9c;
+      --theme-accent: #d65c86;
+      --theme-accent-contrast: #fffafc;
+      --theme-accent-soft: #fbdbe7;
+      --theme-hover: #f6e0ea;
+      --theme-row-hover: rgba(170,80,120,.07);
+      --theme-banner: #fff3f6;
+      --theme-banner-border: #f6d8e4;
+      --theme-danger: #c1486b;
+      --theme-scroll: #e6c8d6;
+      --theme-avatar: linear-gradient(145deg,#ffd9e6,#f2adc6);
+      --theme-shadow: 0 26px 70px rgba(120,60,90,.15);
+      --theme-overlay: rgba(60,30,45,.4);
+      --cat-gradient: linear-gradient(140deg,#ffb3c9,#c98ce7);
+      --cat-glow: rgba(214,92,134,.2);
+      --cat-face-ink: #fff8fb;
+      --cat-ink: #7d2f4b;
+      --cat-meow: #d65c86;
+    }
+    body[data-theme="ocean"] {
+      color-scheme: light;
+      --theme-bg: #f2f8f1;
+      --theme-sidebar: #e5f1e3;
+      --theme-panel: #fcfdfa;
+      --theme-panel-alt: #eef6ec;
+      --theme-input: #f5faf3;
+      --theme-line: rgba(52,88,60,.13);
+      --theme-line-strong: rgba(52,88,60,.2);
+      --theme-text: #29382d;
+      --theme-secondary: #3d5043;
+      --theme-muted: #5f7667;
+      --theme-subtle: #8ba394;
+      --theme-accent: #4d8f63;
+      --theme-accent-contrast: #f7fdf8;
+      --theme-accent-soft: #dcefe0;
+      --theme-hover: #e2efe4;
+      --theme-row-hover: rgba(60,120,80,.07);
+      --theme-banner: #fbf7e6;
+      --theme-banner-border: #eddfb8;
+      --theme-danger: #bc5350;
+      --theme-scroll: #c3dbca;
+      --theme-avatar: linear-gradient(145deg,#d7f0dc,#a8d8b8);
+      --theme-shadow: 0 26px 70px rgba(40,80,55,.15);
+      --theme-overlay: rgba(28,52,36,.42);
+      --cat-gradient: linear-gradient(140deg,#b9e0a4,#63b58c);
+      --cat-glow: rgba(77,143,99,.22);
+      --cat-face-ink: #f8fdf9;
+      --cat-ink: #2b5539;
+      --cat-meow: #4d8f63;
+    }
+
+    /* Nền & bố cục mềm mại hơn */
+    .app-view {
+      background-image:
+        radial-gradient(circle at 10% -8%, var(--cat-glow), transparent 38%),
+        radial-gradient(circle at 96% 104%, var(--cat-glow), transparent 34%);
+    }
+    .app-view .sidebar { background: linear-gradient(180deg, var(--theme-sidebar) 0%, color-mix(in srgb, var(--theme-sidebar) 86%, var(--theme-bg)) 100%); }
+    .app-view .topbar { background: color-mix(in srgb, var(--theme-panel) 88%, transparent); backdrop-filter: blur(14px); }
+    .app-view .chat-panel { background: var(--theme-bg); }
+    .brand-mark {
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.45);
+      background: var(--cat-gradient, linear-gradient(140deg,#f9b56d,#eb7b8d));
+      box-shadow: 0 12px 28px var(--cat-glow, rgba(235,140,90,.28)), inset 0 1px rgba(255,255,255,.45);
+      color: var(--cat-face-ink, #fff6ec);
+    }
+    .brand-mark .icon { width: 25px; height: 25px; }
+    .brand-name { letter-spacing: -.05em; }
+
+    /* Thanh điều hướng & kênh */
+    .app-view .nav-link { border-radius: 14px; }
+    .app-view .nav-link.active { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 18%, transparent); }
+    .app-view .nav-link.saved-nav-link .saved-count { background: var(--theme-accent); color: var(--theme-accent-contrast); }
+    .app-view .channel-link { border-radius: 12px; }
+    .app-view .sidebar-tip {
+      background:
+        radial-gradient(circle at 100% 0%, var(--cat-glow), transparent 58%),
+        var(--theme-panel);
+      border-radius: 18px;
+    }
+    .app-view .sidebar-tip-head .icon { color: var(--cat-meow, var(--theme-accent)); }
+    .app-view .workspace-switch { border-radius: 16px; }
+    .app-view .workspace-icon { border-radius: 12px; color: var(--cat-meow, var(--theme-accent)); }
+
+    /* Thanh trên cùng */
+    .app-view .topbar-heading h1 { font-size: 17px; letter-spacing: -.035em; }
+    .app-view .topbar-button { border-radius: 999px; padding: 0 14px; }
+    .app-view .topbar-button.secondary.cat-companion-button { color: var(--cat-meow, var(--theme-accent)); }
+    .app-view .role-pill { border-radius: 999px; font-weight: 800; }
+    .app-view .connection-pill { border-radius: 999px; }
+    .app-view .channel-symbol {
+      border-radius: 14px;
+      background: var(--cat-gradient);
+      border-color: transparent;
+      color: var(--cat-face-ink, #fff);
+      box-shadow: 0 8px 20px var(--cat-glow);
+    }
+    .app-view .channel-toolbar { min-height: 78px; }
+    .app-view .icon-button { border-radius: 11px; }
+
+    /* Bong bóng tin nhắn */
+    .app-view .message-row { border-radius: 18px; padding: 4px 7px; }
+    .app-view .message-bubble {
+      border-radius: 6px 16px 16px 16px;
+      border-color: var(--theme-line);
+      background: var(--theme-panel);
+      color: var(--theme-secondary);
+      box-shadow: 0 3px 12px rgba(90,60,40,.05);
+    }
+    .app-view .message-row.mine .message-bubble {
+      border-radius: 16px 6px 16px 16px;
+      border-color: color-mix(in srgb, var(--theme-accent) 26%, transparent);
+      background: linear-gradient(140deg, var(--theme-accent-soft), color-mix(in srgb, var(--theme-accent-soft) 55%, var(--theme-panel)));
+      color: var(--theme-text);
+    }
+    .app-view .message-avatar { border-radius: 12px; }
+    .app-view .reaction-button { border-radius: 999px; }
+    .app-view .server-announcement {
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 100% 0%, var(--cat-glow), transparent 60%),
+        var(--theme-panel);
+    }
+    .app-view .chat-empty .empty-illustration { border-radius: 24px; }
+    .app-view .chat-empty .empty-illustration .icon { color: var(--cat-meow, var(--theme-accent)); }
+    .app-view .message-save {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 3px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--theme-muted);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .15s, background .15s, color .15s;
+    }
+    .app-view .message-save .icon { width: 12px; height: 12px; }
+    .app-view .message-save:hover { background: var(--theme-hover); color: var(--cat-meow, var(--theme-accent)); }
+    .app-view .message-save.is-saved { opacity: 1; color: var(--cat-meow, var(--theme-accent)); }
+    .app-view .message-save.is-saved .icon { fill: currentColor; }
+    .app-view .message-row:hover .message-save, .app-view .message-save:focus-visible { opacity: 1; }
+
+    /* Khung soạn tin */
+    .app-view .composer-wrap { background: color-mix(in srgb, var(--theme-bg) 80%, var(--theme-panel)); }
+    .app-view .composer-box {
+      border-radius: 999px;
+      padding: 8px 8px 8px 16px;
+      box-shadow: 0 10px 28px rgba(90,60,40,.08);
+    }
+    .app-view .send-button { border-radius: 999px; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); border-color: transparent; box-shadow: 0 8px 20px var(--cat-glow); }
+    .app-view .send-button:disabled { background: var(--theme-panel-alt); box-shadow: none; color: var(--theme-subtle); }
+    .app-view .reply-preview, .app-view .pending-image-preview { border-radius: 14px; }
+
+    /* Dải sticker mèo */
+    .sticker-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 9px; padding: 0 4px; overflow-x: auto; scrollbar-width: none; }
+    .sticker-bar::-webkit-scrollbar { display: none; }
+    .sticker-label { display: inline-flex; align-items: center; gap: 5px; margin-right: 2px; color: var(--theme-subtle); font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+    .sticker-label .icon { width: 12px; height: 12px; color: var(--cat-meow, var(--theme-accent)); }
+    .sticker-button {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid var(--theme-line);
+      border-radius: 12px;
+      background: var(--theme-panel);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      transition: transform .16s var(--ease), border-color .16s, background .16s;
+    }
+    .sticker-button:hover { transform: translateY(-2px) rotate(-4deg); border-color: var(--cat-meow, var(--theme-accent)); background: var(--theme-accent-soft); }
+    .sticker-button:active { transform: scale(.94); }
+
+    /* Bạn mèo Miu */
+    .miu-companion { position: fixed; z-index: 46; right: 22px; bottom: 22px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .miu-bubble {
+      position: relative;
+      width: min(268px, calc(100vw - 60px));
+      padding: 13px 15px;
+      border: 1px solid var(--theme-line-strong);
+      border-radius: 18px 18px 6px 18px;
+      background: var(--theme-panel);
+      box-shadow: var(--theme-shadow);
+      color: var(--theme-text);
+      animation: miu-pop .32s var(--ease) both;
+    }
+    .miu-bubble strong { display: flex; align-items: center; gap: 6px; color: var(--cat-meow, var(--theme-accent)); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .miu-bubble strong .icon { width: 13px; height: 13px; }
+    .miu-bubble p { margin: 7px 0 0; color: var(--theme-secondary); font-size: 11px; line-height: 1.6; }
+    .miu-bubble button { position: absolute; top: 8px; right: 8px; display: grid; width: 22px; height: 22px; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--theme-muted); cursor: pointer; }
+    .miu-bubble button:hover { background: var(--theme-hover); color: var(--theme-text); }
+    .miu-bubble button .icon { width: 12px; height: 12px; }
+    .miu-face {
+      display: grid;
+      width: 56px;
+      height: 56px;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.4);
+      border-radius: 20px;
+      background: var(--cat-gradient);
+      box-shadow: 0 14px 32px var(--cat-glow), inset 0 1px rgba(255,255,255,.5);
+      color: var(--cat-face-ink, #fff6ec);
+      cursor: pointer;
+      transition: transform .2s var(--ease);
+      animation: miu-bob 5s ease-in-out infinite;
+    }
+    .miu-face:hover { transform: translateY(-3px) rotate(-6deg); }
+    .miu-face .icon { width: 32px; height: 32px; }
+    .miu-face .miu-ping { position: absolute; top: -2px; right: -2px; width: 12px; height: 12px; border: 2px solid var(--theme-panel); border-radius: 50%; background: #48b978; }
+
+    /* Ngăn tin nhắn đã lưu */
+    .saved-layer { position: fixed; z-index: 62; inset: 0; display: flex; justify-content: flex-end; background: var(--theme-overlay); backdrop-filter: blur(5px); }
+    .saved-drawer {
+      display: flex;
+      width: min(430px, 100%);
+      height: 100%;
+      flex-direction: column;
+      border-left: 1px solid var(--theme-line-strong);
+      background: var(--theme-panel);
+      box-shadow: var(--theme-shadow);
+      animation: saved-in .3s var(--ease) both;
+    }
+    .saved-head { display: flex; align-items: center; gap: 12px; padding: 22px 22px 16px; border-bottom: 1px solid var(--theme-line); }
+    .saved-emblem { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 14px; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); box-shadow: 0 10px 22px var(--cat-glow); }
+    .saved-emblem .icon { width: 20px; height: 20px; }
+    .saved-head-copy { flex: 1; min-width: 0; }
+    .saved-head-copy h2 { margin: 0; color: var(--theme-text); font-size: 15px; font-weight: 750; letter-spacing: -.03em; }
+    .saved-head-copy p { margin: 4px 0 0; color: var(--theme-muted); font-size: 10px; }
+    .saved-tools { display: flex; gap: 6px; }
+    .saved-tool { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid var(--theme-line); border-radius: 10px; background: var(--theme-panel-alt); color: var(--theme-muted); cursor: pointer; }
+    .saved-tool:hover { background: var(--theme-hover); color: var(--theme-text); }
+    .saved-tool .icon { width: 15px; height: 15px; }
+    .saved-body { flex: 1; overflow-y: auto; padding: 16px 18px 24px; }
+    .saved-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; text-align: center; color: var(--theme-muted); }
+    .saved-empty .icon { width: 34px; height: 34px; color: var(--cat-meow, var(--theme-accent)); }
+    .saved-empty strong { margin-top: 12px; color: var(--theme-text); font-size: 12px; }
+    .saved-empty p { margin: 7px 0 0; font-size: 10px; line-height: 1.6; }
+    .saved-card { position: relative; margin-bottom: 9px; padding: 12px 13px; border: 1px solid var(--theme-line); border-radius: 15px; background: var(--theme-panel-alt); }
+    .saved-card-top { display: flex; align-items: center; gap: 8px; }
+    .saved-card-top .avatar { width: 26px; height: 26px; border-radius: 9px; font-size: 8px; }
+    .saved-card-top strong { flex: 1; min-width: 0; overflow: hidden; color: var(--theme-text); font-size: 10px; font-weight: 720; text-overflow: ellipsis; white-space: nowrap; }
+    .saved-card-top time { color: var(--theme-subtle); font-size: 8px; }
+    .saved-card p { margin: 8px 0 0; overflow: hidden; color: var(--theme-secondary); font-size: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+    .saved-card small { display: block; margin-top: 7px; color: var(--theme-subtle); font-size: 8px; }
+    .saved-card-actions { display: flex; gap: 6px; margin-top: 9px; }
+    .saved-card-actions button { flex: 1; min-height: 28px; border: 1px solid var(--theme-line); border-radius: 9px; background: var(--theme-panel); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; }
+    .saved-card-actions button:hover { border-color: var(--cat-meow, var(--theme-accent)); color: var(--cat-meow, var(--theme-accent)); }
+    .saved-card-actions button.remove:hover { border-color: var(--theme-danger); color: var(--theme-danger); }
+
+    /* Vết chân mèo khi bấm chuột */
+    .paw-trail { position: fixed; z-index: 9998; color: var(--cat-meow, #d5763c); font-size: 15px; line-height: 1; pointer-events: none; opacity: .55; animation: paw-fade .9s ease-out forwards; }
+
+    @keyframes miu-pop { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes miu-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    @keyframes saved-in { from { transform: translateX(30px); opacity: .4; } to { transform: translateX(0); opacity: 1; } }
+    .app-view .message-row.message-flash { background: var(--theme-accent-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 34%, transparent); }
+    @keyframes paw-fade { 0% { opacity: .55; transform: translate(-50%,-50%) rotate(var(--paw-rot,0deg)) scale(.7); } 100% { opacity: 0; transform: translate(-50%,-130%) rotate(var(--paw-rot,0deg)) scale(1.15); } }
+
+    @media (max-width: 760px) {
+      .cat-companion-button { width: 34px; padding: 0; }
+      .cat-companion-button > span { display: none; }
+    }
+    @media (max-width: 900px) {
+      .miu-companion { right: 14px; bottom: 88px; }
+      .miu-face { width: 48px; height: 48px; border-radius: 17px; }
+      .miu-face .icon { width: 27px; height: 27px; }
+    }
+    @media (max-width: 760px) {
+      .sticker-bar { gap: 5px; }
+      .sticker-button { width: 30px; height: 30px; border-radius: 10px; }
+      .app-view .composer-box { border-radius: 20px; padding: 8px; }
+      .saved-drawer { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .miu-face, .miu-bubble, .saved-drawer { animation: none !important; }
+    }
+
+    /* Chuột mèo cho thiết bị có con trỏ chính xác (PC) */
+    @media (hover: hover) and (pointer: fine) {
+      html, body, body * { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2734%27%20height%3D%2734%27%20viewBox%3D%270%200%2034%2034%27%3E%3Cpath%20d%3D%27M7%2012%208%204.5%2014.6%208a13%2013%200%200%201%204.8%200L26%204.5%2027%2012a12%2012%200%200%201%202%207c0%206.6-5.5%2010.5-12.5%2010.5S4%2025.6%204%2019a12%2012%200%200%201%203-7Z%27%20fill%3D%27%23f8b072%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.8%27%20stroke-linejoin%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2712.4%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Ccircle%20cx%3D%2721.6%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Cpath%20d%3D%27M15%2022.4q2%201.8%204%200%27%20fill%3D%27none%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.5%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 4 3, auto !important; }
+      body input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+      body textarea { cursor: text !important; }
+      body [disabled], body button:disabled { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2734%27%20height%3D%2734%27%20viewBox%3D%270%200%2034%2034%27%3E%3Cpath%20d%3D%27M7%2012%208%204.5%2014.6%208a13%2013%200%200%201%204.8%200L26%204.5%2027%2012a12%2012%200%200%201%202%207c0%206.6-5.5%2010.5-12.5%2010.5S4%2025.6%204%2019a12%2012%200%200%201%203-7Z%27%20fill%3D%27%23f8b072%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.8%27%20stroke-linejoin%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2712.4%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Ccircle%20cx%3D%2721.6%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Cpath%20d%3D%27M15%2022.4q2%201.8%204%200%27%20fill%3D%27none%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.5%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 4 3, not-allowed !important; }
+    }
+
+    /* ───────── Trang đăng nhập theo bộ lông đang chọn ───────── */
+    body[data-theme] {
+      background:
+        radial-gradient(ellipse at 12% 4%, var(--cat-glow), transparent 40%),
+        radial-gradient(ellipse at 92% 96%, var(--cat-glow), transparent 36%),
+        var(--theme-bg);
+      color: var(--theme-text);
+    }
+    body[data-theme] .auth-screen::before,
+    body[data-theme] .auth-screen::after { border-color: var(--theme-line-strong); }
+    body[data-theme] .auth-card {
+      border-color: var(--theme-line-strong);
+      background: color-mix(in srgb, var(--theme-panel) 94%, transparent);
+      box-shadow: var(--theme-shadow);
+    }
+    body[data-theme] .auth-showcase {
+      background:
+        radial-gradient(ellipse at 14% 74%, color-mix(in srgb, var(--theme-accent) 18%, transparent), transparent 42%),
+        radial-gradient(ellipse at 88% 14%, var(--cat-glow), transparent 46%),
+        linear-gradient(150deg, color-mix(in srgb, var(--theme-panel-alt) 96%, var(--theme-accent)) 0%, var(--theme-panel-alt) 52%, var(--theme-panel) 100%);
+    }
+    body[data-theme] .auth-showcase::before { border-color: var(--theme-line-strong); box-shadow: 0 0 0 48px var(--theme-row-hover), 0 0 0 96px var(--theme-row-hover); }
+    body[data-theme] .auth-panel { background: var(--theme-panel); }
+    body[data-theme] .brand-caption { color: var(--theme-subtle); }
+    body[data-theme] .showcase-copy h1 { color: var(--theme-text); }
+    body[data-theme] .showcase-copy h1 em { color: var(--theme-accent); }
+    body[data-theme] .showcase-copy > p { color: var(--theme-muted); }
+    body[data-theme] .eyebrow { color: var(--theme-accent); }
+    body[data-theme] .orbit-ring { border-color: var(--theme-line-strong); }
+    body[data-theme] .orbit-ring::before,
+    body[data-theme] .orbit-ring::after { border-color: var(--theme-line); }
+    body[data-theme] .orbit-core { background: var(--cat-gradient); color: var(--cat-face-ink); box-shadow: 0 14px 38px var(--cat-glow), inset 0 1px rgba(255,255,255,.4); }
+    body[data-theme] .orbit-particle { border-color: var(--theme-line); background: var(--theme-panel); color: var(--theme-accent); box-shadow: 0 10px 24px rgba(90,60,40,.12); }
+    body[data-theme] .chat-float { border-color: var(--theme-line); background: var(--theme-panel); color: var(--theme-secondary); box-shadow: 0 12px 30px rgba(90,60,40,.12); }
+    body[data-theme] .chat-float .mini-dot { background: var(--theme-accent); box-shadow: 0 0 10px var(--cat-glow); }
+    body[data-theme] .chat-float .icon { color: var(--cat-meow, var(--theme-accent)); }
+    body[data-theme] .showcase-footer { color: var(--theme-muted); }
+    body[data-theme] .secure-note .icon { color: var(--theme-accent); }
+    body[data-theme] .showcase-footer .online-note { color: var(--theme-secondary); }
+    body[data-theme] .auth-heading .eyebrow { color: var(--theme-accent); }
+    body[data-theme] .auth-heading h2 { color: var(--theme-text); }
+    body[data-theme] .auth-heading p:last-child { color: var(--theme-muted); }
+    body[data-theme] .field-heading label,
+    body[data-theme] .form-field > label { color: var(--theme-secondary); }
+    body[data-theme] .text-button { color: var(--theme-accent); }
+    body[data-theme] .text-button:hover { color: var(--cat-meow, var(--theme-accent)); filter: brightness(.92); }
+    body[data-theme] .field-shell input {
+      border-color: var(--theme-line-strong);
+      background: var(--theme-input);
+      color: var(--theme-text);
+    }
+    body[data-theme] .field-shell input::placeholder { color: var(--theme-subtle); }
+    body[data-theme] .field-shell > .icon { color: var(--theme-subtle); }
+    body[data-theme] .field-shell input:focus { border-color: var(--theme-accent); background: var(--theme-panel); box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 14%, transparent); }
+    body[data-theme] .field-action { color: var(--theme-muted); }
+    body[data-theme] .field-action:hover { background: var(--theme-hover); color: var(--theme-text); }
+    body[data-theme] .auth-submit {
+      border-color: transparent;
+      background: var(--cat-gradient);
+      color: var(--cat-face-ink, #fff);
+      box-shadow: 0 12px 28px var(--cat-glow), inset 0 1px rgba(255,255,255,.35);
+    }
+    body[data-theme] .auth-submit:hover:not(:disabled) { filter: brightness(1.05); box-shadow: 0 16px 34px var(--cat-glow), inset 0 1px rgba(255,255,255,.4); }
+    body[data-theme] .auth-submit .spinner { border-color: rgba(255,255,255,.4); border-top-color: #fff; }
+    body[data-theme] .auth-notice { border-color: var(--theme-line-strong); background: var(--theme-panel-alt); color: var(--theme-secondary); }
+    body[data-theme] .auth-notice.success { border-color: color-mix(in srgb, #2fa06a 32%, transparent); background: color-mix(in srgb, #2fa06a 10%, var(--theme-panel)); color: var(--theme-secondary); }
+    body[data-theme] .auth-notice.info { border-color: var(--theme-line-strong); background: var(--theme-accent-soft); color: var(--theme-secondary); }
+    body[data-theme] .auth-switch { color: var(--theme-muted); }
+    body[data-theme] .auth-switch button { color: var(--theme-accent); }
+    body[data-theme] .auth-switch button:hover { color: var(--cat-meow, var(--theme-accent)); }
+    body[data-theme] .auth-divider { color: var(--theme-subtle); }
+    body[data-theme] .auth-divider::before,
+    body[data-theme] .auth-divider::after { background: var(--theme-line-strong); }
+    body[data-theme] .auth-footnote { color: var(--theme-muted); }
+    body[data-theme] .auth-footnote .icon { color: var(--theme-accent); }
+    body[data-theme] .auth-bottom { color: var(--theme-subtle); }
   </style>
 </head>
 <body>
@@ -1267,23 +1714,27 @@
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 9.5a11 11 0 0 1 14 0M8 13a6.5 6.5 0 0 1 8 0M11 16.5a2 2 0 0 1 2 0M12 20h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="i-crown" viewBox="0 0 24 24"><path d="m3 8 5 4 4-7 4 7 5-4-2 12H5L3 8Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M5 16h14" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-cat" viewBox="0 0 32 32"><path d="m5 11 1-7 7 4a13 13 0 0 1 6 0l7-4 1 7a12 12 0 0 1 2 7c0 7-5.7 11-13 11S3 25 3 18a12 12 0 0 1 2-7Z" fill="currentColor"/><path d="M10 17h.2M22 17h.2M14 21q2 2 4 0M16 20v2" fill="none" stroke="var(--cat-ink,#4b3448)" stroke-width="1.7" stroke-linecap="round"/><path d="m8 21-4 1m4 1-4 2m20-3 4 1m-4 2 4 2" fill="none" stroke="var(--cat-ink,#4b3448)" stroke-width="1.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-paw" viewBox="0 0 24 24"><path d="M8.2 11.1c-1.6 1-3.3 2.2-3.3 4.3 0 2 1.5 3.1 3.4 3.1 1.4 0 2.4-.7 3.7-.7s2.3.7 3.7.7c1.9 0 3.4-1.1 3.4-3.1 0-2.1-1.7-3.3-3.3-4.3-1.2-.7-2.4-1.2-3.8-1.2s-2.6.5-3.8 1.2ZM5.4 9.4c1.1 0 1.8-1.2 1.6-2.6-.2-1.5-1.2-2.7-2.4-2.7S2.8 5.3 3 6.8c.2 1.4 1.3 2.6 2.4 2.6Zm5-2.4c1.2 0 2-1.2 1.9-2.7C12.2 2.8 11.3 2 10.1 2s-2.1 1.2-2 2.7c.1 1.4 1.1 2.3 2.3 2.3Zm8.2 2.4c1.2 0 2.2-1.2 2.4-2.6.2-1.5-.4-2.7-1.6-2.7S17.2 5.3 17 6.8c-.2 1.4.5 2.6 1.6 2.6Zm-5-2.4c1.2 0 2.2-.9 2.3-2.3.1-1.5-.8-2.7-2-2.7s-2.1.8-2.2 2.3c-.1 1.5.7 2.7 1.9 2.7Z" fill="currentColor"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 4.8A1.8 1.8 0 0 1 7.8 3h8.4A1.8 1.8 0 0 1 18 4.8V21l-6-4-6 4V4.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </svg>
 
   <main class="auth-screen" id="authView">
-    <section class="auth-card" aria-label="Đăng nhập Chạm">
+    <section class="auth-card" aria-label="Đăng nhập CatChat">
       <div class="auth-showcase">
         <div class="brand-lockup">
-          <div class="brand-mark"><svg class="icon"><use href="#i-mark"></use></svg></div>
-          <div><span class="brand-name">chạm</span><span class="brand-caption">YOUR SPACE, YOUR PEOPLE</span></div>
+          <div class="brand-mark"><svg class="icon"><use href="#i-cat"></use></svg></div>
+          <div><span class="brand-name">CatChat</span><span class="brand-caption">A LITTLE HOME FOR EVERY CAT</span></div>
         </div>
         <div class="showcase-copy">
-          <p class="eyebrow">Một nơi để kết nối</p>
-          <h1>Nơi mọi cuộc trò chuyện <em>trở nên đặc biệt.</em></h1>
-          <p>Gặp gỡ mọi người, chia sẻ những điều bạn yêu thích và giữ nhịp kết nối — tất cả trong một không gian thân thiện.</p>
+          <p class="eyebrow">MÈO CON CHÀO BẠN</p>
+          <h1>Một chiếc tổ ấm <em>cho những câu chuyện.</em></h1>
+          <p>Gặp những người cùng tần số, gửi một chiếc ảnh dễ thương và cùng nhau tạo nên một góc nhỏ thật ấm áp.</p>
         </div>
         <div class="orbit-scene" aria-hidden="true">
           <div class="orbit-ring"></div>
-          <div class="orbit-core"><svg class="icon"><use href="#i-mark"></use></svg></div>
+          <div class="orbit-core"><svg class="icon"><use href="#i-cat"></use></svg></div>
           <div class="orbit-particle particle-one"><svg class="icon"><use href="#i-chat"></use></svg></div>
           <div class="orbit-particle particle-two"><svg class="icon"><use href="#i-users"></use></svg></div>
           <div class="orbit-particle particle-three"><svg class="icon"><use href="#i-sparkles"></use></svg></div>
@@ -1298,8 +1749,8 @@
 
       <div class="auth-panel">
         <div class="mobile-brand">
-          <div class="brand-mark"><svg class="icon"><use href="#i-mark"></use></svg></div>
-          <div><span class="brand-name">chạm</span><span class="brand-caption">YOUR SPACE, YOUR PEOPLE</span></div>
+          <div class="brand-mark"><svg class="icon"><use href="#i-cat"></use></svg></div>
+          <div><span class="brand-name">CatChat</span><span class="brand-caption">A LITTLE HOME FOR EVERY CAT</span></div>
         </div>
         <div class="auth-heading">
           <p class="eyebrow" id="authEyebrow">RẤT VUI ĐƯỢC GẶP LẠI</p>
@@ -1356,19 +1807,19 @@
         <p class="auth-footnote"><svg class="icon"><use href="#i-shield"></use></svg><span>Tài khoản được xác thực bằng Firebase. Vai trò quản trị được quản lý phía Firebase theo UID hoặc custom claim.</span></p>
       </div>
     </section>
-    <div class="auth-bottom">© 2026 Chạm · Một góc nhỏ dành cho những kết nối thật.</div>
+    <div class="auth-bottom">© 2026 CatChat · Một chiếc tổ ấm cho những câu chuyện thật.</div>
   </main>
 
   <div class="app-view" id="appView" data-theme="light" hidden>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Điều hướng">
         <div class="brand-lockup">
-          <div class="brand-mark"><svg class="icon"><use href="#i-mark"></use></svg></div>
-          <div><span class="brand-name">chạm</span><span class="brand-caption">YOUR SPACE, YOUR PEOPLE</span></div>
+          <div class="brand-mark"><svg class="icon"><use href="#i-cat"></use></svg></div>
+          <div><span class="brand-name">CatChat</span><span class="brand-caption">A LITTLE HOME FOR EVERY CAT</span></div>
         </div>
         <div class="workspace-switch">
           <div class="workspace-icon"><svg class="icon"><use href="#i-sparkles"></use></svg></div>
-          <div class="workspace-copy"><strong>Không gian Chạm</strong><span>Máy chủ cộng đồng</span></div>
+          <div class="workspace-copy"><strong>CatChat · Tổ mèo</strong><span>Máy chủ cộng đồng</span></div>
           <svg class="icon"><use href="#i-chevron"></use></svg>
         </div>
         <p class="side-label">KHÔNG GIAN</p>
@@ -1379,6 +1830,9 @@
           <button class="nav-link" id="navMembers" type="button" title="Thành viên">
             <svg class="icon"><use href="#i-users"></use></svg><span>Thành viên</span><span class="nav-count" id="navMemberCount">0</span>
           </button>
+          <button class="nav-link saved-nav-link" id="savedMessagesButton" type="button" title="Tin nhắn đã lưu">
+            <svg class="icon"><use href="#i-bookmark"></use></svg><span>Đã lưu</span><span class="nav-count saved-count" id="savedMessagesCount" hidden>0</span>
+          </button>
         </nav>
         <div class="sidebar-channel-block">
           <div class="sidebar-section-title"><span>KÊNH CỦA BẠN</span><button id="channelAddButton" type="button" aria-label="Tạo kênh" title="Chỉ quản trị viên được tạo kênh" hidden><svg class="icon"><use href="#i-plus"></use></svg></button></div>
@@ -1387,8 +1841,8 @@
         </div>
         <div class="sidebar-spacer"></div>
         <div class="sidebar-tip">
-          <div class="sidebar-tip-head"><svg class="icon"><use href="#i-sparkles"></use></svg><span>Góc nhỏ của bạn</span></div>
-          <p>Một lời chào thân thiện có thể mở đầu cho một tình bạn mới.</p>
+          <div class="sidebar-tip-head"><svg class="icon"><use href="#i-paw"></use></svg><span>Miu mách nhỏ</span></div>
+          <p>Một chiếc “meo” thân thiện đôi khi mở đầu cho một tình bạn mới.</p>
         </div>
         <div class="profile-chip">
           <button class="avatar avatar-edit" id="sidebarAvatar" type="button" title="Đổi ảnh đại diện" aria-label="Đổi ảnh đại diện">?</button>
@@ -1401,10 +1855,11 @@
       <div class="main-layout">
         <header class="topbar">
           <div class="topbar-heading">
-            <p class="breadcrumbs">CHẠM <span>/ CỘNG ĐỒNG</span></p>
-            <h1>Không gian trò chuyện</h1>
+            <p class="breadcrumbs">CATCHAT <span>/ TỔ MÈO</span></p>
+            <h1 id="workspaceGreeting">Ngôi nhà của chúng mình</h1>
           </div>
           <div class="topbar-actions">
+            <button class="topbar-button secondary cat-companion-button" id="catCompanionButton" type="button" title="Nhận lời nhắn từ Miu"><svg class="icon"><use href="#i-paw"></use></svg><span>Miu</span></button>
             <button class="topbar-button secondary appearance-button" id="openThemeSettingsButton" type="button" title="Cài đặt màu giao diện" aria-label="Cài đặt màu giao diện"><svg class="icon"><use href="#i-palette"></use></svg><span>Giao diện</span></button>
             <div class="connection-pill" id="connectionPill"><span class="connection-dot"></span><span class="connection-label" id="connectionLabel">Đang kết nối</span></div>
             <span class="role-pill" id="rolePill" hidden><svg class="icon"><use href="#i-crown"></use></svg><span>Quản trị viên</span></span>
@@ -1446,11 +1901,22 @@
             <div class="messages-area" id="chatMessages" role="log" aria-label="Tin nhắn trong phòng" aria-live="polite" aria-relevant="additions text">
               <div class="chat-empty" id="chatEmptyState">
                 <div class="empty-illustration"><svg class="icon"><use href="#i-chat"></use></svg></div>
-                <h3>Bắt đầu câu chuyện đầu tiên</h3>
-                <p>Hãy gửi một lời chào — mọi người trong không gian này đều có thể cùng tham gia.</p>
+                <h3>Một chiếc ghế trống đang chờ bạn</h3>
+                <p>Gửi một tiếng “meo” chào cả nhà — ai trong tổ mèo cũng có thể trả lời bạn.</p>
               </div>
             </div>
             <div class="composer-wrap">
+              <div class="sticker-bar" id="stickerBar" aria-label="Sticker mèo nhanh">
+                <span class="sticker-label"><svg class="icon"><use href="#i-paw"></use></svg>Miu gửi</span>
+                <button class="sticker-button" type="button" data-sticker="🐱" aria-label="Thêm mèo con">🐱</button>
+                <button class="sticker-button" type="button" data-sticker="😻" aria-label="Thêm mèo mắt trái tim">😻</button>
+                <button class="sticker-button" type="button" data-sticker="🐾" aria-label="Thêm dấu chân mèo">🐾</button>
+                <button class="sticker-button" type="button" data-sticker="😹" aria-label="Thêm mèo cười">😹</button>
+                <button class="sticker-button" type="button" data-sticker="🐈" aria-label="Thêm mèo">🐈</button>
+                <button class="sticker-button" type="button" data-sticker="💛" aria-label="Thêm trái tim vàng">💛</button>
+                <button class="sticker-button" type="button" data-sticker="✨" aria-label="Thêm lấp lánh">✨</button>
+                <button class="sticker-button" type="button" data-sticker="🌙" aria-label="Thêm mặt trăng">🌙</button>
+              </div>
               <div class="reply-preview" id="replyPreview" hidden>
                 <svg class="icon"><use href="#i-reply"></use></svg>
                 <div class="reply-preview-copy"><strong id="replyPreviewName"></strong><span id="replyPreviewText"></span></div>
@@ -1476,7 +1942,7 @@
           <aside class="right-panel" id="membersPanel" aria-label="Thành viên trong máy chủ">
             <section class="server-card">
               <div class="server-card-label"><svg class="icon"><use href="#i-sparkles"></use></svg><span>CỘNG ĐỒNG CỦA BẠN</span></div>
-              <h2>Không gian Chạm</h2>
+              <h2>CatChat · Tổ mèo</h2>
               <p>Một nơi thân thiện để chia sẻ và kết nối mỗi ngày.</p>
               <div class="server-stats">
                 <div class="server-stat"><strong id="totalMemberCount">0</strong><span>Thành viên</span></div>
@@ -1500,7 +1966,7 @@
       <header class="admin-header">
         <div class="admin-title-wrap">
           <div class="admin-emblem"><svg class="icon"><use href="#i-shield"></use></svg></div>
-          <div><h2 id="adminTitle">Trung tâm quản trị</h2><p>Quản lý thành viên và thông báo cộng đồng</p></div>
+          <div><h2 id="adminTitle">Tổ quản trị CatChat</h2><p>Chăm sóc thành viên và loa phát thanh của tổ mèo</p></div>
         </div>
         <button class="admin-close" id="closeAdminButton" type="button" aria-label="Đóng quản trị"><svg class="icon"><use href="#i-close"></use></svg></button>
       </header>
@@ -1543,17 +2009,17 @@
   <div class="confirm-layer theme-dialog-layer" id="themeDialog" aria-hidden="true" hidden>
     <section class="confirm-dialog theme-dialog" role="dialog" aria-modal="true" aria-labelledby="themeDialogTitle" aria-describedby="themeDialogDescription">
       <div class="theme-dialog-heading">
-        <div><span class="theme-eyebrow">CÁ NHÂN HÓA</span><h2 id="themeDialogTitle">Màu giao diện</h2></div>
+        <div><span class="theme-eyebrow">CÁ NHÂN HÓA</span><h2 id="themeDialogTitle">Bộ lông của CatChat</h2></div>
         <button class="theme-close-button" id="closeThemeDialogButton" type="button" aria-label="Đóng cài đặt màu"><svg class="icon"><use href="#i-close"></use></svg></button>
       </div>
-      <p id="themeDialogDescription">Chọn tông màu dễ nhìn cho không gian trò chuyện. Lựa chọn được lưu trên thiết bị này.</p>
+      <p id="themeDialogDescription">Chọn một bộ lông hợp gu cho tổ mèo. Lựa chọn được lưu trên thiết bị này.</p>
       <div class="theme-options" id="themeOptions" role="group" aria-label="Chọn màu giao diện">
-        <button class="theme-option" type="button" data-theme-choice="light" aria-pressed="false"><span class="theme-preview theme-preview-light"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Sáng</strong><small>Sạch, sáng rõ</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
-        <button class="theme-option" type="button" data-theme-choice="dark" aria-pressed="false"><span class="theme-preview theme-preview-dark"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Tối</strong><small>Dịu mắt ban đêm</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
-        <button class="theme-option" type="button" data-theme-choice="lavender" aria-pressed="false"><span class="theme-preview theme-preview-lavender"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Hoa cà</strong><small>Tím nhẹ nhàng</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
-        <button class="theme-option" type="button" data-theme-choice="ocean" aria-pressed="false"><span class="theme-preview theme-preview-ocean"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Biển</strong><small>Xanh mát dịu</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
+        <button class="theme-option" type="button" data-theme-choice="light" aria-pressed="false"><span class="theme-preview theme-preview-light"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Sữa ấm</strong><small>Kem caramel, dịu mắt</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
+        <button class="theme-option" type="button" data-theme-choice="dark" aria-pressed="false"><span class="theme-preview theme-preview-dark"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Đêm mèo</strong><small>Tím than, ấm ban đêm</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
+        <button class="theme-option" type="button" data-theme-choice="lavender" aria-pressed="false"><span class="theme-preview theme-preview-lavender"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Hoa anh đào</strong><small>Hồng phấn ngọt ngào</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
+        <button class="theme-option" type="button" data-theme-choice="ocean" aria-pressed="false"><span class="theme-preview theme-preview-ocean"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Trà xanh</strong><small>Xanh lá thư giãn</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
       </div>
-      <p class="theme-status" id="themeStatus" aria-live="polite">Đang dùng giao diện Sáng</p>
+      <p class="theme-status" id="themeStatus" aria-live="polite">Đang dùng giao diện Sữa ấm</p>
     </section>
   </div>
   <div class="confirm-layer" id="confirmLayer" aria-hidden="true">
@@ -1565,6 +2031,29 @@
       <div class="confirm-actions"><button class="dialog-button" id="confirmCancel" type="button">Hủy</button><button class="dialog-button danger" id="confirmAccept" type="button">Xác nhận</button></div>
     </section>
   </div>
+  <div class="miu-companion" id="miuCompanion">
+    <div class="miu-bubble" id="miuBubble" role="status" aria-live="polite" hidden>
+      <button type="button" id="closeMiuBubble" aria-label="Đóng lời nhắn của Miu"><svg class="icon"><use href="#i-close"></use></svg></button>
+      <strong><svg class="icon"><use href="#i-paw"></use></svg>Miu nói nè</strong>
+      <p id="miuText">Meo! Chúc bạn một ngày thật nhiều tiếng cười.</p>
+    </div>
+    <button class="miu-face" id="miuFace" type="button" title="Miu mách nhỏ" aria-label="Miu mách nhỏ"><svg class="icon"><use href="#i-cat"></use></svg></button>
+  </div>
+
+  <div class="saved-layer" id="savedLayer" hidden>
+    <aside class="saved-drawer" role="dialog" aria-modal="true" aria-labelledby="savedTitle">
+      <header class="saved-head">
+        <div class="saved-emblem"><svg class="icon"><use href="#i-bookmark"></use></svg></div>
+        <div class="saved-head-copy"><h2 id="savedTitle">Tin nhắn đã lưu</h2><p id="savedSubtitle">Những khoảnh khắc bạn muốn giữ lại</p></div>
+        <div class="saved-tools">
+          <button class="saved-tool" id="clearSavedButton" type="button" title="Xóa tất cả tin đã lưu" aria-label="Xóa tất cả tin đã lưu"><svg class="icon"><use href="#i-trash"></use></svg></button>
+          <button class="saved-tool" id="closeSavedButton" type="button" title="Đóng" aria-label="Đóng tin nhắn đã lưu"><svg class="icon"><use href="#i-close"></use></svg></button>
+        </div>
+      </header>
+      <div class="saved-body" id="savedBody"></div>
+    </aside>
+  </div>
+
   <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="false"></div>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1593,10 +2082,10 @@
         { key: 'wow', glyph: '😮', label: 'Ngạc nhiên' }
       ];
       const THEME_OPTIONS = [
-        { id: 'light', name: 'Sáng', color: '#f2f3f5' },
-        { id: 'dark', name: 'Tối', color: '#313338' },
-        { id: 'lavender', name: 'Hoa cà', color: '#f6f2ff' },
-        { id: 'ocean', name: 'Biển', color: '#eef7fa' }
+        { id: 'light', name: 'Sữa ấm', color: '#fdf6ee' },
+        { id: 'dark', name: 'Đêm mèo', color: '#161219' },
+        { id: 'lavender', name: 'Hoa anh đào', color: '#fdf3f6' },
+        { id: 'ocean', name: 'Trà xanh', color: '#f2f8f1' }
       ];
       const firebaseConfig = {
         apiKey: "AIzaSyAf8xiMmAipgxxrGVDjeLdQIeU1yqVEXu0",
@@ -1810,7 +2299,7 @@
         els.authTitle.textContent = isSignUp ? 'Tạo tài khoản' : 'Đăng nhập';
         els.authEyebrow.textContent = isSignUp ? 'BẮT ĐẦU KẾT NỐI' : 'RẤT VUI ĐƯỢC GẶP LẠI';
         els.authDescription.textContent = isSignUp
-          ? 'Tạo tài khoản miễn phí để tham gia không gian Chạm.'
+          ? 'Tạo tài khoản miễn phí để tham gia không gian CatChat.'
           : 'Đăng nhập để tiếp tục những câu chuyện còn dang dở.';
         els.authSubmitText.textContent = isSignUp ? 'Tạo tài khoản' : 'Đăng nhập';
         $('#authSwitchText').firstChild.textContent = isSignUp ? 'Đã có tài khoản? ' : 'Chưa có tài khoản? ';
@@ -2393,6 +2882,9 @@
         els.messageSearchBar.hidden = true;
         $('#searchMessagesButton').setAttribute('aria-expanded', 'false');
         if (!user) {
+          closeSavedPanel();
+          const miuBubble = $('#miuBubble');
+          if (miuBubble) miuBubble.hidden = true;
           els.appView.hidden = true;
           els.authView.hidden = false;
           els.sidebarName.textContent = 'Thành viên';
@@ -2504,6 +2996,16 @@
         setAvatarContent(els.sidebarAvatar, name, currentUser?.photoURL || members[currentUser?.uid]?.photoURL || '');
         els.sidebarAvatar.title = 'Đổi ảnh đại diện';
         els.sidebarAvatar.setAttribute('aria-label', `Đổi ảnh đại diện cho ${name}`);
+        updateWorkspaceGreeting();
+        greetingWithMiu();
+      }
+
+      function greetingWithMiu() {
+        try {
+          if (sessionStorage.getItem('catchat-miu-greeted') === '1') return;
+          sessionStorage.setItem('catchat-miu-greeted', '1');
+        } catch (_) { /* bỏ qua khi trình duyệt chặn sessionStorage */ }
+        window.setTimeout(miuSayHello, 1400);
       }
 
       async function prepareAvatarImage(file) {
@@ -2727,6 +3229,7 @@
           meta.append(textElement('span', '', `Gửi bởi ${name}`));
           meta.append(textElement('time', '', formatDateTime(time)));
           meta.appendChild(makeReplyButton(id));
+          meta.appendChild(makeSaveButton(id));
           announcement.append(head, content, meta, makeReactionStrip(id));
           row.appendChild(announcement);
         } else {
@@ -2736,6 +3239,7 @@
           meta.append(textElement('span', 'message-name', name));
           meta.append(textElement('time', 'message-time', formatTime(time)));
           meta.appendChild(makeReplyButton(id));
+          meta.appendChild(makeSaveButton(id));
           const quote = makeReplyQuote(data);
           if (quote) content.appendChild(quote);
           content.appendChild(meta);
@@ -3296,7 +3800,298 @@
         }, 4800);
       }
 
+      /* ───────────────────────────────────────────────────────────────
+         CatChat extras: tin nhắn đã lưu, sticker mèo, bạn mèo Miu,
+         lời chào theo thời điểm và vết chân mèo khi bấm chuột.
+         Tất cả dữ liệu "đã lưu" chỉ nằm trên thiết bị (localStorage).
+         ─────────────────────────────────────────────────────────────── */
+      const SAVED_MESSAGES_KEY = 'catchat-saved-messages-v1';
+      const SAVED_LIMIT = 80;
+      const MIU_TIPS = [
+        'Một câu hỏi thăm nhỏ có thể làm ai đó vui cả ngày đó nha.',
+        'Bạn đã uống nước chưa? Mèo nào cũng nhắc chuyện này.',
+        'Tin nhắn dài quá thì chia nhỏ ra, dễ đọc hơn nhiều.',
+        'Bấm vào biểu tượng con trỏ để lưu lại khoảnh khắc bạn thích.',
+        'Hôm nay có gì vui, kể cho tổ mèo nghe với!',
+        'Gửi một sticker 🐾 thay cho lời chào cũng rất dễ thương.',
+        'Đừng quên đổi bộ lông cho CatChat trong mục Giao diện nhé.',
+        'Mèo ngoan là mèo biết nhường lời khi người khác đang nói.',
+        'Một chiếc ảnh đẹp đôi khi nói nhiều hơn cả một đoạn văn.',
+        'Nếu thấy mất kết nối, chỉ cần đợi vài giây, tổ mèo sẽ tự nối lại.'
+      ];
+      let savedMessages = [];
+
+      function loadSavedMessages() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(SAVED_MESSAGES_KEY) || '[]');
+          if (!Array.isArray(parsed)) return [];
+          return parsed.filter((entry) => entry && typeof entry.id === 'string' && typeof entry.text === 'string').slice(0, SAVED_LIMIT);
+        } catch (error) {
+          console.warn('Không đọc được tin nhắn đã lưu:', error);
+          return [];
+        }
+      }
+
+      function persistSavedMessages() {
+        try {
+          localStorage.setItem(SAVED_MESSAGES_KEY, JSON.stringify(savedMessages));
+        } catch (error) {
+          console.warn('Không lưu được danh sách tin nhắn đã lưu:', error);
+        }
+        updateSavedBadge();
+      }
+
+      function updateSavedBadge() {
+        const badge = $('#savedMessagesCount');
+        if (!badge) return;
+        badge.textContent = String(savedMessages.length);
+        badge.hidden = savedMessages.length === 0;
+      }
+
+      function isMessageSaved(messageId) {
+        return savedMessages.some((entry) => entry.id === messageId);
+      }
+
+      function channelLabelFor(channelId) {
+        if (!channelId) return 'phòng-chung';
+        if (channelId === 'general') return 'phòng-chung';
+        return channels[channelId]?.name || channelId;
+      }
+
+      function snapshotForMessage(messageId) {
+        const data = messages.get(messageId);
+        if (!data) return null;
+        const text = String(data.text || (data.imageURL ? '[Ảnh đính kèm]' : ''));
+        return {
+          id: messageId,
+          name: data.name || 'Thành viên',
+          uid: data.uid || '',
+          text: text.slice(0, 400),
+          photoURL: members[data.uid]?.photoURL || '',
+          timestamp: timestampOf(data) || Date.now(),
+          channelId: activeChannelId,
+          kind: data.kind || 'message'
+        };
+      }
+
+      function makeSaveButton(messageId) {
+        const saved = isMessageSaved(messageId);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `message-save${saved ? ' is-saved' : ''}`;
+        button.dataset.saveMessage = messageId;
+        button.title = saved ? 'Bỏ lưu tin nhắn' : 'Lưu tin nhắn vào bộ sưu tập';
+        button.setAttribute('aria-label', button.title);
+        button.setAttribute('aria-pressed', String(saved));
+        button.appendChild(icon('bookmark'));
+        return button;
+      }
+
+      function toggleSaveMessage(messageId) {
+        if (!currentUser) return;
+        const index = savedMessages.findIndex((entry) => entry.id === messageId);
+        if (index >= 0) {
+          savedMessages.splice(index, 1);
+          toast('Đã bỏ khỏi bộ sưu tập của bạn.', 'info');
+        } else {
+          const snapshot = snapshotForMessage(messageId);
+          if (!snapshot) {
+            toast('Tin nhắn này không còn trong 100 tin gần nhất.', 'info');
+            return;
+          }
+          savedMessages.unshift(snapshot);
+          if (savedMessages.length > SAVED_LIMIT) savedMessages.length = SAVED_LIMIT;
+          toast('Đã lưu khoảnh khắc này 🐾', 'success');
+        }
+        persistSavedMessages();
+        renderSavedPanel();
+        renderAllMessages(false);
+      }
+
+      function renderSavedPanel() {
+        const body = $('#savedBody');
+        if (!body) return;
+        updateSavedBadge();
+        const subtitle = $('#savedSubtitle');
+        if (subtitle) subtitle.textContent = savedMessages.length
+          ? `${savedMessages.length} khoảnh khắc được giữ lại trên thiết bị này`
+          : 'Những khoảnh khắc bạn muốn giữ lại';
+        if (!savedMessages.length) {
+          const empty = textElement('div', 'saved-empty');
+          empty.appendChild(icon('bookmark'));
+          empty.appendChild(textElement('strong', '', 'Bộ sưu tập đang trống'));
+          empty.appendChild(textElement('p', '', 'Rê chuột lên một tin nhắn và bấm biểu tượng dấu trang để cất nó vào tổ của bạn.'));
+          body.replaceChildren(empty);
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        savedMessages.forEach((entry) => {
+          const card = textElement('article', 'saved-card');
+          const top = textElement('div', 'saved-card-top');
+          top.appendChild(makeAvatar(entry.name, entry.uid, 'avatar', entry.photoURL || ''));
+          top.appendChild(textElement('strong', '', entry.name));
+          top.appendChild(textElement('time', '', formatDateTime(entry.timestamp)));
+          card.appendChild(top);
+          card.appendChild(textElement('p', '', entry.text || 'Khoảnh khắc không có nội dung chữ.'));
+          card.appendChild(textElement('small', '', `#${channelLabelFor(entry.channelId)}`));
+          const actions = textElement('div', 'saved-card-actions');
+          const jump = document.createElement('button');
+          jump.type = 'button';
+          jump.dataset.savedJump = entry.id;
+          jump.textContent = 'Mở trong kênh';
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'remove';
+          remove.dataset.savedRemove = entry.id;
+          remove.textContent = 'Bỏ lưu';
+          actions.append(jump, remove);
+          card.appendChild(actions);
+          fragment.appendChild(card);
+        });
+        body.replaceChildren(fragment);
+      }
+
+      function openSavedPanel() {
+        if (!currentUser) return;
+        renderSavedPanel();
+        const layer = $('#savedLayer');
+        layer.hidden = false;
+        document.body.classList.add('body-locked');
+        window.setTimeout(() => $('#closeSavedButton')?.focus(), 40);
+      }
+
+      function closeSavedPanel() {
+        const layer = $('#savedLayer');
+        if (!layer || layer.hidden) return;
+        layer.hidden = true;
+        if (!els.confirmLayer.classList.contains('open') && !els.adminOverlay.classList.contains('open') && els.themeDialog.hidden && els.channelDialog.hidden) {
+          document.body.classList.remove('body-locked');
+        }
+      }
+
+      async function jumpToSavedMessage(messageId) {
+        const entry = savedMessages.find((item) => item.id === messageId);
+        if (!entry) return;
+        closeSavedPanel();
+        if (entry.channelId && entry.channelId !== activeChannelId) {
+          await switchChannel(entry.channelId, { skipConfirm: true, force: true });
+          await new Promise((resolve) => window.setTimeout(resolve, 650));
+        }
+        const row = Array.from(document.querySelectorAll('.message-row')).find((item) => item.dataset.messageId === messageId);
+        if (!row) {
+          toast('Khoảnh khắc này đã trôi khỏi 100 tin gần nhất của kênh.', 'info');
+          return;
+        }
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        row.classList.add('message-flash');
+        window.setTimeout(() => row.classList.remove('message-flash'), 1400);
+      }
+
+      function showMiuBubble(message) {
+        const bubble = $('#miuBubble');
+        const text = $('#miuText');
+        if (!bubble || !text) return;
+        text.textContent = message;
+        bubble.hidden = false;
+        bubble.style.animation = 'none';
+        void bubble.offsetWidth;
+        bubble.style.animation = '';
+        window.clearTimeout(showMiuBubble.timer);
+        showMiuBubble.timer = window.setTimeout(() => { bubble.hidden = true; }, 11000);
+      }
+
+      function miuSayHello() {
+        const hour = new Date().getHours();
+        const moment = hour < 5 ? 'Trời còn tối'
+          : hour < 11 ? 'Chào buổi sáng'
+          : hour < 14 ? 'Đúng giờ ăn trưa rồi'
+          : hour < 18 ? 'Buổi chiều thật dễ chịu'
+          : hour < 22 ? 'Buổi tối ấm áp'
+          : 'Đêm đã khuya';
+        const firstName = String(displayNameFor(currentUser) || 'bạn').split(/\s+/)[0];
+        const tip = MIU_TIPS[Math.floor(Math.random() * MIU_TIPS.length)];
+        showMiuBubble(`${moment}, ${firstName}! ${tip}`);
+      }
+
+      function updateWorkspaceGreeting() {
+        const heading = $('#workspaceGreeting');
+        if (!heading) return;
+        const hour = new Date().getHours();
+        const name = currentUser ? String(displayNameFor(currentUser) || '').split(/\s+/)[0] : '';
+        const base = hour < 5 ? 'Tổ mèo vẫn sáng đèn'
+          : hour < 11 ? 'Chào buổi sáng, tổ mèo'
+          : hour < 14 ? 'Giờ nghỉ trưa của tổ mèo'
+          : hour < 18 ? 'Một buổi chiều thật êm'
+          : hour < 22 ? 'Tối nay tổ mèo có gì vui?'
+          : 'Khuya rồi, nhớ nghỉ sớm nhé';
+        heading.textContent = name ? `${base} · ${name}` : base;
+      }
+
+      function insertSticker(glyph) {
+        const input = els.messageInput;
+        if (!input) return;
+        const start = typeof input.selectionStart === 'number' ? input.selectionStart : input.value.length;
+        const end = typeof input.selectionEnd === 'number' ? input.selectionEnd : input.value.length;
+        input.value = `${input.value.slice(0, start)}${glyph}${input.value.slice(end)}`;
+        const caret = start + glyph.length;
+        input.focus();
+        input.setSelectionRange(caret, caret);
+        updateMessageComposer();
+      }
+
+      function enablePawTrail() {
+        if (typeof window.matchMedia !== 'function') return;
+        if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        document.addEventListener('pointerdown', (event) => {
+          if (event.button !== 0) return;
+          const paw = textElement('span', 'paw-trail', '🐾');
+          paw.style.left = `${event.clientX + 12}px`;
+          paw.style.top = `${event.clientY + 16}px`;
+          paw.style.setProperty('--paw-rot', `${Math.round(Math.random() * 50 - 25)}deg`);
+          document.body.appendChild(paw);
+          window.setTimeout(() => paw.remove(), 950);
+        }, { passive: true });
+      }
+
       function attachEvents() {
+        savedMessages = loadSavedMessages();
+        updateSavedBadge();
+        renderSavedPanel();
+        updateWorkspaceGreeting();
+        enablePawTrail();
+        $('#savedMessagesButton')?.addEventListener('click', openSavedPanel);
+        $('#closeSavedButton')?.addEventListener('click', closeSavedPanel);
+        $('#savedLayer')?.addEventListener('click', (event) => { if (event.target === $('#savedLayer')) closeSavedPanel(); });
+        $('#clearSavedButton')?.addEventListener('click', () => {
+          if (!savedMessages.length) { toast('Bộ sưu tập đang trống.', 'info'); return; }
+          savedMessages = [];
+          persistSavedMessages();
+          renderSavedPanel();
+          renderAllMessages(false);
+          toast('Đã dọn sạch bộ sưu tập trên thiết bị này.', 'success');
+        });
+        $('#savedBody')?.addEventListener('click', (event) => {
+          const target = event.target instanceof Element ? event.target : null;
+          if (!target) return;
+          const jump = target.closest('[data-saved-jump]');
+          if (jump) { void jumpToSavedMessage(jump.dataset.savedJump); return; }
+          const remove = target.closest('[data-saved-remove]');
+          if (remove) {
+            savedMessages = savedMessages.filter((entry) => entry.id !== remove.dataset.savedRemove);
+            persistSavedMessages();
+            renderSavedPanel();
+            renderAllMessages(false);
+            toast('Đã bỏ khỏi bộ sưu tập.', 'info');
+          }
+        });
+        $('#miuFace')?.addEventListener('click', miuSayHello);
+        $('#catCompanionButton')?.addEventListener('click', miuSayHello);
+        $('#closeMiuBubble')?.addEventListener('click', () => { $('#miuBubble').hidden = true; });
+        $('#stickerBar')?.addEventListener('click', (event) => {
+          const button = event.target instanceof Element ? event.target.closest('[data-sticker]') : null;
+          if (button) insertSticker(button.dataset.sticker);
+        });
         els.authForm.addEventListener('submit', submitAuth);
         els.openThemeSettingsButton.addEventListener('click', openThemeDialog);
         els.closeThemeDialogButton.addEventListener('click', closeThemeDialog);
@@ -3442,6 +4237,11 @@
             }, 25);
             return;
           }
+          const save = target.closest('[data-save-message]');
+          if (save) {
+            toggleSaveMessage(save.dataset.saveMessage);
+            return;
+          }
           const remove = target.closest('[data-delete-message]');
           if (remove) void deleteMessage(remove.dataset.deleteMessage);
         });
@@ -3455,7 +4255,8 @@
             setMessageSearchOpen(true);
           }
           if (event.key === 'Escape') {
-            if (!els.themeDialog.hidden) closeThemeDialog();
+            if (!$('#savedLayer').hidden) closeSavedPanel();
+            else if (!els.themeDialog.hidden) closeThemeDialog();
             else if (!els.channelDialog.hidden) closeChannelDialog();
             else if (els.confirmLayer.classList.contains('open')) closeConfirm(null);
             else if (els.adminOverlay.classList.contains('open')) closeAdmin();
