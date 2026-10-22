@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#313338">
+  <meta name="theme-color" content="#f2f3f5">
   <meta name="description" content="Chạm — không gian trò chuyện riêng tư, realtime và thân thiện.">
   <title>Chạm — Không gian trò chuyện</title>
   <style>
@@ -894,6 +894,345 @@
       .mobile-channel-select { max-width: 80px; }
       .channel-title-group { gap: 6px; }
     }
+    /* Bright, configurable palettes; selected theme is stored locally for the next visit. */
+    body[data-theme="light"] {
+      color-scheme: light;
+      --theme-bg: #f2f3f5;
+      --theme-sidebar: #e3e5e8;
+      --theme-panel: #ffffff;
+      --theme-panel-alt: #ebedef;
+      --theme-input: #f2f3f5;
+      --theme-line: rgba(35,39,42,.1);
+      --theme-line-strong: rgba(35,39,42,.17);
+      --theme-text: #2e3338;
+      --theme-secondary: #3f454d;
+      --theme-muted: #606873;
+      --theme-subtle: #7d858f;
+      --theme-accent: #5865f2;
+      --theme-accent-contrast: #ffffff;
+      --theme-accent-soft: #e2e6ff;
+      --theme-hover: #dfe2e6;
+      --theme-row-hover: rgba(79,84,92,.075);
+      --theme-banner: #fff9df;
+      --theme-banner-border: #efe1a7;
+      --theme-danger: #c83d4d;
+      --theme-scroll: #c4c8ce;
+      --theme-avatar: linear-gradient(145deg,#dfe3ff,#b9c1ff);
+      --theme-shadow: 0 22px 60px rgba(24,28,36,.16);
+      --theme-overlay: rgba(24,28,36,.42);
+    }
+    body[data-theme="dark"] {
+      color-scheme: dark;
+      --theme-bg: #313338;
+      --theme-sidebar: #2b2d31;
+      --theme-panel: #313338;
+      --theme-panel-alt: #383a40;
+      --theme-input: #232428;
+      --theme-line: rgba(255,255,255,.075);
+      --theme-line-strong: rgba(255,255,255,.13);
+      --theme-text: #f2f3f5;
+      --theme-secondary: #dbdee1;
+      --theme-muted: #b5bac1;
+      --theme-subtle: #949ba4;
+      --theme-accent: #8d96ff;
+      --theme-accent-contrast: #ffffff;
+      --theme-accent-soft: #404249;
+      --theme-hover: #3a3c42;
+      --theme-row-hover: rgba(255,255,255,.045);
+      --theme-banner: #3b3d43;
+      --theme-banner-border: rgba(255,255,255,.12);
+      --theme-danger: #ed727e;
+      --theme-scroll: #555861;
+      --theme-avatar: linear-gradient(145deg,#555b76,#343746);
+      --theme-shadow: 0 22px 60px rgba(0,0,0,.42);
+      --theme-overlay: rgba(0,0,0,.62);
+    }
+    body[data-theme="lavender"] {
+      color-scheme: light;
+      --theme-bg: #f5f1fb;
+      --theme-sidebar: #e9e1f4;
+      --theme-panel: #fffaff;
+      --theme-panel-alt: #f0eaf8;
+      --theme-input: #f7f3fb;
+      --theme-line: rgba(63,46,88,.11);
+      --theme-line-strong: rgba(63,46,88,.18);
+      --theme-text: #382f47;
+      --theme-secondary: #514460;
+      --theme-muted: #716481;
+      --theme-subtle: #9286a0;
+      --theme-accent: #7956b7;
+      --theme-accent-contrast: #ffffff;
+      --theme-accent-soft: #e8ddf8;
+      --theme-hover: #e5daf1;
+      --theme-row-hover: rgba(84,58,114,.07);
+      --theme-banner: #fbf5e9;
+      --theme-banner-border: #eadcc4;
+      --theme-danger: #c94d69;
+      --theme-scroll: #c8bdd7;
+      --theme-avatar: linear-gradient(145deg,#eadcfb,#cbb4ed);
+      --theme-shadow: 0 22px 60px rgba(63,46,88,.17);
+      --theme-overlay: rgba(35,25,48,.46);
+    }
+    body[data-theme="ocean"] {
+      color-scheme: light;
+      --theme-bg: #eef7fa;
+      --theme-sidebar: #dceef3;
+      --theme-panel: #ffffff;
+      --theme-panel-alt: #e8f3f6;
+      --theme-input: #f2f9fb;
+      --theme-line: rgba(35,67,78,.11);
+      --theme-line-strong: rgba(35,67,78,.18);
+      --theme-text: #273b43;
+      --theme-secondary: #3e5963;
+      --theme-muted: #58727b;
+      --theme-subtle: #8299a1;
+      --theme-accent: #167f99;
+      --theme-accent-contrast: #ffffff;
+      --theme-accent-soft: #d2edf4;
+      --theme-hover: #d8eaf0;
+      --theme-row-hover: rgba(35,100,120,.075);
+      --theme-banner: #fff8e8;
+      --theme-banner-border: #f0dfb4;
+      --theme-danger: #c7474f;
+      --theme-scroll: #b8d2dc;
+      --theme-avatar: linear-gradient(145deg,#d4f0f5,#9ed5e2);
+      --theme-shadow: 0 22px 60px rgba(28,70,82,.17);
+      --theme-overlay: rgba(23,50,59,.44);
+    }
+    .app-view {
+      --page: var(--theme-bg);
+      --surface: var(--theme-sidebar);
+      --surface-2: var(--theme-panel-alt);
+      --surface-3: var(--theme-input);
+      --line: var(--theme-line);
+      --line-strong: var(--theme-line-strong);
+      --text: var(--theme-text);
+      --muted: var(--theme-muted);
+      --muted-2: var(--theme-subtle);
+      --silver: var(--theme-accent);
+      --silver-bright: var(--theme-accent);
+      --danger: var(--theme-danger);
+      --shadow: var(--theme-shadow);
+      color: var(--theme-text);
+      background: var(--theme-bg);
+    }
+    .app-view .sidebar, .app-view .right-panel { background: var(--theme-sidebar); border-color: var(--theme-line); }
+    .app-view .workspace-switch { background: var(--theme-panel); border-color: var(--theme-line); }
+    .app-view .workspace-icon { background: var(--theme-accent-soft); border-color: var(--theme-line); color: var(--theme-accent); }
+    .app-view .workspace-copy strong, .app-view .profile-text strong { color: var(--theme-text); }
+    .app-view .workspace-copy span, .app-view .profile-text span, .app-view .brand-caption { color: var(--theme-muted); }
+    .app-view .side-label, .app-view .sidebar-section-title { color: var(--theme-subtle); }
+    .app-view .nav-link { color: var(--theme-muted); }
+    .app-view .nav-link .icon, .app-view .channel-link > .icon { color: var(--theme-subtle); }
+    .app-view .nav-link:hover, .app-view .channel-link:hover { background: var(--theme-hover); color: var(--theme-text); }
+    .app-view .nav-link.active, .app-view .channel-link.active { background: var(--theme-accent-soft); border-color: transparent; color: var(--theme-accent); }
+    .app-view .nav-link.active .icon, .app-view .channel-link.active .channel-mark { color: var(--theme-accent); }
+    .app-view .nav-count { background: var(--theme-panel); color: var(--theme-secondary); }
+    .app-view .sidebar-section-title button { color: var(--theme-muted); }
+    .app-view .sidebar-section-title button:hover { background: var(--theme-hover); color: var(--theme-accent); }
+    .app-view .channel-link { color: var(--theme-muted); }
+    .app-view .channel-mark { color: var(--theme-subtle); }
+    .app-view .sidebar-tip { border-color: var(--theme-line); background: var(--theme-panel); }
+    .app-view .sidebar-tip-head { color: var(--theme-secondary); }
+    .app-view .sidebar-tip p { color: var(--theme-muted); }
+    .app-view .profile-chip { border-top-color: var(--theme-line); }
+    .app-view .avatar { background: var(--theme-avatar); color: var(--theme-text); border-color: var(--theme-line-strong); }
+    .app-view .avatar img { background: var(--theme-panel-alt); }
+    .app-view .profile-logout { color: var(--theme-muted); }
+    .app-view .profile-logout:hover { background: var(--theme-hover); color: var(--theme-accent); }
+    .app-view .main-layout, .app-view .chat-panel, .app-view .content-grid { background: var(--theme-bg); }
+    .app-view .topbar, .app-view .channel-toolbar { background: var(--theme-panel); border-color: var(--theme-line); }
+    .app-view .breadcrumbs { color: var(--theme-subtle); }
+    .app-view .breadcrumbs span, .app-view .topbar-heading h1 { color: var(--theme-text); }
+    .app-view .connection-pill { background: var(--theme-panel-alt); border-color: var(--theme-line); color: var(--theme-secondary); }
+    .app-view .connection-dot { background: var(--theme-subtle); }
+    .app-view .connection-pill.online .connection-dot { background: #2eaa68; box-shadow: 0 0 0 3px rgba(46,170,104,.14),0 0 10px rgba(46,170,104,.35); }
+    .app-view .connection-pill.offline .connection-dot { background: var(--theme-danger); }
+    .app-view .role-pill { background: var(--theme-accent-soft); border-color: var(--theme-line-strong); color: var(--theme-accent); }
+    .app-view .topbar-button { background: var(--theme-accent); border-color: var(--theme-accent); color: var(--theme-accent-contrast); }
+    .app-view .topbar-button:hover { background: var(--theme-accent); filter: brightness(.95); }
+    .app-view .topbar-button.secondary { background: var(--theme-panel-alt); border-color: var(--theme-line); color: var(--theme-secondary); }
+    .app-view .topbar-button.secondary:hover { background: var(--theme-hover); color: var(--theme-text); filter: none; }
+    .app-view .channel-symbol { background: var(--theme-accent-soft); border-color: var(--theme-line); color: var(--theme-accent); }
+    .app-view .tool-avatars .avatar { border-color: var(--theme-panel); }
+    .app-view .tool-avatars .avatar.more { border-color: var(--theme-panel-alt); background: var(--theme-panel-alt); color: var(--theme-muted); }
+    .app-view .channel-title-copy h2 { color: var(--theme-text); }
+    .app-view .channel-title-copy p, .app-view .tool-caption { color: var(--theme-muted); }
+    .app-view .channel-title-copy p .small-online { background: #2eaa68; }
+    .app-view .icon-button { color: var(--theme-muted); }
+    .app-view .icon-button:hover { background: var(--theme-hover); border-color: var(--theme-line); color: var(--theme-accent); }
+    .app-view .message-search-bar { background: var(--theme-panel); border-color: var(--theme-line-strong); }
+    .app-view .message-search-bar input { color: var(--theme-text); }
+    .app-view .message-search-bar input::placeholder, .app-view .message-search-count { color: var(--theme-muted); }
+    .app-view .announcement-banner { background: var(--theme-banner); border-color: var(--theme-banner-border); }
+    .app-view .announcement-icon { background: var(--theme-accent-soft); border-color: var(--theme-line); color: var(--theme-accent); }
+    .app-view .announcement-copy strong, .app-view .announcement-copy p { color: var(--theme-text); }
+    .app-view .announcement-copy small { color: var(--theme-muted); }
+    .app-view .banner-close { color: var(--theme-muted); }
+    .app-view .messages-area { background: var(--theme-bg); scrollbar-color: var(--theme-scroll) transparent; }
+    .app-view .date-divider { color: var(--theme-subtle); }
+    .app-view .date-divider::before, .app-view .date-divider::after { background: var(--theme-line-strong); }
+    .app-view .chat-empty h3 { color: var(--theme-text); }
+    .app-view .chat-empty p { color: var(--theme-muted); }
+    .app-view .empty-illustration { background: var(--theme-accent-soft); border-color: var(--theme-line); color: var(--theme-accent); box-shadow: none; }
+    .app-view .message-row:hover { background: var(--theme-row-hover); }
+    .app-view .message-name { color: var(--theme-text); }
+    .app-view .message-time { color: var(--theme-subtle); }
+    .app-view .message-bubble, .app-view .message-row.mine .message-bubble { color: var(--theme-secondary); }
+    .app-view .message-quote { background: var(--theme-panel-alt); border-left-color: var(--theme-accent); color: var(--theme-muted); }
+    .app-view .message-quote-copy strong { color: var(--theme-text); }
+    .app-view .message-quote-copy span { color: var(--theme-muted); }
+    .app-view .message-quote:hover { background: var(--theme-hover); }
+    .app-view .message-image-link { background: var(--theme-panel); border-color: var(--theme-line); }
+    .app-view .message-delete { background: var(--theme-panel); border-color: var(--theme-line); color: var(--theme-muted); }
+    .app-view .message-delete:hover { background: var(--theme-accent-soft); color: var(--theme-accent); }
+    .app-view .message-reply { color: var(--theme-muted); }
+    .app-view .message-reply:hover { background: var(--theme-hover); color: var(--theme-accent); }
+    .app-view .server-announcement { background: var(--theme-panel); border-color: var(--theme-line-strong); box-shadow: 0 6px 24px rgba(30,35,45,.06); }
+    .app-view .server-announcement-head { color: var(--theme-accent); }
+    .app-view .server-announcement p { color: var(--theme-text); }
+    .app-view .server-announcement-meta { color: var(--theme-muted); }
+    .app-view .reaction-button { background: var(--theme-panel); border-color: var(--theme-line); color: var(--theme-secondary); }
+    .app-view .reaction-button:hover { background: var(--theme-hover); }
+    .app-view .reaction-button.active { background: var(--theme-accent-soft); border-color: var(--theme-accent); color: var(--theme-accent); }
+    .app-view .reaction-count { color: var(--theme-muted); }
+    .app-view .composer-wrap { background: var(--theme-bg); border-top-color: var(--theme-line); }
+    .app-view .composer-box { background: var(--theme-panel); border-color: var(--theme-line-strong); box-shadow: 0 2px 8px rgba(30,35,45,.05); }
+    .app-view .composer-box:focus-within { border-color: var(--theme-accent); box-shadow: 0 0 0 3px color-mix(in srgb,var(--theme-accent) 15%,transparent); }
+    .app-view .composer-box textarea { color: var(--theme-text); }
+    .app-view .composer-box textarea::placeholder { color: var(--theme-subtle); }
+    .app-view .send-button { background: var(--theme-accent); color: var(--theme-accent-contrast); }
+    .app-view .send-button:disabled { background: var(--theme-panel-alt); color: var(--theme-subtle); }
+    .app-view .attach-button { color: var(--theme-muted); }
+    .app-view .attach-button:hover { background: var(--theme-hover); color: var(--theme-accent); }
+    .app-view .reply-preview, .app-view .pending-image-preview { background: var(--theme-panel); border-color: var(--theme-line-strong); }
+    .app-view .reply-preview-copy strong, .app-view .pending-image-copy strong { color: var(--theme-text); }
+    .app-view .reply-preview-copy span, .app-view .pending-image-copy span { color: var(--theme-muted); }
+    .app-view .composer-hint, .app-view .char-count { color: var(--theme-muted); }
+    .app-view .right-panel { background: var(--theme-sidebar); }
+    .app-view .server-card { background: var(--theme-panel); border-color: var(--theme-line); }
+    .app-view .server-card::after { border-color: var(--theme-line); box-shadow: 0 0 0 16px var(--theme-row-hover); }
+    .app-view .server-card-label { color: var(--theme-muted); }
+    .app-view .server-card-label .icon { color: var(--theme-accent); }
+    .app-view .server-card h2, .app-view .panel-heading h3 { color: var(--theme-text); }
+    .app-view .server-card p, .app-view .panel-heading span { color: var(--theme-muted); }
+    .app-view .server-stat { background: var(--theme-panel-alt); border-color: var(--theme-line); }
+    .app-view .server-stat strong { color: var(--theme-text); }
+    .app-view .server-stat span { color: var(--theme-muted); }
+    .app-view .member-list { scrollbar-color: var(--theme-scroll) transparent; }
+    .app-view .member-row:hover { background: var(--theme-hover); }
+    .app-view .presence-indicator { border-color: var(--theme-sidebar); }
+    .app-view .member-copy strong { color: var(--theme-text); }
+    .app-view .member-copy span, .app-view .member-empty { color: var(--theme-muted); }
+    .app-view .member-badge { color: var(--theme-accent) !important; }
+    .app-view .members-footer { color: var(--theme-muted); border-color: var(--theme-line); }
+    .app-view .members-footer .icon { color: var(--theme-accent); }
+    .app-view .channel-create-dialog { background: var(--theme-panel); color: var(--theme-text); }
+    .app-view .channel-name-field label { color: var(--theme-secondary); }
+    .app-view .channel-name-field > div { background: var(--theme-input); border-color: var(--theme-line-strong); color: var(--theme-muted); }
+    .app-view .channel-name-field input { color: var(--theme-text); }
+    .app-view .channel-name-field small { color: var(--theme-muted); }
+    .app-view .channel-create-dialog .dialog-button.primary { background: var(--theme-accent); border-color: var(--theme-accent); color: var(--theme-accent-contrast); }
+    body[data-theme] .channel-name-field label { color: var(--theme-secondary); }
+    body[data-theme] .channel-name-field > div { background: var(--theme-input); border-color: var(--theme-line-strong); color: var(--theme-muted); }
+    body[data-theme] .channel-name-field input { color: var(--theme-text); }
+    body[data-theme] .channel-name-field input::placeholder { color: var(--theme-subtle); }
+    body[data-theme] .channel-name-field small { color: var(--theme-muted); }
+
+    body[data-theme] .confirm-layer { background: var(--theme-overlay); }
+    body[data-theme] .confirm-dialog { background: var(--theme-panel); border-color: var(--theme-line-strong); box-shadow: var(--theme-shadow); color: var(--theme-text); }
+    body[data-theme] .confirm-dialog h2 { color: var(--theme-text); }
+    body[data-theme] .confirm-dialog p { color: var(--theme-muted); }
+    body[data-theme] .confirm-icon { background: var(--theme-accent-soft); border-color: var(--theme-line); color: var(--theme-accent); }
+    body[data-theme] .confirm-reason label { color: var(--theme-secondary); }
+    body[data-theme] .confirm-reason textarea { background: var(--theme-input); border-color: var(--theme-line); color: var(--theme-text); }
+    body[data-theme] .dialog-button { background: var(--theme-panel-alt); border-color: var(--theme-line); color: var(--theme-secondary); }
+    body[data-theme] .dialog-button:hover { background: var(--theme-hover); color: var(--theme-text); }
+    body[data-theme] .dialog-button.primary { background: var(--theme-accent); border-color: var(--theme-accent); color: var(--theme-accent-contrast); }
+    body[data-theme] .dialog-button.danger { background: color-mix(in srgb,var(--theme-danger) 12%,var(--theme-panel)); border-color: color-mix(in srgb,var(--theme-danger) 30%,var(--theme-panel)); color: var(--theme-danger); }
+    body[data-theme] .theme-dialog { width: min(500px,100%); }
+    .theme-dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .theme-dialog-heading h2 { margin-top: 6px !important; }
+    .theme-eyebrow { color: var(--theme-accent); font-size: 8px; font-weight: 800; letter-spacing: .14em; }
+    .theme-dialog > p { margin-top: 4px !important; }
+    .theme-close-button { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid var(--theme-line); border-radius: 9px; background: var(--theme-panel-alt); color: var(--theme-muted); cursor: pointer; }
+    .theme-close-button:hover { background: var(--theme-hover); color: var(--theme-accent); }
+    .theme-close-button .icon { width: 15px; height: 15px; }
+    .theme-options { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 19px; }
+    .theme-option { display: flex; min-width: 0; align-items: center; gap: 9px; padding: 9px; border: 1px solid var(--theme-line); border-radius: 12px; background: var(--theme-panel); color: var(--theme-text); cursor: pointer; text-align: left; transition: transform .16s,border-color .16s,background .16s; }
+    .theme-option:hover { transform: translateY(-1px); border-color: var(--theme-accent); background: var(--theme-panel-alt); }
+    .theme-option.selected { border-color: var(--theme-accent); box-shadow: 0 0 0 2px color-mix(in srgb,var(--theme-accent) 16%,transparent); }
+    .theme-preview { display: flex; width: 42px; height: 35px; flex: 0 0 auto; gap: 3px; padding: 4px; overflow: hidden; border: 1px solid rgba(0,0,0,.08); border-radius: 7px; background: #f2f3f5; }
+    .theme-preview i { display: block; border-radius: 3px; }
+    .theme-preview i:first-child { width: 11px; background: #e3e5e8; }
+    .theme-preview i:nth-child(2) { width: 9px; background: #5865f2; }
+    .theme-preview i:last-child { flex: 1; background: #fff; }
+    .theme-preview-dark { background: #313338; }
+    .theme-preview-dark i:first-child { background: #2b2d31; }
+    .theme-preview-dark i:nth-child(2) { background: #8d96ff; }
+    .theme-preview-dark i:last-child { background: #383a40; }
+    .theme-preview-lavender { background: #f5f1fb; }
+    .theme-preview-lavender i:first-child { background: #e9e1f4; }
+    .theme-preview-lavender i:nth-child(2) { background: #7956b7; }
+    .theme-preview-lavender i:last-child { background: #fffaff; }
+    .theme-preview-ocean { background: #eef7fa; }
+    .theme-preview-ocean i:first-child { background: #dceef3; }
+    .theme-preview-ocean i:nth-child(2) { background: #167f99; }
+    .theme-preview-ocean i:last-child { background: #fff; }
+    .theme-option-copy { min-width: 0; flex: 1; }
+    .theme-option-copy strong, .theme-option-copy small { display: block; }
+    .theme-option-copy strong { font-size: 10px; }
+    .theme-option-copy small { margin-top: 3px; color: var(--theme-muted); font-size: 8px; }
+    .theme-check { display: grid; width: 18px; height: 18px; flex: 0 0 auto; place-items: center; border: 1px solid var(--theme-line); border-radius: 50%; color: transparent; }
+    .theme-check .icon { width: 11px; height: 11px; }
+    .theme-option.selected .theme-check { background: var(--theme-accent); border-color: var(--theme-accent); color: #fff; }
+    .theme-status { margin: 14px 0 0 !important; color: var(--theme-muted) !important; font-size: 9px !important; }
+    body[data-theme] .admin-drawer { background: var(--theme-panel); border-color: var(--theme-line-strong); box-shadow: var(--theme-shadow); }
+    body[data-theme] .admin-header, body[data-theme] .admin-tabs { border-color: var(--theme-line); }
+    body[data-theme] .admin-header h2 { color: var(--theme-text); }
+    body[data-theme] .admin-header p, body[data-theme] .admin-tab { color: var(--theme-muted); }
+    body[data-theme] .admin-emblem { background: var(--theme-accent-soft); border-color: var(--theme-line); color: var(--theme-accent); }
+    body[data-theme] .admin-close { background: var(--theme-panel-alt); border-color: var(--theme-line); color: var(--theme-muted); }
+    body[data-theme] .admin-close:hover { background: var(--theme-hover); color: var(--theme-text); }
+    body[data-theme] .admin-tab.active { color: var(--theme-accent); border-color: var(--theme-accent); }
+    body[data-theme] .admin-tab-count { background: var(--theme-panel-alt); color: var(--theme-muted); }
+    body[data-theme] .admin-body, body[data-theme] .admin-list { scrollbar-color: var(--theme-scroll) transparent; }
+    body[data-theme] .admin-stat-card, body[data-theme] .admin-member-row, body[data-theme] .admin-announcement-item { background: var(--theme-panel-alt); border-color: var(--theme-line); }
+    body[data-theme] .admin-stat-card span, body[data-theme] .admin-member-meta span, body[data-theme] .admin-announcement-copy span { color: var(--theme-muted); }
+    body[data-theme] .admin-stat-card strong, body[data-theme] .admin-member-meta strong, body[data-theme] .admin-announcement-copy p { color: var(--theme-text); }
+    body[data-theme] .admin-search input, body[data-theme] .announcement-compose textarea { background: var(--theme-input); border-color: var(--theme-line); color: var(--theme-text); }
+    body[data-theme] .admin-search input::placeholder, body[data-theme] .announcement-compose textarea::placeholder { color: var(--theme-subtle); }
+    body[data-theme] .announcement-compose { background: var(--theme-panel-alt); border-color: var(--theme-line); }
+    body[data-theme] .announcement-compose label { color: var(--theme-text); }
+    body[data-theme] .announcement-only-admin { margin-left: 6px; padding: 3px 6px; border-radius: 99px; background: var(--theme-accent-soft); color: var(--theme-accent); font-size: 7px; font-weight: 800; letter-spacing: .06em; white-space: nowrap; }
+    body[data-theme] .announcement-compose-footer span, body[data-theme] .announcement-list-heading span { color: var(--theme-muted); }
+    body[data-theme] .announcement-list-heading { color: var(--theme-text); }
+    body[data-theme] .publish-button { background: var(--theme-accent); border-color: var(--theme-accent); color: var(--theme-accent-contrast); }
+    body[data-theme] .publish-button:hover:not(:disabled) { filter: brightness(.95); }
+    body[data-theme] .publish-button:disabled { background: var(--theme-panel-alt); border-color: var(--theme-line); color: var(--theme-subtle); }
+    body[data-theme] .admin-info { background: var(--theme-panel-alt); border-color: var(--theme-line); color: var(--theme-muted); }
+    body[data-theme] .admin-info .icon, body[data-theme] .admin-announcement-item > .icon { color: var(--theme-accent); }
+    body[data-theme] .admin-announcement-item button { color: var(--theme-muted); }
+    body[data-theme] .admin-announcement-item button:hover { background: var(--theme-hover); color: var(--theme-danger); }
+    body[data-theme] .admin-empty { color: var(--theme-muted); }
+    body[data-theme] .status-tag { background: var(--theme-accent-soft); border-color: var(--theme-line); color: var(--theme-accent); }
+    body[data-theme] .status-tag.banned { background: color-mix(in srgb,var(--theme-danger) 12%,var(--theme-panel)); color: var(--theme-danger); }
+    body[data-theme] .admin-action { background: var(--theme-panel); border-color: var(--theme-line); color: var(--theme-muted); }
+    body[data-theme] .admin-action:hover { background: var(--theme-accent-soft); color: var(--theme-accent); }
+    body[data-theme] .admin-action.unban:hover { background: var(--theme-accent-soft); color: var(--theme-accent); }
+    body[data-theme] .toast { background: var(--theme-panel); border-color: var(--theme-line-strong); color: var(--theme-text); box-shadow: var(--theme-shadow); }
+    body[data-theme] .toast .icon, body[data-theme] .toast-close { color: var(--theme-muted); }
+    body[data-theme] .toast.success .icon { color: #24945b; }
+    body[data-theme] .toast.error .icon { color: var(--theme-danger); }
+    body[data-theme] .mobile-channel-select { background: var(--theme-panel); border-color: var(--theme-line); color: var(--theme-text); }
+    .appearance-button .icon { width: 15px; height: 15px; }
+    @media (max-width: 760px) {
+      .appearance-button { width: 34px; padding: 0; }
+      .appearance-button > span { display: none; }
+    }
+    @media (max-width: 390px) {
+      .appearance-button { width: 31px; }
+    }
   </style>
 </head>
 <body>
@@ -917,6 +1256,7 @@
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 11v5M12 8h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
     <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16ZM5 2l.7 2.3L8 5l-2.3.7L5 8l-.7-2.3L2 5l2.3-.7L5 2Z" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h14M4 15h14M10 3 8 21M16 3l-2 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18h1.4a2.2 2.2 0 0 0 1.5-3.8 1.7 1.7 0 0 1 1.2-2.9H18a3 3 0 0 0 3-3c0-4.6-4-8.3-9-8.3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="10" cy="7.3" r="1" fill="currentColor"/><circle cx="14.2" cy="7.8" r="1" fill="currentColor"/></symbol>
     <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4 21a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
@@ -1019,7 +1359,7 @@
     <div class="auth-bottom">© 2026 Chạm · Một góc nhỏ dành cho những kết nối thật.</div>
   </main>
 
-  <div class="app-view" id="appView" hidden>
+  <div class="app-view" id="appView" data-theme="light" hidden>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Điều hướng">
         <div class="brand-lockup">
@@ -1043,7 +1383,7 @@
         <div class="sidebar-channel-block">
           <div class="sidebar-section-title"><span>KÊNH CỦA BẠN</span><button id="channelAddButton" type="button" aria-label="Tạo kênh" title="Chỉ quản trị viên được tạo kênh" hidden><svg class="icon"><use href="#i-plus"></use></svg></button></div>
           <div class="channel-list" id="channelList" aria-label="Danh sách kênh"></div>
-          <button class="channel-link announcements-link" id="channelAnnouncements" type="button"><svg class="icon"><use href="#i-bell"></use></svg><span>thông-báo</span><span class="channel-unread" id="announcementUnread" hidden></span></button>
+          <button class="channel-link announcements-link" id="channelAnnouncements" type="button" title="Thông báo toàn máy chủ · chỉ quản trị viên được đăng"><svg class="icon"><use href="#i-bell"></use></svg><span>thông-báo</span><span class="channel-unread" id="announcementUnread" hidden></span></button>
         </div>
         <div class="sidebar-spacer"></div>
         <div class="sidebar-tip">
@@ -1065,6 +1405,7 @@
             <h1>Không gian trò chuyện</h1>
           </div>
           <div class="topbar-actions">
+            <button class="topbar-button secondary appearance-button" id="openThemeSettingsButton" type="button" title="Cài đặt màu giao diện" aria-label="Cài đặt màu giao diện"><svg class="icon"><use href="#i-palette"></use></svg><span>Giao diện</span></button>
             <div class="connection-pill" id="connectionPill"><span class="connection-dot"></span><span class="connection-label" id="connectionLabel">Đang kết nối</span></div>
             <span class="role-pill" id="rolePill" hidden><svg class="icon"><use href="#i-crown"></use></svg><span>Quản trị viên</span></span>
             <button class="topbar-button admin-button" id="openAdminButton" type="button" hidden><svg class="icon"><use href="#i-shield"></use></svg><span>Quản trị</span></button>
@@ -1179,13 +1520,13 @@
       </div>
       <div class="admin-body" id="adminAnnouncementsTab" role="tabpanel" hidden>
         <div class="announcement-compose">
-          <label for="announcementInput">Gửi thông báo tới toàn bộ máy chủ</label>
-          <textarea id="announcementInput" maxlength="500" placeholder="Viết nội dung quan trọng bạn muốn mọi thành viên nhìn thấy..."></textarea>
-          <div class="announcement-compose-footer"><span id="announcementCharCount">0 / 500</span><button class="publish-button" id="publishAnnouncementButton" type="button"><svg class="icon"><use href="#i-send"></use></svg>Gửi thông báo</button></div>
+          <label for="announcementInput">Gửi thông báo tới toàn bộ máy chủ <span class="announcement-only-admin">CHỈ QUẢN TRỊ</span></label>
+          <textarea id="announcementInput" maxlength="500" placeholder="Viết nội dung quan trọng bạn muốn mọi thành viên nhìn thấy..." disabled></textarea>
+          <div class="announcement-compose-footer"><span id="announcementCharCount">0 / 500</span><button class="publish-button" id="publishAnnouncementButton" type="button" disabled><svg class="icon"><use href="#i-send"></use></svg>Gửi thông báo</button></div>
         </div>
         <div class="announcement-list-heading">Thông báo gần đây <span>Chọn thùng rác để xóa</span></div>
         <div id="adminAnnouncementList"><div class="admin-empty">Chưa có thông báo nào.</div></div>
-        <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Thông báo sẽ xuất hiện trong phòng chung của tất cả thành viên đang đăng nhập. Chỉ tài khoản có quyền admin trên Firebase mới có thể gửi hoặc xóa.</span></p>
+        <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Thông báo sẽ xuất hiện trong phòng chung của mọi thành viên. Chỉ UID có quyền admin trên Firebase mới được gửi hoặc xóa; Security Rules phải từ chối ghi kind=announcement từ thành viên thường.</span></p>
       </div>
     </aside>
   </div>
@@ -1198,6 +1539,22 @@
       <div class="channel-name-field"><label for="channelNameInput">Tên kênh</label><div><span>#</span><input id="channelNameInput" name="channelName" type="text" maxlength="32" autocomplete="off" placeholder="ví dụ: hoi-dap" required></div><small id="channelNameHint">Chỉ dùng chữ, số và dấu gạch ngang.</small></div>
       <div class="confirm-actions"><button class="dialog-button" id="cancelCreateChannelButton" type="button">Hủy</button><button class="dialog-button primary" id="createChannelSubmit" type="submit"><svg class="icon"><use href="#i-plus"></use></svg>Tạo kênh</button></div>
     </form>
+  </div>
+  <div class="confirm-layer theme-dialog-layer" id="themeDialog" aria-hidden="true" hidden>
+    <section class="confirm-dialog theme-dialog" role="dialog" aria-modal="true" aria-labelledby="themeDialogTitle" aria-describedby="themeDialogDescription">
+      <div class="theme-dialog-heading">
+        <div><span class="theme-eyebrow">CÁ NHÂN HÓA</span><h2 id="themeDialogTitle">Màu giao diện</h2></div>
+        <button class="theme-close-button" id="closeThemeDialogButton" type="button" aria-label="Đóng cài đặt màu"><svg class="icon"><use href="#i-close"></use></svg></button>
+      </div>
+      <p id="themeDialogDescription">Chọn tông màu dễ nhìn cho không gian trò chuyện. Lựa chọn được lưu trên thiết bị này.</p>
+      <div class="theme-options" id="themeOptions" role="group" aria-label="Chọn màu giao diện">
+        <button class="theme-option" type="button" data-theme-choice="light" aria-pressed="false"><span class="theme-preview theme-preview-light"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Sáng</strong><small>Sạch, sáng rõ</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
+        <button class="theme-option" type="button" data-theme-choice="dark" aria-pressed="false"><span class="theme-preview theme-preview-dark"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Tối</strong><small>Dịu mắt ban đêm</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
+        <button class="theme-option" type="button" data-theme-choice="lavender" aria-pressed="false"><span class="theme-preview theme-preview-lavender"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Hoa cà</strong><small>Tím nhẹ nhàng</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
+        <button class="theme-option" type="button" data-theme-choice="ocean" aria-pressed="false"><span class="theme-preview theme-preview-ocean"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Biển</strong><small>Xanh mát dịu</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
+      </div>
+      <p class="theme-status" id="themeStatus" aria-live="polite">Đang dùng giao diện Sáng</p>
+    </section>
   </div>
   <div class="confirm-layer" id="confirmLayer" aria-hidden="true">
     <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmDescription">
@@ -1223,7 +1580,8 @@
        * Vai trò được đọc từ Firebase: /admins/<UID> = true hoặc custom claim admin=true.
        * Không có email/mật khẩu admin hardcode trong client. Chỉ cấp role admin cho tài khoản
        * được chỉ định tại Firebase. Security Rules phải bảo vệ /channels, /channelMessages,
-       * /admins, /memberEmails, /bans, /messages và /messageReactions.
+       * /admins, /memberEmails, /bans, /messages và /messageReactions. Rules của /messages
+       * phải từ chối kind=announcement từ mọi UID không có quyền admin.
        * Ban trong UI chặn quyền truy cập ứng dụng; vô hiệu hóa Firebase Auth cần Admin SDK.
        * Giới hạn một tài khoản/IP/thiết bị cần Firebase Auth blocking functions hoặc backend tin cậy;
        * trình duyệt tĩnh không thể thực thi giới hạn này an toàn.
@@ -1233,6 +1591,12 @@
         { key: 'heart', glyph: '❤️', label: 'Yêu thích' },
         { key: 'laugh', glyph: '😂', label: 'Haha' },
         { key: 'wow', glyph: '😮', label: 'Ngạc nhiên' }
+      ];
+      const THEME_OPTIONS = [
+        { id: 'light', name: 'Sáng', color: '#f2f3f5' },
+        { id: 'dark', name: 'Tối', color: '#313338' },
+        { id: 'lavender', name: 'Hoa cà', color: '#f6f2ff' },
+        { id: 'ocean', name: 'Biển', color: '#eef7fa' }
       ];
       const firebaseConfig = {
         apiKey: "AIzaSyAf8xiMmAipgxxrGVDjeLdQIeU1yqVEXu0",
@@ -1261,6 +1625,8 @@
         channelNameInput: $('#channelNameInput'), cancelCreateChannelButton: $('#cancelCreateChannelButton'),
         createChannelSubmit: $('#createChannelSubmit'), clearChannelButton: $('#clearChannelButton'), channelTitle: $('#channelTitle'),
         channelMemberSummary: $('#channelMemberSummary'), channelSymbol: $('#channelSymbol'),
+        themeDialog: $('#themeDialog'), themeOptions: $('#themeOptions'), themeStatus: $('#themeStatus'),
+        closeThemeDialogButton: $('#closeThemeDialogButton'), openThemeSettingsButton: $('#openThemeSettingsButton'),
         adminOverlay: $('#adminOverlay'), adminMemberList: $('#adminMemberList'), adminMembersTab: $('#adminMembersTab'),
         adminAnnouncementsTab: $('#adminAnnouncementsTab'), adminMemberSearch: $('#adminMemberSearch'),
         announcementInput: $('#announcementInput'), publishAnnouncementButton: $('#publishAnnouncementButton'),
@@ -1535,6 +1901,47 @@
         }
       }
 
+      function loadSavedTheme() {
+        try {
+          const saved = localStorage.getItem('cham-chat-theme');
+          return THEME_OPTIONS.some((theme) => theme.id === saved) ? saved : 'light';
+        } catch (_) { return 'light'; }
+      }
+
+      function applyTheme(themeId, persist = true) {
+        const theme = THEME_OPTIONS.find((item) => item.id === themeId) || THEME_OPTIONS[0];
+        document.body.dataset.theme = theme.id;
+        els.appView.dataset.theme = theme.id;
+        $('meta[name="theme-color"]').setAttribute('content', theme.color);
+        $$('[data-theme-choice]', els.themeOptions).forEach((button) => {
+          const active = button.dataset.themeChoice === theme.id;
+          button.classList.toggle('selected', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        els.themeStatus.textContent = `Đang dùng giao diện ${theme.name}`;
+        if (persist) {
+          try { localStorage.setItem('cham-chat-theme', theme.id); }
+          catch (error) { console.warn('Không lưu được cài đặt màu trên thiết bị:', error); }
+        }
+      }
+
+      function openThemeDialog() {
+        els.themeDialog.hidden = false;
+        els.themeDialog.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => els.themeDialog.classList.add('open'));
+        document.body.classList.add('body-locked');
+        window.setTimeout(() => els.themeOptions.querySelector('[aria-pressed="true"]')?.focus(), 30);
+      }
+
+      function closeThemeDialog() {
+        els.themeDialog.classList.remove('open');
+        els.themeDialog.setAttribute('aria-hidden', 'true');
+        els.themeDialog.hidden = true;
+        if (!els.confirmLayer.classList.contains('open') && !els.adminOverlay.classList.contains('open') && els.channelDialog.hidden) {
+          document.body.classList.remove('body-locked');
+        }
+      }
+
       function setConnectionState(state) {
         connectionIsOnline = state === 'online';
         els.connectionPill.classList.toggle('online', state === 'online');
@@ -1645,6 +2052,8 @@
         els.channelAddButton.hidden = !isAdmin;
         $('#mobileCreateChannelButton').hidden = !isAdmin;
         els.clearChannelButton.hidden = !isAdmin;
+        els.announcementInput.disabled = !isAdmin;
+        els.publishAnnouncementButton.disabled = !isAdmin;
         if (!isAdmin && !els.channelDialog.hidden) closeChannelDialog();
         if (isAdmin && bansRef && !stopAdminBanListener) {
           stopAdminBanListener = subscribe(bansRef, 'value', (snapshot) => {
@@ -1972,6 +2381,7 @@
         const previousUid = currentUser?.uid || null;
         cleanupRealtime();
         closeChannelDialog();
+        closeThemeDialog();
         currentUser = user || null;
         if (previousUid !== (currentUser?.uid || null)) els.messageInput.value = '';
         updateMessageComposer();
@@ -2660,12 +3070,17 @@
           toast('Bạn không có quyền gửi thông báo toàn máy chủ.', 'error');
           return;
         }
+        if (!generalMessagesRef) {
+          toast('Chưa kết nối được máy chủ. Hãy thử lại sau.', 'error');
+          return;
+        }
         const text = els.announcementInput.value.trim();
         if (!text) {
           toast('Hãy nhập nội dung thông báo trước khi gửi.', 'error');
           els.announcementInput.focus();
           return;
         }
+        els.announcementInput.disabled = true;
         els.publishAnnouncementButton.disabled = true;
         try {
           await generalMessagesRef.push({
@@ -2681,7 +3096,8 @@
         } catch (error) {
           showDatabaseError(error, 'Không gửi được thông báo. Hãy kiểm tra quyền quản trị trong Firebase.');
         } finally {
-          els.publishAnnouncementButton.disabled = false;
+          els.announcementInput.disabled = !isAdmin;
+          els.publishAnnouncementButton.disabled = !isAdmin;
         }
       }
 
@@ -2882,6 +3298,13 @@
 
       function attachEvents() {
         els.authForm.addEventListener('submit', submitAuth);
+        els.openThemeSettingsButton.addEventListener('click', openThemeDialog);
+        els.closeThemeDialogButton.addEventListener('click', closeThemeDialog);
+        els.themeDialog.addEventListener('click', (event) => { if (event.target === els.themeDialog) closeThemeDialog(); });
+        els.themeOptions.addEventListener('click', (event) => {
+          const option = event.target instanceof Element ? event.target.closest('[data-theme-choice]') : null;
+          if (option) applyTheme(option.dataset.themeChoice);
+        });
         els.toggleAuthMode.addEventListener('click', switchAuthMode);
         els.forgotPassword.addEventListener('click', sendPasswordReset);
         els.email.addEventListener('input', () => { setAuthError(''); if (els.authNotice.classList.contains('success')) setAuthNotice(''); });
@@ -3027,12 +3450,13 @@
         els.confirmLayer.addEventListener('click', (event) => { if (event.target === els.confirmLayer) closeConfirm(null); });
         els.adminOverlay.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeAdmin(); });
         document.addEventListener('keydown', (event) => {
-          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && currentUser && !els.adminOverlay.classList.contains('open') && !els.confirmLayer.classList.contains('open') && els.channelDialog.hidden) {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && currentUser && !els.adminOverlay.classList.contains('open') && !els.confirmLayer.classList.contains('open') && els.channelDialog.hidden && els.themeDialog.hidden) {
             event.preventDefault();
             setMessageSearchOpen(true);
           }
           if (event.key === 'Escape') {
-            if (!els.channelDialog.hidden) closeChannelDialog();
+            if (!els.themeDialog.hidden) closeThemeDialog();
+            else if (!els.channelDialog.hidden) closeChannelDialog();
             else if (els.confirmLayer.classList.contains('open')) closeConfirm(null);
             else if (els.adminOverlay.classList.contains('open')) closeAdmin();
             else if (!els.messageSearchBar.hidden) setMessageSearchOpen(false);
@@ -3080,6 +3504,7 @@
       }
 
       attachEvents();
+      applyTheme(loadSavedTheme(), false);
       updateMessageComposer();
       initializeFirebase();
     })();
