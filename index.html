@@ -497,7 +497,9 @@
     .reaction-button { display: inline-flex; min-width: 31px; min-height: 25px; align-items: center; justify-content: center; gap: 5px; padding: 2px 7px; border: 1px solid rgba(255,255,255,.1); border-radius: 99px; background: rgba(255,255,255,.035); color: #d8d8d8; cursor: pointer; transition: transform .16s, background .16s, border .16s; }
     .reaction-button:hover { transform: translateY(-1px); background: rgba(255,255,255,.1); }
     .reaction-button.active { border-color: rgba(255,255,255,.32); background: rgba(255,255,255,.12); }
-    .reaction-emoji { font-size: 12px; line-height: 1; filter: grayscale(1); }
+    .reaction-emoji { font-size: 13px; line-height: 1; filter: saturate(.35) opacity(.8); transition: filter .16s, transform .16s; }
+    .reaction-button:hover .reaction-emoji, .reaction-button.active .reaction-emoji { filter: none; transform: scale(1.06); }
+    .reaction-button.active .reaction-emoji { transform: scale(1.12); }
     .reaction-count { color: #aaa; font-size: 8px; font-variant-numeric: tabular-nums; }
     .message-row.announcement-row { width: min(100%, 620px); max-width: 100%; align-self: center; justify-content: center; padding: 8px 0; }
     .server-announcement {
@@ -1123,7 +1125,9 @@
     .app-view .server-stat strong { color: var(--theme-text); }
     .app-view .server-stat span { color: var(--theme-muted); }
     .app-view .member-list { scrollbar-color: var(--theme-scroll) transparent; }
-    .app-view .member-row:hover { background: var(--theme-hover); }
+    .app-view .member-row { cursor: pointer; border-radius: 12px; transition: background .16s, transform .16s; }
+    .app-view .member-row:hover { background: var(--theme-hover); transform: translateX(2px); }
+    .app-view .member-row:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 1px; }
     .app-view .presence-indicator { border-color: var(--theme-sidebar); }
     .app-view .member-copy strong { color: var(--theme-text); }
     .app-view .member-copy span, .app-view .member-empty { color: var(--theme-muted); }
@@ -1596,90 +1600,340 @@
       .miu-face, .miu-bubble, .saved-drawer { animation: none !important; }
     }
 
-    /* Chuột mèo cho thiết bị có con trỏ chính xác (PC) */
+    /* Chuột mèo: biến thể chọn trong Cài đặt, mặc định là mèo cam */
+    :root { --cat-cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2734%27%20height%3D%2734%27%20viewBox%3D%270%200%2034%2034%27%3E%3Cpath%20d%3D%27M7%2012%208%204.5%2014.6%208a13%2013%200%200%201%204.8%200L26%204.5%2027%2012a12%2012%200%200%201%202%207c0%206.6-5.5%2010.5-12.5%2010.5S4%2025.6%204%2019a12%2012%200%200%201%203-7Z%27%20fill%3D%27%23f8b072%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.8%27%20stroke-linejoin%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2712.4%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Ccircle%20cx%3D%2721.6%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Cpath%20d%3D%27M15%2022.4q2%201.8%204%200%27%20fill%3D%27none%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.5%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 4 3, auto; }
     @media (hover: hover) and (pointer: fine) {
-      html, body, body * { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2734%27%20height%3D%2734%27%20viewBox%3D%270%200%2034%2034%27%3E%3Cpath%20d%3D%27M7%2012%208%204.5%2014.6%208a13%2013%200%200%201%204.8%200L26%204.5%2027%2012a12%2012%200%200%201%202%207c0%206.6-5.5%2010.5-12.5%2010.5S4%2025.6%204%2019a12%2012%200%200%201%203-7Z%27%20fill%3D%27%23f8b072%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.8%27%20stroke-linejoin%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2712.4%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Ccircle%20cx%3D%2721.6%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Cpath%20d%3D%27M15%2022.4q2%201.8%204%200%27%20fill%3D%27none%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.5%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 4 3, auto !important; }
+      html, body, body * { cursor: var(--cat-cursor) !important; }
       body input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
       body textarea { cursor: text !important; }
-      body [disabled], body button:disabled { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2734%27%20height%3D%2734%27%20viewBox%3D%270%200%2034%2034%27%3E%3Cpath%20d%3D%27M7%2012%208%204.5%2014.6%208a13%2013%200%200%201%204.8%200L26%204.5%2027%2012a12%2012%200%200%201%202%207c0%206.6-5.5%2010.5-12.5%2010.5S4%2025.6%204%2019a12%2012%200%200%201%203-7Z%27%20fill%3D%27%23f8b072%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.8%27%20stroke-linejoin%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2712.4%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Ccircle%20cx%3D%2721.6%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Cpath%20d%3D%27M15%2022.4q2%201.8%204%200%27%20fill%3D%27none%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.5%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 4 3, not-allowed !important; }
+      body [disabled], body button:disabled { cursor: var(--cat-cursor) !important; }
+      body .paw-trail { cursor: none !important; }
     }
 
-    /* ───────── Trang đăng nhập theo bộ lông đang chọn ───────── */
-    body[data-theme] {
+    /* ═══════════════ Halloween: bảng màu mới ═══════════════ */
+    body[data-theme="halloween"] {
+      color-scheme: dark;
+      --theme-bg: #140f1c;
+      --theme-sidebar: #191223;
+      --theme-panel: #221830;
+      --theme-panel-alt: #2b1f3c;
+      --theme-input: #180f22;
+      --theme-line: rgba(255,196,120,.13);
+      --theme-line-strong: rgba(255,196,120,.24);
+      --theme-text: #fbeee0;
+      --theme-secondary: #f0dcc6;
+      --theme-muted: #c3ab93;
+      --theme-subtle: #9b846e;
+      --theme-accent: #ff9a3c;
+      --theme-accent-contrast: #2a1405;
+      --theme-accent-soft: rgba(255,154,60,.18);
+      --theme-hover: rgba(255,196,120,.09);
+      --theme-row-hover: rgba(255,196,120,.055);
+      --theme-banner: #3a2412;
+      --theme-banner-border: rgba(255,171,64,.35);
+      --theme-danger: #ff7b6b;
+      --theme-scroll: #4a3559;
+      --theme-avatar: linear-gradient(145deg,#6b3f7d,#3a2247);
+      --theme-shadow: 0 26px 70px rgba(0,0,0,.62);
+      --theme-overlay: rgba(8,4,14,.72);
+      --cat-gradient: linear-gradient(140deg,#ffb347,#a35fd3);
+      --cat-glow: rgba(255,154,60,.3);
+      --cat-face-ink: #2a1405;
+      --cat-ink: #3a1d08;
+      --cat-meow: #ffab40;
+    }
+    body[data-theme="halloween"] .app-view {
+      background-image:
+        radial-gradient(circle at 8% -6%, rgba(255,154,60,.16), transparent 40%),
+        radial-gradient(circle at 96% 102%, rgba(163,95,211,.22), transparent 42%);
+    }
+    body[data-theme="halloween"] .brand-mark { box-shadow: 0 12px 30px rgba(255,154,60,.36), inset 0 1px rgba(255,255,255,.3); }
+
+    /* ═══════════════ Chuyển tab: Trò chuyện / Thành viên ═══════════════ */
+    .directory-panel {
+      display: flex;
+      min-width: 0;
+      min-height: 0;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid var(--theme-line);
       background:
-        radial-gradient(ellipse at 12% 4%, var(--cat-glow), transparent 40%),
-        radial-gradient(ellipse at 92% 96%, var(--cat-glow), transparent 36%),
+        radial-gradient(circle at 100% 0%, var(--cat-glow), transparent 42%),
         var(--theme-bg);
-      color: var(--theme-text);
+      animation: directory-in .3s var(--ease) both;
     }
-    body[data-theme] .auth-screen::before,
-    body[data-theme] .auth-screen::after { border-color: var(--theme-line-strong); }
-    body[data-theme] .auth-card {
-      border-color: var(--theme-line-strong);
-      background: color-mix(in srgb, var(--theme-panel) 94%, transparent);
-      box-shadow: var(--theme-shadow);
+    .app-view[data-view="members"] .content-grid { grid-template-columns: minmax(0, 1fr); }
+    .app-view[data-view="members"] .directory-panel { border-right: 0; }
+    .app-view[data-view="members"] .chat-panel { display: none; }
+    .app-view[data-view="members"] .right-panel { display: none; }
+    .app-view[data-view="members"] .directory-panel { display: flex; }
+    .directory-toolbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 24px 16px;
+      border-bottom: 1px solid var(--theme-line);
+      background: color-mix(in srgb, var(--theme-panel) 70%, transparent);
+      backdrop-filter: blur(10px);
     }
-    body[data-theme] .auth-showcase {
-      background:
-        radial-gradient(ellipse at 14% 74%, color-mix(in srgb, var(--theme-accent) 18%, transparent), transparent 42%),
-        radial-gradient(ellipse at 88% 14%, var(--cat-glow), transparent 46%),
-        linear-gradient(150deg, color-mix(in srgb, var(--theme-panel-alt) 96%, var(--theme-accent)) 0%, var(--theme-panel-alt) 52%, var(--theme-panel) 100%);
-    }
-    body[data-theme] .auth-showcase::before { border-color: var(--theme-line-strong); box-shadow: 0 0 0 48px var(--theme-row-hover), 0 0 0 96px var(--theme-row-hover); }
-    body[data-theme] .auth-panel { background: var(--theme-panel); }
-    body[data-theme] .brand-caption { color: var(--theme-subtle); }
-    body[data-theme] .showcase-copy h1 { color: var(--theme-text); }
-    body[data-theme] .showcase-copy h1 em { color: var(--theme-accent); }
-    body[data-theme] .showcase-copy > p { color: var(--theme-muted); }
-    body[data-theme] .eyebrow { color: var(--theme-accent); }
-    body[data-theme] .orbit-ring { border-color: var(--theme-line-strong); }
-    body[data-theme] .orbit-ring::before,
-    body[data-theme] .orbit-ring::after { border-color: var(--theme-line); }
-    body[data-theme] .orbit-core { background: var(--cat-gradient); color: var(--cat-face-ink); box-shadow: 0 14px 38px var(--cat-glow), inset 0 1px rgba(255,255,255,.4); }
-    body[data-theme] .orbit-particle { border-color: var(--theme-line); background: var(--theme-panel); color: var(--theme-accent); box-shadow: 0 10px 24px rgba(90,60,40,.12); }
-    body[data-theme] .chat-float { border-color: var(--theme-line); background: var(--theme-panel); color: var(--theme-secondary); box-shadow: 0 12px 30px rgba(90,60,40,.12); }
-    body[data-theme] .chat-float .mini-dot { background: var(--theme-accent); box-shadow: 0 0 10px var(--cat-glow); }
-    body[data-theme] .chat-float .icon { color: var(--cat-meow, var(--theme-accent)); }
-    body[data-theme] .showcase-footer { color: var(--theme-muted); }
-    body[data-theme] .secure-note .icon { color: var(--theme-accent); }
-    body[data-theme] .showcase-footer .online-note { color: var(--theme-secondary); }
-    body[data-theme] .auth-heading .eyebrow { color: var(--theme-accent); }
-    body[data-theme] .auth-heading h2 { color: var(--theme-text); }
-    body[data-theme] .auth-heading p:last-child { color: var(--theme-muted); }
-    body[data-theme] .field-heading label,
-    body[data-theme] .form-field > label { color: var(--theme-secondary); }
-    body[data-theme] .text-button { color: var(--theme-accent); }
-    body[data-theme] .text-button:hover { color: var(--cat-meow, var(--theme-accent)); filter: brightness(.92); }
-    body[data-theme] .field-shell input {
-      border-color: var(--theme-line-strong);
+    .directory-eyebrow { display: inline-flex; align-items: center; gap: 6px; color: var(--cat-meow, var(--theme-accent)); font-size: 8px; font-weight: 800; letter-spacing: .16em; }
+    .directory-eyebrow .icon { width: 13px; height: 13px; }
+    .directory-heading h2 { margin: 7px 0 0; color: var(--theme-text); font-size: 21px; font-weight: 800; letter-spacing: -.04em; }
+    .directory-heading p { margin: 6px 0 0; color: var(--theme-muted); font-size: 10px; }
+    .directory-search { position: relative; display: flex; width: min(270px, 42vw); align-items: center; }
+    .directory-search .icon { position: absolute; left: 13px; width: 15px; height: 15px; color: var(--theme-subtle); pointer-events: none; }
+    .directory-search input {
+      width: 100%;
+      height: 40px;
+      padding: 0 13px 0 37px;
+      border: 1px solid var(--theme-line-strong);
+      border-radius: 999px;
+      outline: none;
       background: var(--theme-input);
       color: var(--theme-text);
+      font-size: 11px;
+      transition: border-color .18s, box-shadow .18s;
     }
-    body[data-theme] .field-shell input::placeholder { color: var(--theme-subtle); }
-    body[data-theme] .field-shell > .icon { color: var(--theme-subtle); }
-    body[data-theme] .field-shell input:focus { border-color: var(--theme-accent); background: var(--theme-panel); box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 14%, transparent); }
-    body[data-theme] .field-action { color: var(--theme-muted); }
-    body[data-theme] .field-action:hover { background: var(--theme-hover); color: var(--theme-text); }
-    body[data-theme] .auth-submit {
-      border-color: transparent;
-      background: var(--cat-gradient);
-      color: var(--cat-face-ink, #fff);
-      box-shadow: 0 12px 28px var(--cat-glow), inset 0 1px rgba(255,255,255,.35);
+    .directory-search input::placeholder { color: var(--theme-subtle); }
+    .directory-search input:focus { border-color: var(--theme-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent) 16%, transparent); }
+    .directory-filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 24px 6px; }
+    .directory-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 31px;
+      padding: 0 13px;
+      border: 1px solid var(--theme-line);
+      border-radius: 999px;
+      background: var(--theme-panel);
+      color: var(--theme-muted);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+      transition: background .16s, color .16s, border-color .16s, transform .16s;
     }
-    body[data-theme] .auth-submit:hover:not(:disabled) { filter: brightness(1.05); box-shadow: 0 16px 34px var(--cat-glow), inset 0 1px rgba(255,255,255,.4); }
-    body[data-theme] .auth-submit .spinner { border-color: rgba(255,255,255,.4); border-top-color: #fff; }
-    body[data-theme] .auth-notice { border-color: var(--theme-line-strong); background: var(--theme-panel-alt); color: var(--theme-secondary); }
-    body[data-theme] .auth-notice.success { border-color: color-mix(in srgb, #2fa06a 32%, transparent); background: color-mix(in srgb, #2fa06a 10%, var(--theme-panel)); color: var(--theme-secondary); }
-    body[data-theme] .auth-notice.info { border-color: var(--theme-line-strong); background: var(--theme-accent-soft); color: var(--theme-secondary); }
-    body[data-theme] .auth-switch { color: var(--theme-muted); }
-    body[data-theme] .auth-switch button { color: var(--theme-accent); }
-    body[data-theme] .auth-switch button:hover { color: var(--cat-meow, var(--theme-accent)); }
-    body[data-theme] .auth-divider { color: var(--theme-subtle); }
-    body[data-theme] .auth-divider::before,
-    body[data-theme] .auth-divider::after { background: var(--theme-line-strong); }
-    body[data-theme] .auth-footnote { color: var(--theme-muted); }
-    body[data-theme] .auth-footnote .icon { color: var(--theme-accent); }
-    body[data-theme] .auth-bottom { color: var(--theme-subtle); }
+    .directory-chip:hover { transform: translateY(-1px); border-color: var(--theme-accent); color: var(--theme-text); }
+    .directory-chip.active { border-color: transparent; background: var(--theme-accent); color: var(--theme-accent-contrast); }
+    .directory-chip span { padding: 2px 6px; border-radius: 999px; background: color-mix(in srgb, currentColor 14%, transparent); font-size: 8px; font-variant-numeric: tabular-nums; }
+    .directory-grid {
+      display: grid;
+      min-height: 0;
+      flex: 1;
+      grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
+      gap: 11px;
+      align-content: start;
+      overflow-y: auto;
+      padding: 16px 24px 24px;
+      scrollbar-color: var(--theme-scroll) transparent;
+      scrollbar-width: thin;
+    }
+    .directory-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 13px;
+      border: 1px solid var(--theme-line);
+      border-radius: 18px;
+      background: var(--theme-panel);
+      color: var(--theme-text);
+      cursor: pointer;
+      text-align: left;
+      transition: transform .18s var(--ease), border-color .18s, box-shadow .18s, background .18s;
+      animation: directory-card-in .32s var(--ease) both;
+    }
+    .directory-card:hover { transform: translateY(-2px); border-color: var(--theme-accent); box-shadow: 0 12px 28px rgba(90,60,40,.12); background: var(--theme-panel-alt); }
+    .directory-card:focus-visible { outline: 3px solid color-mix(in srgb, var(--theme-accent) 48%, transparent); outline-offset: 2px; }
+    .directory-avatar { position: relative; flex: 0 0 auto; }
+    .directory-avatar .avatar { width: 44px; height: 44px; border-radius: 15px; font-size: 13px; }
+    .directory-avatar .presence-indicator { position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px; border: 2px solid var(--theme-panel); border-radius: 50%; background: var(--theme-subtle); }
+    .directory-avatar .presence-indicator.is-online { background: #38b96f; }
+    .directory-copy { min-width: 0; flex: 1; }
+    .directory-copy strong { display: block; overflow: hidden; color: var(--theme-text); font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .directory-copy small { display: block; overflow: hidden; margin-top: 4px; color: var(--theme-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .directory-badge { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; padding: 2px 7px; border-radius: 999px; background: var(--theme-accent-soft); color: var(--cat-meow, var(--theme-accent)); font-size: 8px; font-weight: 800; }
+    .directory-badge .icon { width: 10px; height: 10px; }
+    .directory-badge.banned { background: color-mix(in srgb, var(--theme-danger) 16%, transparent); color: var(--theme-danger); }
+    .directory-empty { grid-column: 1 / -1; padding: 60px 20px; color: var(--theme-muted); font-size: 11px; text-align: center; }
+    .directory-footer { display: flex; align-items: center; gap: 7px; padding: 11px 24px 14px; border-top: 1px solid var(--theme-line); color: var(--theme-muted); font-size: 9px; }
+    .directory-footer .icon { width: 13px; height: 13px; color: var(--cat-meow, var(--theme-accent)); }
+
+    /* ═══════════════ Hồ sơ thành viên ═══════════════ */
+    .profile-layer { position: fixed; z-index: 64; inset: 0; display: grid; place-items: center; padding: 22px; background: var(--theme-overlay); backdrop-filter: blur(6px); animation: fade-in .2s ease both; }
+    .profile-dialog {
+      position: relative;
+      width: min(400px, 100%);
+      overflow: hidden;
+      border: 1px solid var(--theme-line-strong);
+      border-radius: 24px;
+      background: var(--theme-panel);
+      box-shadow: var(--theme-shadow);
+      animation: profile-in .3s var(--ease) both;
+    }
+    .profile-close { position: absolute; z-index: 2; top: 13px; right: 13px; display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid var(--theme-line); border-radius: 10px; background: color-mix(in srgb, var(--theme-panel) 80%, transparent); color: var(--theme-muted); cursor: pointer; }
+    .profile-close:hover { background: var(--theme-hover); color: var(--theme-text); }
+    .profile-close .icon { width: 14px; height: 14px; }
+    .profile-hero { position: relative; display: flex; flex-direction: column; align-items: center; padding: 34px 24px 20px; text-align: center; background: radial-gradient(circle at 50% 0%, var(--cat-glow), transparent 62%); }
+    .profile-hero::after { position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: var(--theme-line); content: ""; }
+    .profile-avatar-slot .avatar { width: 82px; height: 82px; border-radius: 28px; font-size: 26px; box-shadow: 0 14px 34px var(--cat-glow); }
+    .profile-hero h2 { margin: 15px 0 0; color: var(--theme-text); font-size: 19px; font-weight: 800; letter-spacing: -.035em; }
+    .profile-hero > p { margin: 6px 0 0; color: var(--theme-muted); font-size: 10px; }
+    .profile-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 11px; }
+    .profile-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border: 1px solid var(--theme-line); border-radius: 999px; background: var(--theme-panel-alt); color: var(--theme-secondary); font-size: 8px; font-weight: 800; letter-spacing: .04em; }
+    .profile-tag .icon { width: 11px; height: 11px; }
+    .profile-tag.online { border-color: color-mix(in srgb, #38b96f 40%, transparent); color: #38b96f; }
+    .profile-tag.admin { border-color: transparent; background: var(--theme-accent-soft); color: var(--cat-meow, var(--theme-accent)); }
+    .profile-tag.banned { border-color: color-mix(in srgb, var(--theme-danger) 40%, transparent); color: var(--theme-danger); }
+    .profile-facts { display: grid; gap: 1px; margin: 0; padding: 4px 22px 12px; }
+    .profile-fact { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 2px; border-bottom: 1px solid var(--theme-line); }
+    .profile-fact:last-child { border-bottom: 0; }
+    .profile-fact dt { display: inline-flex; align-items: center; gap: 7px; color: var(--theme-muted); font-size: 9px; font-weight: 700; }
+    .profile-fact dt .icon { width: 13px; height: 13px; color: var(--theme-subtle); }
+    .profile-fact dd { min-width: 0; overflow: hidden; margin: 0; color: var(--theme-secondary); font-size: 9px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 22px 22px; }
+    .profile-actions button { display: inline-flex; min-height: 36px; flex: 1; align-items: center; justify-content: center; gap: 7px; padding: 0 13px; border: 1px solid var(--theme-line); border-radius: 12px; background: var(--theme-panel-alt); color: var(--theme-secondary); cursor: pointer; font-size: 10px; font-weight: 700; }
+    .profile-actions button:hover { border-color: var(--theme-accent); color: var(--cat-meow, var(--theme-accent)); }
+    .profile-actions button.primary { border-color: transparent; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); }
+    .profile-actions button.danger { border-color: color-mix(in srgb, var(--theme-danger) 42%, transparent); color: var(--theme-danger); background: color-mix(in srgb, var(--theme-danger) 10%, transparent); }
+    .profile-actions button .icon { width: 14px; height: 14px; }
+
+    /* ═══════════════ Emote picker ═══════════════ */
+    .composer-box { position: relative; }
+    .composer-emoji-button .icon { width: 18px; height: 18px; }
+    .emoji-popover {
+      position: absolute;
+      z-index: 20;
+      bottom: calc(100% + 10px);
+      left: 0;
+      width: min(320px, calc(100vw - 40px));
+      max-height: 290px;
+      overflow-y: auto;
+      padding: 12px;
+      border: 1px solid var(--theme-line-strong);
+      border-radius: 18px;
+      background: var(--theme-panel);
+      box-shadow: var(--theme-shadow);
+      animation: emoji-in .2s var(--ease) both;
+      scrollbar-width: thin;
+      scrollbar-color: var(--theme-scroll) transparent;
+    }
+    .emoji-popover-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+    .emoji-popover-head strong { color: var(--theme-text); font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+    .emoji-popover-head button { display: grid; width: 24px; height: 24px; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--theme-muted); cursor: pointer; }
+    .emoji-popover-head button:hover { background: var(--theme-hover); color: var(--theme-text); }
+    .emoji-popover-head .icon { width: 12px; height: 12px; }
+    .emoji-group { margin-bottom: 9px; }
+    .emoji-group-label { display: block; margin-bottom: 5px; color: var(--theme-subtle); font-size: 8px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
+    .emoji-cell { display: grid; height: 30px; place-items: center; border: 0; border-radius: 9px; background: transparent; cursor: pointer; font-size: 17px; line-height: 1; transition: transform .14s, background .14s; }
+    .emoji-cell:hover { transform: translateY(-2px) scale(1.12); background: var(--theme-accent-soft); }
+    .emoji-cell:active { transform: scale(.92); }
+
+    /* ═══════════════ Bộ chọn con trỏ ═══════════════ */
+    .theme-divider { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--theme-line); }
+    .theme-divider span { color: var(--theme-text); font-size: 10px; font-weight: 800; letter-spacing: .02em; }
+    .theme-divider small { color: var(--theme-subtle); font-size: 8px; }
+    .cursor-options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 10px; }
+    .cursor-option { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px 4px 7px; border: 1px solid var(--theme-line); border-radius: 13px; background: var(--theme-panel); color: var(--theme-muted); cursor: pointer; transition: transform .16s, border-color .16s, background .16s; }
+    .cursor-option:hover { transform: translateY(-2px); border-color: var(--theme-accent); background: var(--theme-panel-alt); }
+    .cursor-option.selected { border-color: var(--theme-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-accent) 18%, transparent); background: var(--theme-panel-alt); }
+    .cursor-option-image { display: grid; width: 34px; height: 34px; place-items: center; }
+    .cursor-option-image svg { width: 30px; height: 30px; }
+    .cursor-option span { font-size: 7.5px; font-weight: 700; text-align: center; line-height: 1.25; }
+    .cursor-option.selected span { color: var(--theme-text); }
+    .cursor-option .cursor-check { position: absolute; top: 5px; right: 5px; display: grid; width: 13px; height: 13px; place-items: center; border-radius: 50%; background: var(--theme-accent); color: var(--theme-accent-contrast); opacity: 0; }
+    .cursor-option.selected .cursor-check { opacity: 1; }
+    .cursor-option .cursor-check .icon { width: 8px; height: 8px; }
+    .theme-preview-halloween { background: #221830; }
+    .theme-preview-halloween i:first-child { background: #2b1f3c; }
+    .theme-preview-halloween i:nth-child(2) { background: #ff9a3c; }
+    .theme-preview-halloween i:last-child { background: #3a2848; }
+
+    /* ═══════════════ Admin: kiểm duyệt tin nhắn ═══════════════ */
+    .admin-message-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .admin-message-head h3 { margin: 0; color: var(--theme-text); font-size: 13px; font-weight: 800; letter-spacing: -.02em; }
+    .admin-message-head p { margin: 5px 0 0; color: var(--theme-muted); font-size: 9px; }
+    .admin-power-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; background: var(--theme-accent-soft); color: var(--cat-meow, var(--theme-accent)); font-size: 8px; font-weight: 800; white-space: nowrap; }
+    .admin-power-pill .icon { width: 11px; height: 11px; }
+    .admin-message-list { max-height: 48vh; }
+    .admin-message-row { display: flex; align-items: flex-start; gap: 9px; padding: 10px; border: 1px solid var(--theme-line); border-radius: 12px; background: var(--theme-panel-alt); }
+    .admin-message-row .avatar { width: 28px; height: 28px; border-radius: 10px; font-size: 8px; }
+    .admin-message-copy { min-width: 0; flex: 1; }
+    .admin-message-copy strong { display: flex; align-items: center; gap: 6px; color: var(--theme-text); font-size: 9px; font-weight: 800; }
+    .admin-message-copy time { color: var(--theme-subtle); font-size: 8px; font-weight: 600; }
+    .admin-message-copy p { display: -webkit-box; margin: 5px 0 0; overflow: hidden; color: var(--theme-secondary); font-size: 9px; line-height: 1.5; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+    .admin-message-copy .admin-message-media { display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; color: var(--theme-muted); font-size: 8px; }
+    .admin-message-copy .admin-message-media .icon { width: 11px; height: 11px; }
+    .admin-message-row .admin-action { flex: 0 0 auto; }
+    .admin-message-row .admin-action:hover { border-color: color-mix(in srgb, var(--theme-danger) 40%, transparent); background: color-mix(in srgb, var(--theme-danger) 12%, transparent); color: var(--theme-danger); }
+    .admin-message-actions { margin-top: 12px; }
+    .admin-danger-button { display: flex; width: 100%; min-height: 38px; align-items: center; justify-content: center; gap: 7px; border: 1px solid color-mix(in srgb, var(--theme-danger) 38%, transparent); border-radius: 11px; background: color-mix(in srgb, var(--theme-danger) 10%, transparent); color: var(--theme-danger); cursor: pointer; font-size: 10px; font-weight: 700; transition: background .16s; }
+    .admin-danger-button:hover { background: color-mix(in srgb, var(--theme-danger) 18%, transparent); }
+    .admin-danger-button .icon { width: 14px; height: 14px; }
+
+    /* ═══════════════ Animation khi vào quyền admin ═══════════════ */
+    .admin-welcome { position: fixed; z-index: 90; inset: 0; display: grid; place-items: center; overflow: hidden; pointer-events: none; }
+    .admin-welcome-card { display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 26px 34px; border: 1px solid var(--theme-line-strong); border-radius: 26px; background: color-mix(in srgb, var(--theme-panel) 92%, transparent); box-shadow: 0 30px 80px var(--cat-glow); backdrop-filter: blur(12px); animation: admin-welcome-pop .9s var(--ease) both; }
+    .admin-welcome-crown { display: grid; width: 64px; height: 64px; place-items: center; border-radius: 22px; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); box-shadow: 0 16px 40px var(--cat-glow); animation: admin-crown-bob .9s var(--ease) both; }
+    .admin-welcome-crown .icon { width: 32px; height: 32px; }
+    .admin-welcome-card strong { color: var(--theme-text); font-size: 15px; font-weight: 800; letter-spacing: -.02em; }
+    .admin-welcome-card span { color: var(--theme-muted); font-size: 10px; }
+    .admin-confetti { position: absolute; top: 50%; left: 50%; font-size: 16px; pointer-events: none; animation: admin-confetti-fly 1.25s cubic-bezier(.2,.7,.3,1) both; }
+    .admin-paw-burst { position: fixed; z-index: 89; font-size: 18px; pointer-events: none; animation: admin-paw-fly 1.1s ease-out both; }
+    .app-view .role-pill.is-admin { animation: admin-pill-glow 2.4s ease-in-out infinite; }
+    .app-view .nav-link.admin-hint { animation: admin-nav-flash 1.6s var(--ease) 2; }
+
+    @keyframes directory-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes directory-card-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes profile-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes emoji-in { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes admin-welcome-pop { 0% { opacity: 0; transform: scale(.86); } 55% { opacity: 1; transform: scale(1.02); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes admin-crown-bob { 0% { transform: translateY(10px) rotate(-12deg); } 60% { transform: translateY(-6px) rotate(6deg); } 100% { transform: translateY(0) rotate(0); } }
+    @keyframes admin-confetti-fly { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--drift, 0px)), calc(-50% + var(--rise, -140px))) rotate(var(--spin, 160deg)) scale(1); } }
+    @keyframes admin-paw-fly { 0% { opacity: .9; transform: translate(0,0) scale(.6) rotate(0); } 100% { opacity: 0; transform: translate(var(--dx,0), var(--dy,-90px)) scale(1.2) rotate(var(--rot, 40deg)); } }
+    @keyframes admin-pill-glow { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--theme-accent) 0%, transparent); } 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--theme-accent) 14%, transparent); } }
+    @keyframes admin-nav-flash { 0%, 100% { background: transparent; } 45% { background: var(--theme-accent-soft); } }
+
+    /* Reaction: gọn hơn, chỉ hiện khi hover hoặc đã có lượt chọn */
+    .app-view .reaction-strip { min-height: 0; opacity: 0; transition: opacity .16s; }
+    .app-view .message-row:hover .reaction-strip,
+    .app-view .message-row:focus-within .reaction-strip,
+    .app-view .reaction-strip.has-reactions { opacity: 1; }
+    .app-view .reaction-button { transition: transform .16s var(--ease), background .16s, border-color .16s; }
+    .app-view .reaction-button:hover { transform: translateY(-2px) scale(1.06); }
+    .app-view .reaction-button.just-reacted { animation: reaction-pop .4s var(--ease); }
+    .app-view .reaction-button.active { border-color: var(--theme-accent); background: var(--theme-accent-soft); }
+    @keyframes reaction-pop { 0% { transform: scale(1); } 45% { transform: scale(1.35) rotate(-6deg); } 100% { transform: scale(1); } }
+    @media (hover: none) {
+      .app-view .reaction-strip { opacity: 1; }
+    }
+
+    @media (max-width: 1080px) {
+      .directory-toolbar { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 15px 12px; }
+      .directory-search { width: 100%; }
+      .directory-filters { padding: 11px 15px 4px; }
+      .directory-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 9px; padding: 12px 15px 18px; }
+      .directory-footer { padding: 10px 15px 12px; }
+      .directory-heading h2 { font-size: 18px; }
+    }
+    @media (max-width: 760px) {
+      .directory-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .directory-card { flex-direction: column; text-align: center; gap: 8px; padding: 12px 9px; }
+      .directory-copy strong, .directory-copy small { white-space: normal; }
+      .cursor-options { grid-template-columns: repeat(3, 1fr); }
+      .emoji-grid { grid-template-columns: repeat(7, 1fr); }
+      .profile-dialog { width: 100%; }
+    }
+    @media (max-width: 400px) {
+      .directory-grid { grid-template-columns: 1fr; }
+      .emoji-popover { width: calc(100vw - 24px); left: -6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .directory-panel, .directory-card, .profile-dialog, .emoji-popover, .admin-welcome-card, .admin-welcome-crown { animation: none !important; }
+      .app-view .role-pill.is-admin, .app-view .nav-link.admin-hint { animation: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -1717,6 +1971,8 @@
     <symbol id="i-cat" viewBox="0 0 32 32"><path d="m5 11 1-7 7 4a13 13 0 0 1 6 0l7-4 1 7a12 12 0 0 1 2 7c0 7-5.7 11-13 11S3 25 3 18a12 12 0 0 1 2-7Z" fill="currentColor"/><path d="M10 17h.2M22 17h.2M14 21q2 2 4 0M16 20v2" fill="none" stroke="var(--cat-ink,#4b3448)" stroke-width="1.7" stroke-linecap="round"/><path d="m8 21-4 1m4 1-4 2m20-3 4 1m-4 2 4 2" fill="none" stroke="var(--cat-ink,#4b3448)" stroke-width="1.2" stroke-linecap="round"/></symbol>
     <symbol id="i-paw" viewBox="0 0 24 24"><path d="M8.2 11.1c-1.6 1-3.3 2.2-3.3 4.3 0 2 1.5 3.1 3.4 3.1 1.4 0 2.4-.7 3.7-.7s2.3.7 3.7.7c1.9 0 3.4-1.1 3.4-3.1 0-2.1-1.7-3.3-3.3-4.3-1.2-.7-2.4-1.2-3.8-1.2s-2.6.5-3.8 1.2ZM5.4 9.4c1.1 0 1.8-1.2 1.6-2.6-.2-1.5-1.2-2.7-2.4-2.7S2.8 5.3 3 6.8c.2 1.4 1.3 2.6 2.4 2.6Zm5-2.4c1.2 0 2-1.2 1.9-2.7C12.2 2.8 11.3 2 10.1 2s-2.1 1.2-2 2.7c.1 1.4 1.1 2.3 2.3 2.3Zm8.2 2.4c1.2 0 2.2-1.2 2.4-2.6.2-1.5-.4-2.7-1.6-2.7S17.2 5.3 17 6.8c-.2 1.4.5 2.6 1.6 2.6Zm-5-2.4c1.2 0 2.2-.9 2.3-2.3.1-1.5-.8-2.7-2-2.7s-2.1.8-2.2 2.3c-.1 1.5.7 2.7 1.9 2.7Z" fill="currentColor"/></symbol>
     <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 4.8A1.8 1.8 0 0 1 7.8 3h8.4A1.8 1.8 0 0 1 18 4.8V21l-6-4-6 4V4.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 14.2c.9 1.4 2.1 2.1 3.5 2.1s2.6-.7 3.5-2.1M9 9.6h.01M15 9.6h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-sparkle-star" viewBox="0 0 24 24"><path d="m12 3 2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2L12 3Z" fill="currentColor"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </svg>
 
@@ -1870,7 +2126,7 @@
         </header>
 
         <main class="content-grid">
-          <section class="chat-panel" aria-label="Phòng trò chuyện chung">
+          <section class="chat-panel" id="chatPanel" aria-label="Phòng trò chuyện chung">
             <div class="channel-toolbar">
               <div class="channel-title-group">
                 <div class="channel-symbol" id="channelSymbol">#</div>
@@ -1930,6 +2186,11 @@
               <form id="messageForm" autocomplete="off">
                 <div class="composer-box">
                   <button class="attach-button" id="attachImageButton" type="button" title="Đính kèm ảnh" aria-label="Đính kèm ảnh"><svg class="icon"><use href="#i-plus"></use></svg></button>
+                  <button class="attach-button composer-emoji-button" id="emojiPickerButton" type="button" title="Chèn emote" aria-label="Chèn emote" aria-expanded="false"><svg class="icon"><use href="#i-smile"></use></svg></button>
+                  <div class="emoji-popover" id="emojiPopover" hidden role="dialog" aria-label="Bảng emote">
+                    <div class="emoji-popover-head"><strong>Emote tổ mèo</strong><button type="button" id="closeEmojiPicker" aria-label="Đóng bảng emote"><svg class="icon"><use href="#i-close"></use></svg></button></div>
+                    <div class="emoji-groups" id="emojiGroups"></div>
+                  </div>
                   <input id="chatImageInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
                   <textarea id="messageInput" rows="1" maxlength="800" placeholder="Viết tin nhắn cho mọi người..." aria-label="Nội dung tin nhắn"></textarea>
                   <button class="send-button" id="sendButton" type="submit" aria-label="Gửi tin nhắn" disabled><svg class="icon"><use href="#i-send"></use></svg></button>
@@ -1937,6 +2198,30 @@
                 <div class="composer-hint"><span><strong>Enter</strong> để gửi · <strong>Shift + Enter</strong> để xuống dòng</span><span class="char-count" id="messageCharCount">0 / 800</span></div>
               </form>
             </div>
+          </section>
+
+
+          <section class="directory-panel" id="directoryPanel" aria-label="Danh sách thành viên tổ mèo" hidden>
+            <div class="directory-toolbar">
+              <div class="directory-heading">
+                <span class="directory-eyebrow"><svg class="icon"><use href="#i-paw"></use></svg>TỔ MÈO CATCHAT</span>
+                <h2>Danh sách thành viên</h2>
+                <p id="directorySummary">0 thành viên · 0 đang trực tuyến</p>
+              </div>
+              <label class="directory-search">
+                <svg class="icon"><use href="#i-search"></use></svg>
+                <input id="directorySearchInput" type="search" placeholder="Tìm theo tên hoặc email..." autocomplete="off" aria-label="Tìm thành viên">
+              </label>
+            </div>
+            <div class="directory-filters" id="directoryFilters" role="group" aria-label="Lọc thành viên">
+              <button class="directory-chip active" type="button" data-directory-filter="all" aria-pressed="true">Tất cả <span id="directoryAllCount">0</span></button>
+              <button class="directory-chip" type="button" data-directory-filter="online" aria-pressed="false">Trực tuyến <span id="directoryOnlineCount">0</span></button>
+              <button class="directory-chip" type="button" data-directory-filter="banned" aria-pressed="false">Bị cấm <span id="directoryBannedCount">0</span></button>
+            </div>
+            <div class="directory-grid" id="directoryGrid">
+              <div class="directory-empty">Đang tải danh sách thành viên...</div>
+            </div>
+            <div class="directory-footer"><svg class="icon"><use href="#i-wifi"></use></svg><span>Bấm vào một thành viên để xem hồ sơ</span></div>
           </section>
 
           <aside class="right-panel" id="membersPanel" aria-label="Thành viên trong máy chủ">
@@ -1960,6 +2245,20 @@
     </div>
   </div>
 
+  <div class="profile-layer" id="memberProfileLayer" hidden>
+    <section class="profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profileName" aria-describedby="profileStatus">
+      <button class="profile-close" id="closeMemberProfile" type="button" aria-label="Đóng hồ sơ"><svg class="icon"><use href="#i-close"></use></svg></button>
+      <div class="profile-hero">
+        <div class="profile-avatar-slot" id="profileAvatarSlot"></div>
+        <h2 id="profileName">Thành viên</h2>
+        <p id="profileStatus">Đang hoạt động</p>
+        <div class="profile-tags" id="profileTags"></div>
+      </div>
+      <dl class="profile-facts" id="profileFacts"></dl>
+      <div class="profile-actions" id="profileActions"></div>
+    </section>
+  </div>
+
   <div class="admin-overlay" id="adminOverlay" aria-hidden="true">
     <div class="admin-backdrop" id="adminBackdrop" style="position:absolute;inset:0"></div>
     <aside class="admin-drawer" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
@@ -1972,6 +2271,7 @@
       </header>
       <div class="admin-tabs" role="tablist" aria-label="Tác vụ quản trị">
         <button class="admin-tab active" id="adminMembersTabButton" type="button" role="tab" aria-selected="true" data-tab="members"><svg class="icon"><use href="#i-users"></use></svg>Thành viên <span class="admin-tab-count" id="adminTabMemberCount">0</span></button>
+        <button class="admin-tab" id="adminMessagesTabButton" type="button" role="tab" aria-selected="false" data-tab="messages"><svg class="icon"><use href="#i-trash"></use></svg>Tin nhắn <span class="admin-tab-count" id="adminTabMessageCount">0</span></button>
         <button class="admin-tab" id="adminAnnouncementsTabButton" type="button" role="tab" aria-selected="false" data-tab="announcements"><svg class="icon"><use href="#i-megaphone"></use></svg>Thông báo</button>
       </div>
       <div class="admin-body" id="adminMembersTab" role="tabpanel">
@@ -1983,6 +2283,18 @@
         <label class="admin-search"><svg class="icon"><use href="#i-search"></use></svg><input id="adminMemberSearch" type="search" placeholder="Tìm theo tên hoặc email..." autocomplete="off" aria-label="Tìm thành viên"></label>
         <div class="admin-list" id="adminMemberList"><div class="admin-empty">Đang tải thành viên...</div></div>
         <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Lệnh cấm được lưu ở máy chủ và người bị cấm sẽ bị đăng xuất khỏi ứng dụng. Hãy cấu hình Firebase Security Rules để chỉ quản trị viên được phép ban hoặc bỏ ban.</span></p>
+      </div>
+      <div class="admin-body" id="adminMessagesTab" role="tabpanel" hidden>
+        <div class="admin-message-head">
+          <div><h3>Kiểm duyệt tin nhắn</h3><p id="adminMessageChannel">Kênh hiện tại: #phòng-chung</p></div>
+          <span class="admin-power-pill"><svg class="icon"><use href="#i-shield"></use></svg>Toàn quyền</span>
+        </div>
+        <label class="admin-search"><svg class="icon"><use href="#i-search"></use></svg><input id="adminMessageSearch" type="search" placeholder="Tìm nội dung hoặc người gửi..." autocomplete="off" aria-label="Tìm tin nhắn"></label>
+        <div class="admin-list admin-message-list" id="adminMessageList"><div class="admin-empty">Đang tải tin nhắn...</div></div>
+        <div class="admin-message-actions">
+          <button class="admin-danger-button" id="adminClearChannelButton" type="button"><svg class="icon"><use href="#i-trash"></use></svg>Xoá toàn bộ tin nhắn trong kênh</button>
+        </div>
+        <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Quản trị viên xoá được tin của bất kỳ thành viên nào trong kênh đang mở. Thao tác xoá cần quyền ghi tại /messages và /channelMessages/&lt;channelId&gt; trong Firebase Rules.</span></p>
       </div>
       <div class="admin-body" id="adminAnnouncementsTab" role="tabpanel" hidden>
         <div class="announcement-compose">
@@ -2017,8 +2329,11 @@
         <button class="theme-option" type="button" data-theme-choice="light" aria-pressed="false"><span class="theme-preview theme-preview-light"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Sữa ấm</strong><small>Kem caramel, dịu mắt</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
         <button class="theme-option" type="button" data-theme-choice="dark" aria-pressed="false"><span class="theme-preview theme-preview-dark"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Đêm mèo</strong><small>Tím than, ấm ban đêm</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
         <button class="theme-option" type="button" data-theme-choice="lavender" aria-pressed="false"><span class="theme-preview theme-preview-lavender"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Hoa anh đào</strong><small>Hồng phấn ngọt ngào</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
+        <button class="theme-option" type="button" data-theme-choice="halloween" aria-pressed="false"><span class="theme-preview theme-preview-halloween"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Halloween</strong><small>Bí ngô &amp; đêm ma</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
         <button class="theme-option" type="button" data-theme-choice="ocean" aria-pressed="false"><span class="theme-preview theme-preview-ocean"><i></i><i></i><i></i></span><span class="theme-option-copy"><strong>Trà xanh</strong><small>Xanh lá thư giãn</small></span><span class="theme-check"><svg class="icon"><use href="#i-check"></use></svg></span></button>
       </div>
+      <div class="theme-divider"><span>Con trỏ mèo</span><small>Dành cho máy tính có chuột</small></div>
+      <div class="cursor-options" id="cursorOptions" role="group" aria-label="Chọn con trỏ mèo"></div>
       <p class="theme-status" id="themeStatus" aria-live="polite">Đang dùng giao diện Sữa ấm</p>
     </section>
   </div>
@@ -2085,7 +2400,8 @@
         { id: 'light', name: 'Sữa ấm', color: '#fdf6ee' },
         { id: 'dark', name: 'Đêm mèo', color: '#161219' },
         { id: 'lavender', name: 'Hoa anh đào', color: '#fdf3f6' },
-        { id: 'ocean', name: 'Trà xanh', color: '#f2f8f1' }
+        { id: 'ocean', name: 'Trà xanh', color: '#f2f8f1' },
+        { id: 'halloween', name: 'Halloween', color: '#140f1c' }
       ];
       const firebaseConfig = {
         apiKey: "AIzaSyAf8xiMmAipgxxrGVDjeLdQIeU1yqVEXu0",
@@ -2517,7 +2833,7 @@
             if (generation !== authGeneration || channelRun !== channelGeneration) return;
             if (snapshot.exists()) messageReactions[messageId] = snapshot.val() || {};
             else delete messageReactions[messageId];
-            renderAllMessages(false);
+            refreshReactionStrip(messageId);
           }, (error) => showDatabaseError(error, 'Không thể tải reaction. Hãy kiểm tra quyền /messageReactions.'), channelCleanupFns);
           reactionStops.set(messageId, stop);
         }
@@ -2568,6 +2884,7 @@
         renderMembers();
         renderAdminPanel();
         renderAllMessages(false);
+        if (isAdmin) playAdminWelcome();
       }
 
       function channelNameFor(channelId) {
@@ -2883,6 +3200,8 @@
         $('#searchMessagesButton').setAttribute('aria-expanded', 'false');
         if (!user) {
           closeSavedPanel();
+          closeMemberProfile();
+          setWorkspaceView('chat');
           const miuBubble = $('#miuBubble');
           if (miuBubble) miuBubble.hidden = true;
           els.appView.hidden = true;
@@ -3131,6 +3450,8 @@
       function makeReactionStrip(messageId) {
         const strip = textElement('div', 'reaction-strip');
         const data = messageReactions[messageId] || {};
+        const totalReactions = Object.values(data).reduce((total, users) => total + Object.values(users || {}).filter(Boolean).length, 0);
+        if (totalReactions) strip.classList.add('has-reactions');
         REACTIONS.forEach(({ key, glyph, label }) => {
           const users = data[key] || {};
           const count = Object.values(users).filter(Boolean).length;
@@ -3368,6 +3689,10 @@
         }
 
         const row = textElement('div', 'member-row');
+        row.dataset.memberUid = uid;
+        row.tabIndex = 0;
+        row.setAttribute('role', 'button');
+        row.title = `Xem hồ sơ của ${name}`;
         const avatarWrap = textElement('div', 'member-avatar-wrap');
         avatarWrap.appendChild(makeAvatar(name, uid, 'avatar', safeMember.photoURL || ''));
         const status = textElement('span', `presence-indicator${isOnline ? ' is-online' : ''}`);
@@ -3419,6 +3744,7 @@
         });
         if (onlineCount > 3) avatarFragment.appendChild(textElement('div', 'avatar more', `+${onlineCount - 3}`));
         $('#headerAvatars').replaceChildren(avatarFragment);
+        if (workspaceView === 'members') renderDirectory();
         renderAdminPanel();
       }
 
@@ -3465,6 +3791,7 @@
           });
         }
         els.adminAnnouncementList.replaceChildren(announcementList);
+        renderAdminMessages();
       }
 
       function updateMessageComposer() {
@@ -3750,6 +4077,7 @@
         els.adminOverlay.setAttribute('aria-hidden', 'false');
         document.body.classList.add('body-locked');
         renderAdminPanel();
+        renderAdminMessages();
         window.setTimeout(() => $('#closeAdminButton').focus(), 60);
       }
 
@@ -3761,21 +4089,19 @@
       }
 
       function switchAdminTab(name) {
-        const isMembers = name === 'members';
-        $('#adminMembersTabButton').classList.toggle('active', isMembers);
-        $('#adminAnnouncementsTabButton').classList.toggle('active', !isMembers);
-        $('#adminMembersTabButton').setAttribute('aria-selected', String(isMembers));
-        $('#adminAnnouncementsTabButton').setAttribute('aria-selected', String(!isMembers));
-        els.adminMembersTab.hidden = !isMembers;
-        els.adminAnnouncementsTab.hidden = isMembers;
-        if (!isMembers) els.announcementInput.focus();
+        const tab = ['members', 'messages', 'announcements'].includes(name) ? name : 'members';
+        const panels = { members: 'adminMembersTab', messages: 'adminMessagesTab', announcements: 'adminAnnouncementsTab' };
+        const buttons = { members: 'adminMembersTabButton', messages: 'adminMessagesTabButton', announcements: 'adminAnnouncementsTabButton' };
+        Object.entries(panels).forEach(([key, panelId]) => {
+          const active = key === tab;
+          $(`#${buttons[key]}`).classList.toggle('active', active);
+          $(`#${buttons[key]}`).setAttribute('aria-selected', String(active));
+          $(`#${panelId}`).hidden = !active;
+        });
+        if (tab === 'messages') renderAdminMessages();
+        if (tab === 'announcements') els.announcementInput.focus();
       }
 
-      function toggleMembersPanel() {
-        const open = !els.membersPanel.classList.contains('open');
-        els.membersPanel.classList.toggle('open', open);
-        $('#mobileMembersButton').setAttribute('aria-expanded', String(open));
-      }
 
       function toast(message, type = 'info') {
         const item = textElement('div', `toast ${type}`);
@@ -4054,8 +4380,425 @@
         }, { passive: true });
       }
 
+      /* ───────────────────────────────────────────────────────────────
+         CatChat UI: chuyển tab Trò chuyện / Thành viên, hồ sơ thành viên,
+         bộ con trỏ mèo, emote picker, kiểm duyệt tin nhắn và hiệu ứng admin.
+         ─────────────────────────────────────────────────────────────── */
+      const CURSOR_STORAGE_KEY = 'catchat-cursor';
+      const DIRECTORY_FILTERS = ['all', 'online', 'banned'];
+      const EMOJI_GROUPS = [
+        { label: 'Mèo', list: ['🐱','😺','😸','😹','😻','😼','😽','🙀','😿','😾','🐈','🐈‍⬛','🐾','🐟','🧶','🐭'] },
+        { label: 'Cảm xúc', list: ['😀','😄','😁','😆','🥰','😍','🤩','😘','😊','😌','😉','😂','🤣','🥹','😢','😭','😮','😱','🤔','😴'] },
+        { label: 'Cử chỉ', list: ['👍','👏','🙌','🤝','✌️','🤗','💪','👀','🫶','🙏','💅','🤙','👉','🫡','🎉','🎊'] },
+        { label: 'Yêu thương', list: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','💕','💖','💘','💝','✨','⭐','🌙','🔥'] },
+        { label: 'Halloween', list: ['🎃','👻','🕷️','🕸️','🦇','💀','🧙','🍬','🍭','🕯️','🌕','⚰️','🧟','🪄','🌚','🦴'] }
+      ];
+
+      const CURSOR_OPTIONS = (() => {
+        const build = ({ fur, stroke, eye, blush, extra = '' }) => {
+          const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'>
+<path d='M7 12 8 4.5 14.6 8a13 13 0 0 1 4.8 0L26 4.5 27 12a12 12 0 0 1 3 7c0 6.6-5.5 10.5-12.5 10.5S4 25.6 4 19a12 12 0 0 1 3-7Z' fill='${fur}' stroke='${stroke}' stroke-width='1.8' stroke-linejoin='round'/>
+${extra}
+<circle cx='12.4' cy='18.2' r='1.6' fill='${eye}'/><circle cx='21.6' cy='18.2' r='1.6' fill='${eye}'/>
+<path d='M15 22.4q2 1.8 4 0' fill='none' stroke='${stroke}' stroke-width='1.5' stroke-linecap='round'/>
+<circle cx='9' cy='21.4' r='1.5' fill='${blush}' opacity='.75'/><circle cx='25' cy='21.4' r='1.5' fill='${blush}' opacity='.75'/>
+</svg>`;
+          return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}") 4 3, auto`;
+        };
+        return [
+          { id: 'orange', name: 'Mèo cam', color: '#f8b072', cursor: build({ fur: '#f8b072', stroke: '#3d3128', eye: '#3d3128', blush: '#ef8e6b' }) },
+          { id: 'black', name: 'Mèo đen', color: '#312b36', cursor: build({ fur: '#312b36', stroke: '#100d14', eye: '#ffd36e', blush: '#4a4052', extra: "<path d='M12 11.4h3M19 11.4h3' stroke='#100d14' stroke-width='1.4' stroke-linecap='round'/>" }) },
+          { id: 'white', name: 'Mèo trắng', color: '#fdf3e7', cursor: build({ fur: '#fdf3e7', stroke: '#7a6353', eye: '#5d4b3d', blush: '#ffc9cf' }) },
+          { id: 'pumpkin', name: 'Bí ngô', color: '#ff8a3d', cursor: build({ fur: '#ff8a3d', stroke: '#40210c', eye: '#a6ee4f', blush: '#d95f2a', extra: "<path d='M15.4 7.4c.6-1.6 2.2-2.2 3.6-1.4l-.9 1.9' fill='#4b8f2f' stroke='#2f5c1c' stroke-width='1.2' stroke-linejoin='round'/><path d='M10.5 15.2 13 17M23.5 15.2 21 17' stroke='#40210c' stroke-width='1.3' stroke-linecap='round'/>" }) },
+          { id: 'ghost', name: 'Mèo ma', color: '#eae4f7', cursor: build({ fur: '#eae4f7', stroke: '#604a86', eye: '#8a5cd6', blush: '#c9b4f0', extra: "<path d='M6 27q3 2.6 6 0t6 0 6 0 4-1.4' fill='none' stroke='#b9a2e6' stroke-width='1.3' stroke-linecap='round'/>" }) }
+        ];
+      })();
+
+      function applyCursor(cursorId, persist = true) {
+        const option = CURSOR_OPTIONS.find((item) => item.id === cursorId) || CURSOR_OPTIONS[0];
+        document.documentElement.style.setProperty('--cat-cursor', option.cursor);
+        $$('[data-cursor-choice]').forEach((button) => {
+          const active = button.dataset.cursorChoice === option.id;
+          button.classList.toggle('selected', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        if (persist) {
+          try { localStorage.setItem(CURSOR_STORAGE_KEY, option.id); }
+          catch (error) { console.warn('Không lưu được lựa chọn con trỏ:', error); }
+        }
+      }
+
+      function loadSavedCursor() {
+        try {
+          const saved = localStorage.getItem(CURSOR_STORAGE_KEY);
+          return CURSOR_OPTIONS.some((item) => item.id === saved) ? saved : CURSOR_OPTIONS[0].id;
+        } catch (_) { return CURSOR_OPTIONS[0].id; }
+      }
+
+      function renderCursorOptions() {
+        const wrap = $('#cursorOptions');
+        if (!wrap) return;
+        const fragment = document.createDocumentFragment();
+        CURSOR_OPTIONS.forEach((option) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'cursor-option';
+          button.dataset.cursorChoice = option.id;
+          button.setAttribute('aria-pressed', 'false');
+          button.title = `Dùng ${option.name} làm con trỏ`;
+          const image = textElement('span', 'cursor-option-image');
+          image.innerHTML = `<svg viewBox="0 0 34 34" aria-hidden="true"><path d="M7 12 8 4.5 14.6 8a13 13 0 0 1 4.8 0L26 4.5 27 12a12 12 0 0 1 3 7c0 6.6-5.5 10.5-12.5 10.5S4 25.6 4 19a12 12 0 0 1 3-7Z" fill="${option.color}" stroke="rgba(0,0,0,.35)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12.4" cy="18.2" r="1.6" fill="rgba(0,0,0,.72)"/><circle cx="21.6" cy="18.2" r="1.6" fill="rgba(0,0,0,.72)"/><path d="M15 22.4q2 1.8 4 0" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+          const check = textElement('span', 'cursor-check');
+          check.appendChild(icon('check'));
+          button.append(image, textElement('span', '', option.name), check);
+          fragment.appendChild(button);
+        });
+        wrap.replaceChildren(fragment);
+        applyCursor(loadSavedCursor(), false);
+      }
+
+      /* ── Chuyển tab Trò chuyện ⇄ Thành viên ── */
+      let workspaceView = 'chat';
+      let directoryFilter = 'all';
+      let directoryQuery = '';
+
+      function setWorkspaceView(view) {
+        workspaceView = view === 'members' ? 'members' : 'chat';
+        els.appView.dataset.view = workspaceView;
+        $('#navChat').classList.toggle('active', workspaceView === 'chat');
+        $('#navMembers').classList.toggle('active', workspaceView === 'members');
+        $('#chatPanel').hidden = workspaceView === 'members';
+        $('#directoryPanel').hidden = workspaceView !== 'members';
+        els.membersPanel.classList.remove('open');
+        $('#mobileMembersButton').setAttribute('aria-expanded', String(workspaceView === 'members'));
+        if (workspaceView === 'members') {
+          renderDirectory();
+          window.setTimeout(() => $('#directorySearchInput')?.focus({ preventScroll: true }), 60);
+        } else {
+          if (window.matchMedia('(max-width: 760px)').matches) els.messageInput.focus({ preventScroll: true });
+        }
+      }
+
+      function memberDisplayName(uid, member = members[uid] || {}) {
+        return member.name || member.displayName || memberEmails[uid]?.email?.split('@')[0] || member.email?.split('@')[0] || 'Thành viên';
+      }
+
+      function renderDirectory() {
+        const grid = $('#directoryGrid');
+        if (!grid) return;
+        const entries = memberEntries();
+        const onlineCount = entries.filter(([uid]) => presence[uid]).length;
+        const bannedCount = entries.filter(([uid]) => bans[uid]).length;
+        $('#directorySummary').textContent = `${entries.length} thành viên · ${onlineCount} đang trực tuyến`;
+        $('#directoryAllCount').textContent = String(entries.length);
+        $('#directoryOnlineCount').textContent = String(onlineCount);
+        $('#directoryBannedCount').textContent = String(bannedCount);
+        $$('[data-directory-filter]').forEach((button) => {
+          const active = button.dataset.directoryFilter === directoryFilter;
+          button.classList.toggle('active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        const query = directoryQuery.trim().toLocaleLowerCase('vi');
+        const filtered = entries.filter(([uid, member]) => {
+          if (directoryFilter === 'online' && !presence[uid]) return false;
+          if (directoryFilter === 'banned' && !bans[uid]) return false;
+          if (!query) return true;
+          const haystack = `${memberDisplayName(uid, member)} ${memberEmails[uid]?.email || member.email || ''} ${uid}`.toLocaleLowerCase('vi');
+          return haystack.includes(query);
+        });
+        if (!filtered.length) {
+          const empty = textElement('div', 'directory-empty');
+          if (directoryFilter === 'banned') empty.textContent = 'Chưa có thành viên nào bị cấm.';
+          else if (query) empty.textContent = 'Không tìm thấy thành viên phù hợp với từ khoá này.';
+          else empty.textContent = entries.length ? 'Không có ai trong nhóm này.' : 'Chưa có thành viên nào. Hãy là người đầu tiên gửi lời chào!';
+          grid.replaceChildren(empty);
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        filtered.forEach(([uid, member], index) => {
+          const name = memberDisplayName(uid, member);
+          const online = Boolean(presence[uid]);
+          const banned = Boolean(bans[uid]);
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'directory-card';
+          card.dataset.memberUid = uid;
+          card.style.animationDelay = `${Math.min(index * 18, 220)}ms`;
+          card.setAttribute('aria-label', `Xem hồ sơ của ${name}`);
+          const avatarWrap = textElement('span', 'directory-avatar');
+          avatarWrap.appendChild(makeAvatar(name, uid, 'avatar', member.photoURL || ''));
+          const dot = textElement('span', `presence-indicator${online ? ' is-online' : ''}`);
+          avatarWrap.appendChild(dot);
+          const copy = textElement('span', 'directory-copy');
+          copy.appendChild(textElement('strong', '', name));
+          copy.appendChild(textElement('small', '', online ? 'Đang hoạt động' : banned ? 'Bị cấm bởi quản trị viên' : 'Thành viên tổ mèo'));
+          if (uid === currentUser?.uid && isAdmin) {
+            const badge = textElement('span', 'directory-badge');
+            badge.appendChild(icon('crown'));
+            badge.append(document.createTextNode('Quản trị viên'));
+            copy.appendChild(badge);
+          } else if (banned) {
+            const badge = textElement('span', 'directory-badge banned');
+            badge.appendChild(icon('ban'));
+            badge.append(document.createTextNode('Bị cấm'));
+            copy.appendChild(badge);
+          }
+          card.append(avatarWrap, copy);
+          fragment.appendChild(card);
+        });
+        grid.replaceChildren(fragment);
+      }
+
+      function openMemberProfile(uid) {
+        const member = members[uid] || {};
+        const name = memberDisplayName(uid, member);
+        const online = Boolean(presence[uid]);
+        const banned = Boolean(bans[uid]);
+        const isSelf = uid === currentUser?.uid;
+        const layer = $('#memberProfileLayer');
+        if (!layer) return;
+        const slot = $('#profileAvatarSlot');
+        slot.replaceChildren(makeAvatar(name, uid, 'avatar', member.photoURL || ''));
+        $('#profileName').textContent = name;
+        $('#profileStatus').textContent = isSelf ? 'Đây là hồ sơ của bạn' : online ? 'Đang hoạt động trong tổ mèo' : 'Thành viên của tổ mèo';
+        const tags = $('#profileTags');
+        tags.replaceChildren();
+        const addTag = (label, className, iconName) => {
+          const tag = textElement('span', `profile-tag${className ? ` ${className}` : ''}`);
+          if (iconName) tag.appendChild(icon(iconName));
+          tag.append(document.createTextNode(label));
+          tags.appendChild(tag);
+        };
+        addTag(online ? 'Trực tuyến' : 'Ngoại tuyến', online ? 'online' : '', 'wifi');
+        if (isSelf && isAdmin) addTag('Quản trị viên', 'admin', 'crown');
+        if (banned) addTag('Đang bị cấm', 'banned', 'ban');
+        if (isSelf) addTag('Bạn', '', 'user');
+
+        const facts = $('#profileFacts');
+        facts.replaceChildren();
+        const addFact = (label, value, iconName) => {
+          const row = document.createElement('div');
+          row.className = 'profile-fact';
+          const dt = document.createElement('dt');
+          if (iconName) dt.appendChild(icon(iconName));
+          dt.append(document.createTextNode(label));
+          const dd = document.createElement('dd');
+          dd.textContent = value;
+          dd.title = value;
+          row.append(dt, dd);
+          facts.appendChild(row);
+        };
+        const email = memberEmails[uid]?.email || (isSelf ? currentUser?.email : '') || member.email || '';
+        addFact('Tên hiển thị', name, 'user');
+        if (email) addFact('Email', email, 'mail');
+        addFact('UID', uid, 'hash');
+        if (member.createdAt) addFact('Tham gia', formatDateTime(timestampOf(member.createdAt)), 'clock');
+        if (member.lastSeen) addFact('Hoạt động gần nhất', formatDateTime(timestampOf(member.lastSeen)), 'clock');
+        if (banned && bans[uid]?.reason) addFact('Lý do cấm', bans[uid].reason, 'info');
+
+        const actions = $('#profileActions');
+        actions.replaceChildren();
+        const addAction = (label, className, iconName, onClick) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          if (className) button.className = className;
+          if (iconName) button.appendChild(icon(iconName));
+          button.append(document.createTextNode(label));
+          button.addEventListener('click', onClick);
+          actions.appendChild(button);
+        };
+        addAction('Sao chép UID', '', 'hash', async () => {
+          try {
+            await navigator.clipboard.writeText(uid);
+            toast('Đã sao chép UID thành viên.', 'success');
+          } catch (_) {
+            toast('Trình duyệt không cho phép sao chép tự động.', 'error');
+          }
+        });
+        if (safeImageUrl(member.photoURL || '')) {
+          addAction('Mở ảnh đại diện', '', 'eye', () => window.open(safeImageUrl(member.photoURL), '_blank', 'noopener,noreferrer'));
+        }
+        if (isAdmin && !isSelf) {
+          addAction(banned ? 'Bỏ cấm' : 'Cấm thành viên', banned ? '' : 'danger', banned ? 'unban' : 'ban', () => {
+            closeMemberProfile();
+            void manageBan(uid, !banned);
+          });
+        }
+        if (!isSelf) {
+          addAction('Nhắn trong phòng chung', 'primary', 'chat', () => {
+            closeMemberProfile();
+            setWorkspaceView('chat');
+            window.setTimeout(() => els.messageInput.focus({ preventScroll: true }), 80);
+          });
+        }
+        layer.hidden = false;
+        document.body.classList.add('body-locked');
+        window.setTimeout(() => $('#closeMemberProfile')?.focus(), 40);
+      }
+
+      function closeMemberProfile() {
+        const layer = $('#memberProfileLayer');
+        if (!layer || layer.hidden) return;
+        layer.hidden = true;
+        if (!els.confirmLayer.classList.contains('open') && !els.adminOverlay.classList.contains('open') && els.channelDialog.hidden && els.themeDialog.hidden && $('#savedLayer').hidden) {
+          document.body.classList.remove('body-locked');
+        }
+      }
+
+      /* ── Emote picker ── */
+      function renderEmojiPicker() {
+        const wrap = $('#emojiGroups');
+        if (!wrap) return;
+        const fragment = document.createDocumentFragment();
+        EMOJI_GROUPS.forEach((group) => {
+          const section = textElement('div', 'emoji-group');
+          section.appendChild(textElement('span', 'emoji-group-label', group.label));
+          const grid = textElement('div', 'emoji-grid');
+          group.list.forEach((glyph) => {
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'emoji-cell';
+            cell.dataset.emoji = glyph;
+            cell.setAttribute('aria-label', `Chèn ${glyph}`);
+            cell.textContent = glyph;
+            grid.appendChild(cell);
+          });
+          section.appendChild(grid);
+          fragment.appendChild(section);
+        });
+        wrap.replaceChildren(fragment);
+      }
+
+      function setEmojiPickerOpen(open) {
+        const popover = $('#emojiPopover');
+        if (!popover) return;
+        popover.hidden = !open;
+        $('#emojiPickerButton').setAttribute('aria-expanded', String(open));
+        if (open) window.setTimeout(() => popover.querySelector('.emoji-cell')?.focus({ preventScroll: true }), 30);
+      }
+
+      function insertEmoji(glyph) {
+        const input = els.messageInput;
+        if (!input) return;
+        const start = typeof input.selectionStart === 'number' ? input.selectionStart : input.value.length;
+        const end = typeof input.selectionEnd === 'number' ? input.selectionEnd : input.value.length;
+        input.value = `${input.value.slice(0, start)}${glyph}${input.value.slice(end)}`;
+        const caret = start + glyph.length;
+        input.focus({ preventScroll: true });
+        input.setSelectionRange(caret, caret);
+        updateMessageComposer();
+      }
+
+      /* ── Reaction: cập nhật cục bộ thay vì render lại cả kênh ── */
+      function refreshReactionStrip(messageId, reactedKey = '') {
+        const row = Array.from(els.chatMessages.querySelectorAll('[data-message-id]'))
+          .find((item) => item.dataset.messageId === messageId);
+        if (!row) return;
+        const strip = makeReactionStrip(messageId);
+        const previous = row.querySelector('.reaction-strip');
+        if (previous) previous.replaceWith(strip);
+        else row.appendChild(strip);
+        if (reactedKey) {
+          const button = strip.querySelector(`[data-reaction="${reactedKey}"]`);
+          if (button) button.classList.add('just-reacted');
+        }
+      }
+
+      /* ── Kiểm duyệt tin nhắn trong admin ── */
+      function renderAdminMessages() {
+        const list = $('#adminMessageList');
+        if (!list) return;
+        const entries = Array.from(messages.entries()).sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]));
+        $('#adminTabMessageCount').textContent = String(entries.length);
+        $('#adminMessageChannel').textContent = `Kênh hiện tại: #${channelLabelFor(activeChannelId)}`;
+        const query = ($('#adminMessageSearch')?.value || '').trim().toLocaleLowerCase('vi');
+        const filtered = entries.filter(([, message]) => {
+          if (!query) return true;
+          return `${message.name || ''} ${message.text || ''} ${message.uid || ''}`.toLocaleLowerCase('vi').includes(query);
+        });
+        if (!filtered.length) {
+          list.replaceChildren(textElement('div', 'admin-empty', query ? 'Không tìm thấy tin nhắn phù hợp.' : 'Kênh này chưa có tin nhắn nào.'));
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        filtered.slice(0, 60).forEach(([id, message]) => {
+          const row = textElement('div', 'admin-message-row');
+          row.appendChild(makeAvatar(message.name || 'Thành viên', message.uid || '', 'avatar', members[message.uid]?.photoURL || ''));
+          const copy = textElement('div', 'admin-message-copy');
+          const head = textElement('strong');
+          head.append(document.createTextNode(message.name || 'Thành viên'));
+          head.appendChild(textElement('time', '', formatDateTime(timestampOf(message))));
+          copy.appendChild(head);
+          if (message.kind === 'announcement') {
+            const flag = textElement('span', 'admin-message-media');
+            flag.appendChild(icon('megaphone'));
+            flag.append(document.createTextNode('Thông báo'));
+            copy.appendChild(flag);
+          }
+          copy.appendChild(textElement('p', '', message.text || (message.imageURL ? '[Ảnh đính kèm]' : 'Tin nhắn trống')));
+          if (message.imageURL) {
+            const media = textElement('span', 'admin-message-media');
+            media.appendChild(icon('eye'));
+            media.append(document.createTextNode(message.imageName || 'Có ảnh đính kèm'));
+            copy.appendChild(media);
+          }
+          row.appendChild(copy);
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'admin-action';
+          remove.dataset.deleteMessage = id;
+          remove.title = 'Xoá tin nhắn này';
+          remove.setAttribute('aria-label', 'Xoá tin nhắn này');
+          remove.appendChild(icon('trash'));
+          row.appendChild(remove);
+          fragment.appendChild(row);
+        });
+        list.replaceChildren(fragment);
+      }
+
+      /* ── Hiệu ứng khi tài khoản được cấp quyền admin ── */
+      function playAdminWelcome() {
+        if (document.querySelector('.admin-welcome')) return;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const layer = textElement('div', 'admin-welcome');
+        const card = textElement('div', 'admin-welcome-card');
+        const crown = textElement('div', 'admin-welcome-crown');
+        crown.appendChild(icon('crown'));
+        card.append(crown, textElement('strong', '', 'Chào quản trị viên!'), textElement('span', '', 'Toàn bộ quyền kiểm duyệt đã được bật'));
+        layer.appendChild(card);
+        const glyphs = ['🐾', '✨', '👑', '🎃', '🐱', '💛'];
+        for (let index = 0; index < 18; index += 1) {
+          const piece = textElement('span', 'admin-confetti', glyphs[index % glyphs.length]);
+          piece.style.setProperty('--drift', `${Math.round(Math.random() * 320 - 160)}px`);
+          piece.style.setProperty('--rise', `${Math.round(-150 - Math.random() * 170)}px`);
+          piece.style.setProperty('--spin', `${Math.round(Math.random() * 320 - 160)}deg`);
+          piece.style.animationDelay = `${Math.random() * 0.22}s`;
+          layer.appendChild(piece);
+        }
+        document.body.appendChild(layer);
+        const rect = crown.getBoundingClientRect();
+        for (let index = 0; index < 10; index += 1) {
+          const paw = textElement('span', 'admin-paw-burst', '🐾');
+          paw.style.left = `${rect.left + rect.width / 2}px`;
+          paw.style.top = `${rect.top + rect.height / 2}px`;
+          paw.style.setProperty('--dx', `${Math.round(Math.random() * 240 - 120)}px`);
+          paw.style.setProperty('--dy', `${Math.round(-60 - Math.random() * 120)}px`);
+          paw.style.setProperty('--rot', `${Math.round(Math.random() * 140 - 70)}deg`);
+          paw.style.animationDelay = `${Math.random() * 0.18}s`;
+          document.body.appendChild(paw);
+          window.setTimeout(() => paw.remove(), 1500);
+        }
+        $('#rolePill')?.classList.add('is-admin');
+        $('#navMembers')?.classList.add('admin-hint');
+        window.setTimeout(() => $('#navMembers')?.classList.remove('admin-hint'), 3400);
+        window.setTimeout(() => layer.remove(), 1700);
+      }
+
       function attachEvents() {
         savedMessages = loadSavedMessages();
+        renderCursorOptions();
+        renderEmojiPicker();
+        setWorkspaceView('chat');
         updateSavedBadge();
         renderSavedPanel();
         updateWorkspaceGreeting();
@@ -4100,6 +4843,13 @@
           const option = event.target instanceof Element ? event.target.closest('[data-theme-choice]') : null;
           if (option) applyTheme(option.dataset.themeChoice);
         });
+        $('#cursorOptions').addEventListener('click', (event) => {
+          const option = event.target instanceof Element ? event.target.closest('[data-cursor-choice]') : null;
+          if (!option) return;
+          applyCursor(option.dataset.cursorChoice);
+          const cursorName = CURSOR_OPTIONS.find((item) => item.id === option.dataset.cursorChoice)?.name || 'mèo';
+          toast(`Đã đổi con trỏ thành ${cursorName}.`, 'success');
+        });
         els.toggleAuthMode.addEventListener('click', switchAuthMode);
         els.forgotPassword.addEventListener('click', sendPasswordReset);
         els.email.addEventListener('input', () => { setAuthError(''); if (els.authNotice.classList.contains('success')) setAuthNotice(''); });
@@ -4139,19 +4889,54 @@
             sendMessage(event);
           }
         });
-        $('#navChat').addEventListener('click', () => {
-          $('#navChat').classList.add('active');
-          $('#navMembers').classList.remove('active');
-          els.membersPanel.classList.remove('open');
-          els.messageInput.focus();
+        $('#navChat').addEventListener('click', () => setWorkspaceView('chat'));
+        $('#navMembers').addEventListener('click', () => setWorkspaceView('members'));
+        $('#mobileMembersButton').addEventListener('click', () => setWorkspaceView(workspaceView === 'members' ? 'chat' : 'members'));
+        els.memberList.addEventListener('click', (event) => {
+          const row = event.target instanceof Element ? event.target.closest('.member-row') : null;
+          if (!row) return;
+          const uid = row.dataset.memberUid;
+          if (uid) openMemberProfile(uid);
         });
-        $('#navMembers').addEventListener('click', () => {
-          $('#navMembers').classList.add('active');
-          $('#navChat').classList.remove('active');
-          if (window.matchMedia('(max-width: 1080px)').matches) toggleMembersPanel();
-          else els.memberList.scrollTop = 0;
+        $('#directorySearchInput').addEventListener('input', (event) => {
+          directoryQuery = event.target.value || '';
+          renderDirectory();
         });
-        $('#mobileMembersButton').addEventListener('click', toggleMembersPanel);
+        $('#directoryFilters').addEventListener('click', (event) => {
+          const button = event.target instanceof Element ? event.target.closest('[data-directory-filter]') : null;
+          if (!button) return;
+          directoryFilter = DIRECTORY_FILTERS.includes(button.dataset.directoryFilter) ? button.dataset.directoryFilter : 'all';
+          renderDirectory();
+        });
+        $('#directoryGrid').addEventListener('click', (event) => {
+          const card = event.target instanceof Element ? event.target.closest('[data-member-uid]') : null;
+          if (card) openMemberProfile(card.dataset.memberUid);
+        });
+        $('#closeMemberProfile').addEventListener('click', closeMemberProfile);
+        $('.profile-text').addEventListener('click', () => { if (currentUser) openMemberProfile(currentUser.uid); });
+        $('.profile-text').style.cursor = 'pointer';
+        $('.profile-text').title = 'Xem hồ sơ của bạn';
+        els.memberList.addEventListener('keydown', (event) => {
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          const row = event.target instanceof Element ? event.target.closest('.member-row') : null;
+          if (!row) return;
+          event.preventDefault();
+          if (row.dataset.memberUid) openMemberProfile(row.dataset.memberUid);
+        });
+        $('#memberProfileLayer').addEventListener('click', (event) => { if (event.target === $('#memberProfileLayer')) closeMemberProfile(); });
+        $('#emojiPickerButton').addEventListener('click', () => setEmojiPickerOpen($('#emojiPopover').hidden));
+        $('#closeEmojiPicker').addEventListener('click', () => setEmojiPickerOpen(false));
+        $('#emojiGroups').addEventListener('click', (event) => {
+          const cell = event.target instanceof Element ? event.target.closest('[data-emoji]') : null;
+          if (cell) insertEmoji(cell.dataset.emoji);
+        });
+        document.addEventListener('click', (event) => {
+          if ($('#emojiPopover').hidden) return;
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          if (target.closest('#emojiPopover') || target.closest('#emojiPickerButton')) return;
+          setEmojiPickerOpen(false);
+        });
         els.channelList.addEventListener('click', (event) => {
           const target = event.target instanceof Element ? event.target.closest('[data-channel-id]') : null;
           if (!target) return;
@@ -4204,7 +4989,10 @@
         $('#closeAdminButton').addEventListener('click', closeAdmin);
         $('#adminBackdrop').addEventListener('click', closeAdmin);
         $('#adminMembersTabButton').addEventListener('click', () => switchAdminTab('members'));
+        $('#adminMessagesTabButton').addEventListener('click', () => switchAdminTab('messages'));
         $('#adminAnnouncementsTabButton').addEventListener('click', () => switchAdminTab('announcements'));
+        $('#adminMessageSearch').addEventListener('input', renderAdminMessages);
+        $('#adminClearChannelButton').addEventListener('click', () => { void clearCurrentChannel(); });
         els.adminMemberSearch.addEventListener('input', renderAdminPanel);
         $('#announcementCharCount').textContent = '0 / 500';
         els.announcementInput.addEventListener('input', () => { $('#announcementCharCount').textContent = `${els.announcementInput.value.length} / 500`; });
@@ -4255,7 +5043,9 @@
             setMessageSearchOpen(true);
           }
           if (event.key === 'Escape') {
-            if (!$('#savedLayer').hidden) closeSavedPanel();
+            if (!$('#emojiPopover').hidden) setEmojiPickerOpen(false);
+            else if (!$('#memberProfileLayer').hidden) closeMemberProfile();
+            else if (!$('#savedLayer').hidden) closeSavedPanel();
             else if (!els.themeDialog.hidden) closeThemeDialog();
             else if (!els.channelDialog.hidden) closeChannelDialog();
             else if (els.confirmLayer.classList.contains('open')) closeConfirm(null);
