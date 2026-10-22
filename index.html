@@ -1934,6 +1934,41 @@
       .directory-panel, .directory-card, .profile-dialog, .emoji-popover, .admin-welcome-card, .admin-welcome-crown { animation: none !important; }
       .app-view .role-pill.is-admin, .app-view .nav-link.admin-hint { animation: none !important; }
     }
+
+    /* ───────── Phòng thông báo (chế độ xem thông báo) ───────── */
+    .announcement-mode-bar {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 12px 19px 0;
+      padding: 11px 13px;
+      border: 1px solid color-mix(in srgb, var(--theme-accent) 32%, transparent);
+      border-radius: 15px;
+      background:
+        radial-gradient(circle at 100% 0%, var(--cat-glow), transparent 62%),
+        var(--theme-accent-soft);
+      animation: field-in .25s var(--ease) both;
+    }
+    .announcement-mode-icon { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border-radius: 11px; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); box-shadow: 0 8px 18px var(--cat-glow); }
+    .announcement-mode-icon .icon { width: 16px; height: 16px; }
+    .announcement-mode-copy { min-width: 0; flex: 1; }
+    .announcement-mode-copy strong { display: block; color: var(--theme-text); font-size: 10px; font-weight: 800; letter-spacing: .02em; }
+    .announcement-mode-copy span { display: block; margin-top: 3px; color: var(--theme-muted); font-size: 9px; }
+    .announcement-mode-exit { flex: 0 0 auto; min-height: 30px; padding: 0 12px; border: 1px solid var(--theme-line-strong); border-radius: 999px; background: var(--theme-panel); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; transition: background .16s, color .16s; }
+    .announcement-mode-exit:hover { background: var(--theme-panel-alt); color: var(--theme-accent); }
+    .app-view .announcements-link.active { background: var(--theme-accent-soft); color: var(--theme-accent); }
+    .app-view .announcements-link.active .icon { color: var(--theme-accent); }
+    .app-view .announcement-mode-bar { animation: none; }
+    .app-view .nav-link.admin-nav-link { color: var(--cat-meow, var(--theme-accent)); }
+    .app-view .nav-link.admin-nav-link .icon { color: var(--cat-meow, var(--theme-accent)); }
+    .app-view .nav-link.admin-nav-link .admin-count { background: var(--theme-accent); color: var(--theme-accent-contrast); }
+    .app-view.announcement-focus .composer-wrap { background: color-mix(in srgb, var(--theme-accent-soft) 40%, var(--theme-bg)); }
+    .app-view.announcement-focus .composer-box { border-color: color-mix(in srgb, var(--theme-accent) 42%, transparent); }
+    @media (max-width: 760px) {
+      .announcement-mode-bar { margin: 9px 9px 0; padding: 9px 10px; gap: 8px; }
+      .announcement-mode-copy span { display: none; }
+      .announcement-mode-exit { min-height: 27px; padding: 0 9px; font-size: 8px; }
+    }
   </style>
 </head>
 <body>
@@ -2089,6 +2124,9 @@
           <button class="nav-link saved-nav-link" id="savedMessagesButton" type="button" title="Tin nhắn đã lưu">
             <svg class="icon"><use href="#i-bookmark"></use></svg><span>Đã lưu</span><span class="nav-count saved-count" id="savedMessagesCount" hidden>0</span>
           </button>
+          <button class="nav-link admin-nav-link" id="navAdmin" type="button" title="Mở bảng quản trị" hidden>
+            <svg class="icon"><use href="#i-shield"></use></svg><span>Quản trị</span><span class="nav-count admin-count" id="navAdminCount" hidden>0</span>
+          </button>
         </nav>
         <div class="sidebar-channel-block">
           <div class="sidebar-section-title"><span>KÊNH CỦA BẠN</span><button id="channelAddButton" type="button" aria-label="Tạo kênh" title="Chỉ quản trị viên được tạo kênh" hidden><svg class="icon"><use href="#i-plus"></use></svg></button></div>
@@ -2142,6 +2180,14 @@
                 <button class="icon-button" id="searchMessagesButton" type="button" title="Tìm tin nhắn" aria-label="Tìm tin nhắn" aria-expanded="false"><svg class="icon"><use href="#i-search"></use></svg></button>
                 <button class="icon-button" id="jumpLatestButton" type="button" title="Tin nhắn mới nhất" aria-label="Đi tới tin nhắn mới nhất"><svg class="icon"><use href="#i-clock"></use></svg></button>
               </div>
+            </div>
+            <div class="announcement-mode-bar" id="announcementModeBar" hidden>
+              <div class="announcement-mode-icon"><svg class="icon"><use href="#i-bell"></use></svg></div>
+              <div class="announcement-mode-copy">
+                <strong>Phòng thông báo</strong>
+                <span id="announcementModeHint">Chỉ quản trị viên được đăng · mọi thành viên đều đọc được</span>
+              </div>
+              <button class="announcement-mode-exit" id="exitAnnouncementModeButton" type="button">Xem trò chuyện</button>
             </div>
             <div class="message-search-bar" id="messageSearchBar" hidden>
               <svg class="icon"><use href="#i-search"></use></svg>
@@ -2390,6 +2436,10 @@
        * Giới hạn một tài khoản/IP/thiết bị cần Firebase Auth blocking functions hoặc backend tin cậy;
        * trình duyệt tĩnh không thể thực thi giới hạn này an toàn.
        */
+      /* Tài khoản admin theo email (yêu cầu chủ dự án). Danh sách này nằm trong client nên
+         chỉ dùng để hiện bảng quản trị; quyền ghi thật vẫn do Firebase Rules quyết định
+         (/admins/<UID> = true hoặc custom claim admin). */
+      const ADMIN_EMAILS = ['admin@com.vn'];
       const REACTIONS = [
         { key: 'like', glyph: '👍', label: 'Thích' },
         { key: 'heart', glyph: '❤️', label: 'Yêu thích' },
@@ -2430,6 +2480,7 @@
         channelNameInput: $('#channelNameInput'), cancelCreateChannelButton: $('#cancelCreateChannelButton'),
         createChannelSubmit: $('#createChannelSubmit'), clearChannelButton: $('#clearChannelButton'), channelTitle: $('#channelTitle'),
         channelMemberSummary: $('#channelMemberSummary'), channelSymbol: $('#channelSymbol'),
+        channelAnnouncements: $('#channelAnnouncements'),
         themeDialog: $('#themeDialog'), themeOptions: $('#themeOptions'), themeStatus: $('#themeStatus'),
         closeThemeDialogButton: $('#closeThemeDialogButton'), openThemeSettingsButton: $('#openThemeSettingsButton'),
         adminOverlay: $('#adminOverlay'), adminMemberList: $('#adminMemberList'), adminMembersTab: $('#adminMembersTab'),
@@ -2481,6 +2532,8 @@
       let isSendingMessage = false;
       let hasAdminMarker = false;
       let hasAdminClaim = false;
+      let hasAdminEmail = false;
+      let announcementMode = false;
       let cleanupFns = [];
       let channelCleanupFns = [];
       let channelGeneration = 0;
@@ -2507,6 +2560,15 @@
         if (className) element.className = className;
         if (text !== undefined && text !== null) element.textContent = String(text);
         return element;
+      }
+
+      function isAdminEmail(user = currentUser) {
+        const email = String(user?.email || '').trim().toLocaleLowerCase('en');
+        return ADMIN_EMAILS.includes(email);
+      }
+
+      function computeIsAdmin() {
+        return hasAdminMarker || hasAdminClaim || hasAdminEmail;
       }
 
       function displayNameFor(user = currentUser) {
@@ -2803,6 +2865,8 @@
         stopAdminEmailListener = null;
         hasAdminMarker = false;
         hasAdminClaim = false;
+        hasAdminEmail = false;
+        announcementMode = false;
         messages.clear();
         announcementMessages.clear();
         channels = {};
@@ -2859,13 +2923,32 @@
         els.clearChannelButton.hidden = !isAdmin;
         els.announcementInput.disabled = !isAdmin;
         els.publishAnnouncementButton.disabled = !isAdmin;
+        const navAdmin = $('#navAdmin');
+        if (navAdmin) navAdmin.hidden = !isAdmin;
+        if (isAdmin) {
+          const navAdminCount = $('#navAdminCount');
+          if (navAdminCount) {
+            navAdminCount.textContent = String(Object.keys(bans).length || '');
+            navAdminCount.hidden = !Object.keys(bans).length;
+          }
+        }
+        if (!isAdmin && announcementMode) setAnnouncementMode(false);
+        updateMessageComposer();
         if (!isAdmin && !els.channelDialog.hidden) closeChannelDialog();
         if (isAdmin && bansRef && !stopAdminBanListener) {
           stopAdminBanListener = subscribe(bansRef, 'value', (snapshot) => {
             bans = snapshot.val() || {};
+            const navAdminCount = $('#navAdminCount');
+            if (navAdminCount) {
+              navAdminCount.textContent = String(Object.keys(bans).length);
+              navAdminCount.hidden = !Object.keys(bans).length;
+            }
             renderMembers();
             renderAdminPanel();
-          }, (error) => showDatabaseError(error, 'Không thể tải danh sách lệnh cấm.'));
+          }, (error) => {
+            if (hasAdminEmail && !hasAdminMarker && !hasAdminClaim) console.warn('Chưa đọc được /bans (cần thêm email admin vào Rules):', error);
+            else showDatabaseError(error, 'Không thể tải danh sách lệnh cấm.');
+          });
         } else if (!isAdmin && stopAdminBanListener) {
           stopAdminBanListener();
           stopAdminBanListener = null;
@@ -2875,7 +2958,10 @@
           stopAdminEmailListener = subscribe(memberEmailsRef, 'value', (snapshot) => {
             memberEmails = snapshot.val() || {};
             renderAdminPanel();
-          }, (error) => showDatabaseError(error, 'Không thể tải email thành viên.'));
+          }, (error) => {
+            if (hasAdminEmail && !hasAdminMarker && !hasAdminClaim) console.warn('Chưa đọc được /memberEmails (cần thêm email admin vào Rules):', error);
+            else showDatabaseError(error, 'Không thể tải email thành viên.');
+          });
         } else if (!isAdmin && stopAdminEmailListener) {
           stopAdminEmailListener();
           stopAdminEmailListener = null;
@@ -2931,6 +3017,15 @@
       }
 
       function updateActiveChannelUI() {
+        if (announcementMode) {
+          els.channelSymbol.textContent = '📣';
+          els.channelTitle.textContent = 'thông-báo';
+          els.channelMemberSummary.textContent = isAdmin
+            ? 'Đăng thông báo tới toàn bộ tổ mèo'
+            : 'Chỉ quản trị viên được đăng thông báo';
+          els.mobileChannelSelect.value = activeChannelId;
+          return;
+        }
         const name = channelNameFor(activeChannelId);
         els.channelTitle.textContent = name;
         els.channelSymbol.textContent = '#';
@@ -3045,6 +3140,12 @@
         const generation = requestedGeneration;
         const ref = channelId === 'general' ? generalMessagesRef : database.ref(`channelMessages/${channelId}`);
         if (!ref) return false;
+        if (announcementMode) {
+          announcementMode = false;
+          $('#announcementModeBar').hidden = true;
+          els.channelAnnouncements.classList.remove('active');
+          els.appView.classList.remove('announcement-focus');
+        }
         stopChannelRealtime();
         const channelRun = ++channelGeneration;
         activeChannelId = channelId;
@@ -3201,6 +3302,7 @@
         if (!user) {
           closeSavedPanel();
           closeMemberProfile();
+          setAnnouncementMode(false);
           setWorkspaceView('chat');
           const miuBubble = $('#miuBubble');
           if (miuBubble) miuBubble.hidden = true;
@@ -3264,24 +3366,25 @@
         }, (error) => showDatabaseError(error, 'Không thể theo dõi trạng thái tài khoản.'));
         hasAdminMarker = false;
         hasAdminClaim = false;
-        setAdminState(false);
+        hasAdminEmail = isAdminEmail(user);
+        setAdminState(computeIsAdmin());
         subscribe(adminsRef.child(user.uid), 'value', (snapshot) => {
           if (generation !== authGeneration) return;
           hasAdminMarker = snapshot.val() === true;
-          setAdminState(hasAdminMarker || hasAdminClaim);
+          setAdminState(computeIsAdmin());
         }, (error) => {
           hasAdminMarker = false;
-          setAdminState(hasAdminClaim);
+          setAdminState(computeIsAdmin());
           showDatabaseError(error, 'Không thể đọc quyền admin từ /admins. Hãy kiểm tra Firebase Rules.');
         });
         if (typeof user.getIdTokenResult === 'function') {
           user.getIdTokenResult(true).then((token) => {
             if (generation !== authGeneration) return;
             hasAdminClaim = token.claims?.admin === true;
-            setAdminState(hasAdminMarker || hasAdminClaim);
+            setAdminState(computeIsAdmin());
           }).catch((error) => {
             console.warn('Không tải được Firebase custom claims:', error);
-            if (generation === authGeneration) setAdminState(hasAdminMarker);
+            if (generation === authGeneration) setAdminState(computeIsAdmin());
           });
         }
       }
@@ -3471,6 +3574,41 @@
         return strip;
       }
 
+      function setAnnouncementMode(active) {
+        const next = Boolean(active) && Boolean(currentUser);
+        announcementMode = next;
+        const bar = $('#announcementModeBar');
+        if (bar) bar.hidden = !next;
+        els.channelAnnouncements.classList.toggle('active', next);
+        els.appView.classList.toggle('announcement-focus', next);
+        if (next) {
+          els.channelSymbol.textContent = '📣';
+          els.channelTitle.textContent = 'thông-báo';
+          els.channelMemberSummary.textContent = isAdmin
+            ? 'Đăng thông báo tới toàn bộ tổ mèo'
+            : 'Chỉ quản trị viên được đăng thông báo';
+          els.chatMessages.setAttribute('aria-label', 'Thông báo toàn máy chủ');
+          const hint = $('#announcementModeHint');
+          if (hint) hint.textContent = isAdmin
+            ? 'Chỉ quản trị viên được đăng · mọi thành viên đều đọc được'
+            : 'Bạn đang xem thông báo · chỉ quản trị viên được đăng';
+        } else {
+          updateActiveChannelUI();
+        }
+        updateMessageComposer();
+        renderAllMessages(next);
+        if (next) {
+          requestAnimationFrame(() => {
+            els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+          });
+        }
+      }
+
+      function exitAnnouncementMode() {
+        setAnnouncementMode(false);
+        els.messageInput.focus({ preventScroll: true });
+      }
+
       function setReplyTarget(messageId) {
         const data = messages.get(messageId);
         if (!data) {
@@ -3591,12 +3729,17 @@
 
       function renderAllMessages(scrollToEnd = false, newArrival = false) {
         const wasNearBottom = els.chatMessages.scrollHeight - els.chatMessages.scrollTop - els.chatMessages.clientHeight < 130;
-        const allMessages = Array.from(messages.entries()).sort((a, b) => timestampOf(a[1]) - timestampOf(b[1]));
+        const sortedMessages = Array.from(messages.entries()).sort((a, b) => timestampOf(a[1]) - timestampOf(b[1]));
+        const allMessages = announcementMode
+          ? sortedMessages.filter(([, data]) => data && data.kind === 'announcement')
+          : sortedMessages;
         const query = messageSearchQuery.trim().toLocaleLowerCase('vi');
         const visibleMessages = query
           ? allMessages.filter(([, data]) => `${data.name || ''} ${data.text || ''} ${data.imageName || ''}`.toLocaleLowerCase('vi').includes(query))
           : allMessages;
-        els.messageSearchCount.textContent = query ? `${visibleMessages.length} kết quả` : `${allMessages.length} tin nhắn`;
+        els.messageSearchCount.textContent = query
+          ? `${visibleMessages.length} kết quả`
+          : announcementMode ? `${allMessages.length} thông báo` : `${allMessages.length} tin nhắn`;
         const fragment = document.createDocumentFragment();
         let previousDate = '';
         for (const [id, data] of visibleMessages) {
@@ -3610,7 +3753,19 @@
           }
           fragment.appendChild(buildMessageNode(id, data || {}));
         }
-        if (!visibleMessages.length && !query) {
+        if (!visibleMessages.length && !query && announcementMode) {
+          const empty = textElement('div', 'chat-empty');
+          const illustration = textElement('div', 'empty-illustration');
+          illustration.appendChild(icon('bell'));
+          empty.append(
+            illustration,
+            textElement('h3', '', 'Chưa có thông báo nào'),
+            textElement('p', '', isAdmin
+              ? 'Viết nội dung bên dưới và gửi — thông báo sẽ hiện cho toàn bộ thành viên trong phòng chung.'
+              : 'Khi quản trị viên đăng thông báo, nội dung sẽ xuất hiện tại đây.')
+          );
+          fragment.appendChild(empty);
+        } else if (!visibleMessages.length && !query) {
           fragment.appendChild(els.chatEmptyState);
         } else if (!visibleMessages.length) {
           const empty = textElement('div', 'chat-empty');
@@ -3796,10 +3951,17 @@
 
       function updateMessageComposer() {
         const length = els.messageInput.value.length;
-        els.messageCharCount.textContent = `${length} / 800`;
-        els.sendButton.disabled = isSendingMessage || !currentUser || (!els.messageInput.value.trim() && !pendingImageFile) || length > 800;
-        els.messageInput.disabled = isSendingMessage;
-        els.attachImageButton.disabled = isSendingMessage;
+        const postingAnnouncement = announcementMode && activeChannelId === 'general';
+        const limit = postingAnnouncement ? 500 : 800;
+        els.messageInput.maxLength = limit;
+        els.messageCharCount.textContent = `${length} / ${limit}`;
+        const blockedByPermission = postingAnnouncement && !isAdmin;
+        els.messageInput.placeholder = postingAnnouncement
+          ? (isAdmin ? 'Viết thông báo gửi tới toàn bộ tổ mèo...' : 'Chỉ quản trị viên được đăng thông báo')
+          : `Nhắn tin trong #${channelNameFor(activeChannelId)}...`;
+        els.sendButton.disabled = isSendingMessage || !currentUser || blockedByPermission || (!els.messageInput.value.trim() && !pendingImageFile) || length > limit;
+        els.messageInput.disabled = isSendingMessage || blockedByPermission;
+        els.attachImageButton.disabled = isSendingMessage || (postingAnnouncement && !isAdmin);
         els.chatImageInput.disabled = isSendingMessage;
         els.messageInput.style.height = 'auto';
         els.messageInput.style.height = `${Math.min(els.messageInput.scrollHeight, 118)}px`;
@@ -3849,10 +4011,27 @@
         const text = els.messageInput.value.trim();
         const imageFile = pendingImageFile;
         const reply = replyTarget ? { ...replyTarget } : null;
-        if (!text && !imageFile) return;
-        if (text.length > 800) {
-          toast('Tin nhắn tối đa 800 ký tự.', 'error');
-          return;
+        const postingAnnouncement = announcementMode && activeChannelId === 'general';
+        if (postingAnnouncement) {
+          if (!isAdmin) {
+            toast('Chỉ quản trị viên được đăng thông báo.', 'error');
+            return;
+          }
+          if (!text) return;
+          if (text.length > 500) {
+            toast('Thông báo tối đa 500 ký tự.', 'error');
+            return;
+          }
+          if (imageFile) {
+            toast('Thông báo chỉ chứa nội dung chữ, không kèm ảnh.', 'info');
+            return;
+          }
+        } else {
+          if (!text && !imageFile) return;
+          if (text.length > 800) {
+            toast('Tin nhắn tối đa 800 ký tự.', 'error');
+            return;
+          }
         }
         isSendingMessage = true;
         updateMessageComposer();
@@ -3862,7 +4041,7 @@
             uid: user.uid,
             name: displayNameFor(user).slice(0, 32),
             text,
-            kind: 'message',
+            kind: postingAnnouncement ? 'announcement' : 'message',
             timestamp: currentTimestamp()
           };
           if (imageFile) {
@@ -3885,6 +4064,7 @@
             els.messageInput.value = '';
             clearReplyTarget();
             clearPendingImage();
+            if (postingAnnouncement) toast('Đã đăng thông báo tới toàn bộ tổ mèo.', 'success');
           }
         } catch (error) {
           if (uploadedImageRef) await uploadedImageRef.delete().catch(() => {});
@@ -4889,9 +5069,13 @@ ${extra}
             sendMessage(event);
           }
         });
-        $('#navChat').addEventListener('click', () => setWorkspaceView('chat'));
+        $('#navChat').addEventListener('click', () => {
+          setWorkspaceView('chat');
+          if (announcementMode) setAnnouncementMode(false);
+        });
         $('#navMembers').addEventListener('click', () => setWorkspaceView('members'));
         $('#mobileMembersButton').addEventListener('click', () => setWorkspaceView(workspaceView === 'members' ? 'chat' : 'members'));
+        $('#navAdmin').addEventListener('click', () => openAdmin());
         els.memberList.addEventListener('click', (event) => {
           const row = event.target instanceof Element ? event.target.closest('.member-row') : null;
           if (!row) return;
@@ -4940,6 +5124,7 @@ ${extra}
         els.channelList.addEventListener('click', (event) => {
           const target = event.target instanceof Element ? event.target.closest('[data-channel-id]') : null;
           if (!target) return;
+          setWorkspaceView('chat');
           void switchChannel(target.dataset.channelId);
         });
         els.mobileChannelSelect.addEventListener('change', () => {
@@ -4957,12 +5142,15 @@ ${extra}
         els.channelDialog.addEventListener('click', (event) => { if (event.target === els.channelDialog) closeChannelDialog(); });
         els.clearChannelButton.addEventListener('click', () => { void clearCurrentChannel(); });
         $('#channelAnnouncements').addEventListener('click', async () => {
-          const switched = await switchChannel('general');
-          if (!switched) return;
-          const latestId = Array.from(announcementMessages.entries()).sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0]?.[0];
-          if (latestId) document.querySelector(`[data-message-id="${CSS.escape(latestId)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          else toast('Chưa có thông báo mới.', 'info');
+          setWorkspaceView('chat');
+          if (activeChannelId !== 'general') {
+            const switched = await switchChannel('general');
+            if (!switched) return;
+          }
+          setAnnouncementMode(true);
+          toast(isAdmin ? 'Bạn đang ở phòng thông báo — gõ nội dung và gửi để đăng.' : 'Bạn đang xem thông báo toàn máy chủ.', 'info');
         });
+        $('#exitAnnouncementModeButton').addEventListener('click', exitAnnouncementMode);
         $('#searchMessagesButton').addEventListener('click', () => setMessageSearchOpen(els.messageSearchBar.hidden));
         els.messageSearchInput.addEventListener('input', () => {
           messageSearchQuery = els.messageSearchInput.value.trim();
@@ -5051,6 +5239,7 @@ ${extra}
             else if (els.confirmLayer.classList.contains('open')) closeConfirm(null);
             else if (els.adminOverlay.classList.contains('open')) closeAdmin();
             else if (!els.messageSearchBar.hidden) setMessageSearchOpen(false);
+            else if (announcementMode) exitAnnouncementMode();
             else els.membersPanel.classList.remove('open');
           }
         });
