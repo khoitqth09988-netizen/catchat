@@ -96,16 +96,43 @@ async function saveMessageEdit(messageId = editingMessageId) {
   }
   const targetRef = messageTargetRef(data);
   if (!targetRef) return;
+  const nextText = text.slice(0, 800);
   try {
-    await targetRef.child(messageId).update({ text: text.slice(0, 800), editedAt: currentTimestamp() });
+    await targetRef.child(messageId).update({ text: nextText, editedAt: currentTimestamp() });
+    // Cập nhật ngay trên máy (optimistic): trước đây chỉ chờ listener child_changed,
+    // nên nếu sự kiện đó không tới thì giao diện vẫn hiện nội dung cũ cho tới khi tải lại.
+    applyLocalMessageEdit(messageId, nextText);
     editingMessageId = null;
     editingDraft = '';
+    renderAllMessages(false);
+    updateAnnouncementBanner();
     toast('Đã cập nhật tin nhắn.', 'success');
     if (isAdmin && !isMessageOwner(data)) {
-      void logAdminAction('edit', `Sửa tin nhắn của ${data.name || 'thành viên'}: ${text.slice(0, 80)}`, data.uid || '');
+      void logAdminAction('edit', `Sửa tin nhắn của ${data.name || 'thành viên'}: ${nextText.slice(0, 80)}`, data.uid || '');
     }
   } catch (error) {
     showDatabaseError(error, 'Không sửa được tin nhắn. Kiểm tra quyền ghi /messages trong Firebase Rules.');
+  }
+}
+
+/**
+ * Ghi nội dung mới vào state cục bộ sau khi server đã xác nhận.
+ * Sửa cả `messages` và `announcementMessages` vì cùng một tin có thể nằm ở cả hai.
+ * `editedAt` dùng giờ máy để nhãn “đã chỉnh sửa” hiện ngay; khi listener trả về
+ * giá trị server thì nó sẽ ghi đè bằng số chính xác.
+ */
+function applyLocalMessageEdit(messageId, nextText) {
+  const patch = (store) => {
+    const current = store.get(messageId);
+    if (!current) return;
+    store.set(messageId, { ...current, text: nextText, editedAt: Date.now() });
+  };
+  patch(messages);
+  patch(announcementMessages);
+  // Giữ nguyên bản ghi đang mở trong hộp sửa (nếu có) để không mất nội dung vừa lưu.
+  if (pins[activeChannelId] && pins[activeChannelId].messageId === messageId) {
+    pins[activeChannelId] = { ...pins[activeChannelId], text: nextText.slice(0, 180) };
+    renderPinnedBanner();
   }
 }
 

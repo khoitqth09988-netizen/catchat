@@ -1,0 +1,81 @@
+/* CatChat · Tuỳ chọn chuyển động (nạp CUỐI CÙNG, sau halloween-night.css).
+   Lý do tồn tại: Windows có công tắc “Hiệu ứng hình ảnh” trong Cài đặt → Trợ năng.
+   Khi tắt, trình duyệt báo prefers-reduced-motion: reduce và mọi animation bị dừng —
+   dù máy rất mạnh. Người dùng vẫn có quyền chọn xem chuyển động.
+
+   Cách hoạt động:
+     html[data-motion="auto"]     → theo hệ điều hành (mặc định, đúng chuẩn a11y)
+     html[data-motion="full"]     → luôn bật; các khối @media (prefers-reduced-motion)
+                                    đều được "khoá" bằng html:not([data-motion="full"])
+     html[data-motion="reduced"]  → luôn giảm, kể cả khi máy đang cho phép
+   File assets/js/features/motion.js đặt thuộc tính này. */
+
+/* Luôn giảm: tắt hẳn chuyển động, kể cả trên máy đang bật hiệu ứng. */
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-delay: 0s !important;
+  animation-duration: .001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-delay: 0s !important;
+  transition-duration: .001ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-motion="reduced"] .cursor-fx,
+html[data-motion="reduced"] .boot-paws,
+html[data-motion="reduced"] .spooky-layer {
+  display: none !important;
+}
+
+/* Luôn bật: đảm bảo cả những phần tử từng bị tắt bằng prefers-reduced-motion
+   (khi trình duyệt chưa hỗ trợ :not() với thuộc tính) vẫn chạy lại bình thường. */
+html[data-motion="full"] .cursor-fx {
+  display: block;
+}
+
+/* Không cần khối “bật lại” riêng: mọi rule giảm chuyển động trong các file CSS
+   khác đều đã được khoá bằng html:not([data-motion="full"]), nên khi chọn
+   “Đầy đủ” chúng tự động không áp dụng. */
+
+/* ── Hàng tuỳ chọn trong hộp thoại giao diện ───────────────── */
+.motion-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.motion-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 8px 10px;
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-sm, 11px);
+  background: var(--theme-bg);
+  color: var(--theme-muted);
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.motion-status .icon {
+  width: 13px;
+  height: 13px;
+  margin-top: 1px;
+  flex: 0 0 auto;
+  color: var(--ds-warning, #e0a23c);
+}
+
+.motion-status.is-ok .icon { color: var(--ds-success, #2fa36b); }
+
+.motion-status strong {
+  color: var(--theme-secondary);
+  font-weight: 750;
+}
+
+.motion-hint {
+  margin: 0;
+  color: var(--theme-subtle);
+  font-size: 9.5px;
+  line-height: 1.55;
+}

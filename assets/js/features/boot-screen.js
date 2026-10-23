@@ -8,7 +8,11 @@
 
 (() => {
   const CatChatApp = window.CatChat || (window.CatChat = {});
+  // Ưu tiên tuỳ chọn của người dùng (assets/js/features/motion.js) để Windows
+  // đang tắt hiệu ứng vẫn xem được animation nếu họ chọn “Đầy đủ”.
   const prefersReducedMotion = () => {
+    const preference = window.CatChat?.motion;
+    if (preference && typeof preference.isReduced === 'function') return preference.isReduced();
     try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
     catch (_) { return false; }
   };

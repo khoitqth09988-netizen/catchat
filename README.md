@@ -192,10 +192,20 @@ Chi tiết đáng chú ý:
 - **Cuộn**: dấu chân + vệt sáng trôi ngược hướng cuộn (nghe cả `wheel` lẫn `scroll` của vùng tin nhắn).
 - Tối ưu: chỉ `transform`/`opacity`, tối đa 42 hạt cùng lúc, một vòng `requestAnimationFrame` duy nhất và
   tự dừng khi con trỏ ngừng di chuyển; phần tử tái sử dụng bị dọn ngay khi animation kết thúc.
-- Tự tắt trên thiết bị cảm ứng, khi `prefers-reduced-motion`, và tự chọn mức **Nhẹ** trên máy yếu
-  (`hardwareConcurrency`/`deviceMemory` ≤ 2).
+- Tự tắt trên thiết bị cảm ứng, khi người dùng chọn giảm chuyển động, và tự chọn mức **Nhẹ** trên máy
+  rất ít RAM (`navigator.deviceMemory` ≤ 1).
 - Đổi mức trong **Giao diện → Hiệu ứng con trỏ** (Tắt / Nhẹ / Đầy đủ) hoặc bảng lệnh `Alt + K`
   → “Đổi hiệu ứng con trỏ”. Lựa chọn lưu trên thiết bị.
+
+**Tuỳ chọn chuyển động** (`assets/css/motion.css` + `assets/js/features/motion.js`)
+- Nguyên nhân animation “chỉ chạy trên Mac”: Windows → **Cài đặt → Trợ năng → Hiệu ứng hình ảnh** tắt
+  khiến trình duyệt báo `prefers-reduced-motion: reduce`, và CSS dừng toàn bộ animation dù máy rất mạnh.
+- CatChat tôn trọng cài đặt đó nhưng **không khoá cứng**: `assets/js/features/motion.js` đặt
+  `data-motion` trên `<html>` theo 3 mức — `auto` (theo máy, mặc định), `full` (luôn bật), `reduced` (luôn giảm).
+- Mọi khối `@media (prefers-reduced-motion: reduce)` trong CSS đều được khoá bằng
+  `html:not([data-motion="full"])`, nên chọn “Đầy đủ” là mọi animation chạy lại ngay, không cần đổi cài đặt Windows.
+- Đổi trong **Giao diện → Chuyển động** hoặc bảng lệnh `Alt+K` → “Đổi mức chuyển động”; lựa chọn lưu ở
+  `localStorage` (`catchat-motion-v1`). Hiệu ứng con trỏ dùng chung lựa chọn này.
 
 ## Bảo mật
 

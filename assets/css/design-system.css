@@ -140,7 +140,7 @@ body[data-theme="halloween"] {
 
 /* Người dùng muốn giảm chuyển động: mọi thứ gần như tức thời */
 @media (prefers-reduced-motion: reduce) {
-  :root {
+  html:not([data-motion="full"]) {
     --ds-dur-fast: .01ms;
     --ds-dur-base: .01ms;
     --ds-dur-slow: .01ms;

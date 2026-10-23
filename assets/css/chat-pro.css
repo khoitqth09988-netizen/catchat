@@ -297,11 +297,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .app-view .message-image {
+  html:not([data-motion="full"]) .app-view .message-image {
     transition: none;
   }
 
-  .app-view .message-image-link.is-loading-image {
+  html:not([data-motion="full"]) .app-view .message-image-link.is-loading-image {
     animation: none;
   }
 }
@@ -355,9 +355,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .member-skeleton,
-  .member-skeleton-avatar,
-  .member-skeleton-copy i {
+  html:not([data-motion="full"]) .member-skeleton,
+  html:not([data-motion="full"]) .member-skeleton-avatar,
+  html:not([data-motion="full"]) .member-skeleton-copy i {
     animation: none !important;
   }
 }
@@ -451,18 +451,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .new-messages-divider,
-  .new-message-pill,
-  .typing-indicator,
-  .message-skeleton,
-  .typing-dots i,
-  .message-skeleton .sk-avatar,
-  .message-skeleton .sk-line {
+  html:not([data-motion="full"]) .new-messages-divider,
+  html:not([data-motion="full"]) .new-message-pill,
+  html:not([data-motion="full"]) .typing-indicator,
+  html:not([data-motion="full"]) .message-skeleton,
+  html:not([data-motion="full"]) .typing-dots i,
+  html:not([data-motion="full"]) .message-skeleton .sk-avatar,
+  html:not([data-motion="full"]) .message-skeleton .sk-line {
     animation: none !important;
   }
 
-  .app-view .send-button,
-  .new-message-pill {
+  html:not([data-motion="full"]) .app-view .send-button,
+  html:not([data-motion="full"]) .new-message-pill {
     transition: none !important;
   }
 }
@@ -522,11 +522,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .load-older-button {
+  html:not([data-motion="full"]) .load-older-button {
     transition: none !important;
   }
 
-  .load-older-spinner {
+  html:not([data-motion="full"]) .load-older-spinner {
     animation-duration: 1.6s;
   }
 }

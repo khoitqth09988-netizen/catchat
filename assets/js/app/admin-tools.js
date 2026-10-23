@@ -56,7 +56,11 @@ function renderAdminMessages() {
 /* ── Hiệu ứng khi tài khoản được cấp quyền admin ── */
 function playAdminWelcome() {
   if (document.querySelector('.admin-welcome')) return;
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const preference = window.CatChat?.motion;
+  const reduceMotion = preference && typeof preference.isReduced === 'function'
+    ? preference.isReduced()
+    : Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if (reduceMotion) return;
   const layer = textElement('div', 'admin-welcome');
   const card = textElement('div', 'admin-welcome-card');
   const crown = textElement('div', 'admin-welcome-crown');
