@@ -121,6 +121,7 @@ function renderMembers() {
     entries.slice(0, 100).forEach(([uid, member]) => memberFragment.appendChild(makeMemberRow(uid, member)));
   }
   els.memberList.replaceChildren(memberFragment);
+  els.memberList.setAttribute('aria-busy', 'false');
   const avatarFragment = document.createDocumentFragment();
   entries.filter(([uid]) => presence[uid]).slice(0, 3).forEach(([uid, member]) => {
     const name = member.name || member.email?.split('@')[0] || 'Thành viên';

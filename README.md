@@ -21,6 +21,7 @@ assets/css/                    Giao diện, tách theo khu vực
   moderation.css               Sửa/ghim tin nhắn, khoá kênh
   features.css                 Giao diện của các tính năng mở rộng
   chat-pro.css                 Nhịp tin nhắn, gộp tin, “Tin nhắn mới”, skeleton, đang nhập…
+  cursor-fx.css                Hiệu ứng con trỏ: vệt sáng, sóng khi bấm, dấu chân khi cuộn
   halloween-night.css          Halloween ma mị (nạp cuối để ghi đè theme Halloween)
 assets/js/app/                 Lõi ứng dụng, nạp theo thứ tự bằng <script defer>
   config.js                    Hằng số, cấu hình Firebase, helper $ / $$
@@ -39,7 +40,7 @@ assets/js/app/                 Lõi ứng dụng, nạp theo thứ tự bằng <
   composer.js                  Khung soạn tin, gửi tin, gửi thông báo
   message-actions.js           Xoá tin nhắn, dọn kênh
   members.js                   Tab thành viên, danh bạ, hồ sơ, emoji picker
-  extras.js                    Tin nhắn đã lưu, sticker, Miu, vết chân mèo, con trỏ
+  extras.js                    Tin nhắn đã lưu, sticker, Miu, bộ con trỏ mèo
   admin.js                     Xác nhận, cấm thành viên, mở/đóng bảng admin, toast
   admin-tools.js               Kiểm duyệt tin nhắn trong admin
   moderation.js                Sửa/xoá/ghim tin, khoá kênh, mute, nhật ký, export
@@ -62,6 +63,7 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   account-deletion.js          Admin xoá tài khoản thành viên khỏi hệ thống
   boot-screen.js               Tiến trình khởi động thật cho splash (step/finish/fail)
   typing-indicator.js          Chỉ báo “ai đang nhập…” qua node /typing
+  cursor-fx.js                 Hiệu ứng con trỏ: di chuyển, bấm, cuộn (có công tắc Tắt/Nhẹ/Đầy đủ)
 functions/                     Cloud Function tuỳ chọn: xoá tài khoản Firebase Auth
 SECURITY.md                    Checklist bảo mật: App Check, Rules, quota, CSP
 ```
@@ -141,6 +143,27 @@ Tính năng lỗi được cô lập: `CatChat.features.failures()` ghi lại l�
   }
 }
 ```
+
+## Mượt mà & hiệu ứng
+
+**Tải nhanh hơn**
+- `preconnect` tới `www.gstatic.com` và `dns-prefetch` cho Auth / Realtime Database / Storage ngay trong
+  `<head>` → SDK và dữ liệu tới sớm hơn.
+- Splash chỉ dùng `transform` + `opacity` (không còn `filter: blur()` phủ toàn màn hình hay
+  `backdrop-filter`), nên không tụt frame trên máy yếu; quầng sáng đổi sang `radial-gradient`.
+- Thời gian giữ splash tối thiểu 720ms (trước là 900ms) — vẫn đủ để animation kịp “thở” nhưng không chờ vô ích.
+- Ảnh trong tin nhắn có khung chờ nhấp nháy rồi **hiện dần** khi tải xong (không nhảy layout, không khung trống).
+
+**Hiệu ứng con trỏ** (`assets/js/features/cursor-fx.js`)
+- **Di chuyển**: vòng sáng bám theo con trỏ (nội suy 24%/frame) + vệt hạt nhỏ.
+- **Bấm**: sóng lan + chùm 6 hạt sáng + 2 dấu chân mèo.
+- **Cuộn**: dấu chân + vệt sáng trôi ngược hướng cuộn (nghe cả `wheel` lẫn `scroll` của vùng tin nhắn).
+- Tối ưu: chỉ `transform`/`opacity`, tối đa 42 hạt cùng lúc, một vòng `requestAnimationFrame` duy nhất và
+  tự dừng khi con trỏ ngừng di chuyển; phần tử tái sử dụng bị dọn ngay khi animation kết thúc.
+- Tự tắt trên thiết bị cảm ứng, khi `prefers-reduced-motion`, và tự chọn mức **Nhẹ** trên máy yếu
+  (`hardwareConcurrency`/`deviceMemory` ≤ 2).
+- Đổi mức trong **Giao diện → Hiệu ứng con trỏ** (Tắt / Nhẹ / Đầy đủ) hoặc bảng lệnh `Alt + K`
+  → “Đổi hiệu ứng con trỏ”. Lựa chọn lưu trên thiết bị.
 
 ## Bảo mật
 

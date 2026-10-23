@@ -16,7 +16,7 @@ Tài liệu này ghi rõ **cái gì đang bảo vệ app**, **cái gì chỉ là
 | Phạt tăng dần | `assets/js/app/security.js` (`CatChatGuard`) | 10s → 30s → 60s → 3 phút → 10 phút |
 | Thử thách proof-of-work | `security.js` + `anti-flood.js` | Sau 3 lần vi phạm: giải SHA-256 (3 ký tự 0) hoặc câu hỏi số học dự phòng |
 | Chặn dò mật khẩu | `assets/js/features/login-guard.js` | 5 lần đăng nhập / phút, khoá 1→30 phút, lưu qua localStorage |
-| CSP + referrer policy | `index.html` `<meta>` | Chặn script lạ, chặn nhúng iframe, không gửi referrer đầy đủ |
+| CSP + referrer policy | `index.html` `<meta>` + header trong `firebase.json` | Chặn script lạ, chặn nhúng iframe, không gửi referrer đầy đủ |
 | App Check (tuỳ chọn) | `assets/js/app/appcheck.js` | Xác thực request đến từ chính app (chặn bot gọi API) |
 
 Kiểm tra nhanh trong app: bảng lệnh nhanh `Alt + K` → **Xem tình trạng bảo vệ** / **Xác thực để gửi tin lại**.
@@ -69,7 +69,17 @@ hình thức — App Check + Rules + budget alert là bộ ba cần thiết.
 - Giới hạn được chọn để không ảnh hưởng người dùng bình thường; nếu cộng đồng đông hơn, tăng
   `MESSAGE_BUCKET` trong `anti-flood.js`.
 
-## 6. Node `/typing` (chỉ báo đang gõ)
+## 6. CSP nên đặt trong HTTP header
+
+- Trình duyệt **bỏ qua `frame-ancestors` khi khai báo trong `<meta>`** (chỉ ghi một cảnh báo trong console).
+  Vì vậy `firebase.json` gửi CSP thật trong header cho Firebase Hosting, kèm `X-Frame-Options`,
+  `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`.
+- `<meta http-equiv="Content-Security-Policy">` trong `index.html` vẫn giữ làm lớp dự phòng khi mở file
+  trực tiếp; `script-src` gồm `www.gstatic.com` (Firebase SDK), `www.google.com` / `www.recaptcha.net`
+  (App Check), `apis.google.com` và `*.firebaseapp.com` (helper của Firebase Auth).
+- `worker-src 'self' blob:` cho phép Web Worker tạo từ Blob (nếu thêm sau này) mà không mở toàn bộ `script-src`.
+
+## 7. Node `/typing` (chỉ báo đang gõ)
 
 - Mỗi người chỉ ghi được vào `/typing/<channelId>/<uid>` với `$uid === auth.uid`, tài khoản đang bị cấm
   (`/bans/<uid>`) bị chặn hoàn toàn.
@@ -77,6 +87,6 @@ hình thức — App Check + Rules + budget alert là bộ ba cần thiết.
 - Client tự xoá sau 4,2 giây ngừng gõ, tự hết hạn sau 7 giây, và `onDisconnect().remove()` dọn khi đóng tab.
 - Nếu chưa dán node `/typing`, app không lỗi: tính năng tự tắt và chỉ ghi một cảnh báo trong console.
 
-## 7. Báo cáo lỗi bảo mật
+## 8. Báo cáo lỗi bảo mật
 
 Nếu phát hiện lỗ hổng, đừng tạo issue công khai. Gửi email cho quản trị viên kèm mô tả và bước tái hiện.

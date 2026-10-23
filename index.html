@@ -4,14 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#fff7f1">
+  <meta name="color-scheme" content="light dark">
   <meta name="description" content="CatChat — ngôi nhà nhỏ để trò chuyện, kết nối và chia sẻ cùng nhau.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <!-- CSP: chỉ cho phép script từ chính app và gstatic. App không dùng script/event handler nội tuyến.
-       connect-src mở cho https/wss để Firebase Realtime Database, Auth và Storage hoạt động. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://www.google.com https://www.recaptcha.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: wss:; frame-src https://www.google.com https://recaptcha.google.com https://www.recaptcha.net https://*.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'">
+  <!-- CSP (lớp dự phòng cho bản chạy tĩnh). Bản deploy qua Firebase Hosting còn gửi CSP thật trong
+       HTTP header (xem firebase.json) — nhờ đó frame-ancestors mới có hiệu lực, vì trình duyệt bỏ qua
+       frame-ancestors khi khai báo trong <meta>.
+       script-src gồm gstatic (Firebase SDK), google/recaptcha (App Check) và apis.google.com
+       (Firebase Auth nạp khi cần). App không dùng script/event handler nội tuyến. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://apis.google.com https://*.firebaseapp.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: wss:; frame-src https://www.google.com https://recaptcha.google.com https://www.recaptcha.net https://*.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>CatChat — Ngôi nhà của những cuộc trò chuyện</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Mở kết nối sớm tới Firebase để SDK và dữ liệu realtime tới nhanh hơn (giảm thời gian splash). -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com">
+  <link rel="dns-prefetch" href="https://chat-e58b5-default-rtdb.firebaseio.com">
+  <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- CSS: nạp theo thứ tự, halloween-night.css luôn cuối để ghi đè theme Halloween -->
   <link rel="stylesheet" href="assets/css/boot.css">
@@ -26,6 +35,7 @@
   <link rel="stylesheet" href="assets/css/moderation.css">
   <link rel="stylesheet" href="assets/css/features.css">
   <link rel="stylesheet" href="assets/css/chat-pro.css">
+  <link rel="stylesheet" href="assets/css/cursor-fx.css">
   <link rel="stylesheet" href="assets/css/halloween-night.css">
 </head>
 <body>
@@ -409,7 +419,7 @@
             </section>
             <section class="members-section">
               <div class="panel-heading"><h3>Thành viên</h3><span id="memberPanelCount">0 người</span></div>
-              <div class="member-list" id="memberList"><div class="member-empty">Đang tải danh sách thành viên...</div></div>
+              <div class="member-list" id="memberList" aria-busy="true"><div class="member-skeleton" aria-hidden="true"><span class="member-skeleton-avatar"></span><span class="member-skeleton-copy"><i></i><i></i></span></div><div class="member-skeleton" aria-hidden="true"><span class="member-skeleton-avatar"></span><span class="member-skeleton-copy"><i></i><i></i></span></div><div class="member-skeleton" aria-hidden="true"><span class="member-skeleton-avatar"></span><span class="member-skeleton-copy"><i></i><i></i></span></div><div class="member-skeleton" aria-hidden="true"><span class="member-skeleton-avatar"></span><span class="member-skeleton-copy"><i></i><i></i></span></div></div>
               <div class="members-footer"><svg class="icon"><use href="#i-wifi"></use></svg><span id="membersFooterText">Danh sách được cập nhật realtime</span></div>
             </section>
           </aside>
@@ -637,6 +647,7 @@
   <script defer src="assets/js/features/login-guard.js"></script>
   <script defer src="assets/js/features/account-deletion.js"></script>
   <script defer src="assets/js/features/typing-indicator.js"></script>
+  <script defer src="assets/js/features/cursor-fx.js"></script>
 
   <!-- Khởi động app (luôn cuối cùng) -->
   <script defer src="assets/js/app/boot.js"></script>

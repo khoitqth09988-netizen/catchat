@@ -10,7 +10,6 @@ function attachEvents() {
   updateSavedBadge();
   renderSavedPanel();
   updateWorkspaceGreeting();
-  enablePawTrail();
   $('#savedMessagesButton')?.addEventListener('click', openSavedPanel);
   $('#closeSavedButton')?.addEventListener('click', closeSavedPanel);
   $('#savedLayer')?.addEventListener('click', (event) => { if (event.target === $('#savedLayer')) closeSavedPanel(); });

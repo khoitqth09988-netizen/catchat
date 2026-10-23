@@ -236,21 +236,6 @@ function insertSticker(glyph) {
   updateMessageComposer();
 }
 
-function enablePawTrail() {
-  if (typeof window.matchMedia !== 'function') return;
-  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  document.addEventListener('pointerdown', (event) => {
-    if (event.button !== 0) return;
-    const paw = textElement('span', 'paw-trail', '🐾');
-    paw.style.left = `${event.clientX + 12}px`;
-    paw.style.top = `${event.clientY + 16}px`;
-    paw.style.setProperty('--paw-rot', `${Math.round(Math.random() * 50 - 25)}deg`);
-    document.body.appendChild(paw);
-    window.setTimeout(() => paw.remove(), 950);
-  }, { passive: true });
-}
-
 /* ───────────────────────────────────────────────────────────────
    CatChat UI: chuyển tab Trò chuyện / Thành viên, hồ sơ thành viên,
    bộ con trỏ mèo, emote picker, kiểm duyệt tin nhắn và hiệu ứng admin.

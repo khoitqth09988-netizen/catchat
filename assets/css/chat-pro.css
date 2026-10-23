@@ -265,6 +265,103 @@
   pointer-events: none;
 }
 
+/* ── Ảnh trong tin nhắn: khung chờ mờ + hiện dần ──────────── */
+.app-view .message-image-link {
+  position: relative;
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--theme-text) 7%, transparent) 22%,
+    color-mix(in srgb, var(--theme-text) 13%, transparent) 42%,
+    color-mix(in srgb, var(--theme-text) 7%, transparent) 62%
+  );
+  background-size: 260% 100%;
+}
+
+.app-view .message-image-link.is-loading-image {
+  min-width: 180px;
+  min-height: 120px;
+  animation: skeleton-wave 1.5s ease-in-out infinite;
+}
+
+.app-view .message-image {
+  opacity: 0;
+  transition: opacity .34s ease;
+}
+
+.app-view .message-image.is-loaded {
+  opacity: 1;
+}
+
+.app-view .message-image.is-broken {
+  opacity: .55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-view .message-image {
+    transition: none;
+  }
+
+  .app-view .message-image-link.is-loading-image {
+    animation: none;
+  }
+}
+
+/* ── Skeleton danh sách thành viên ────────────────────────── */
+.member-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  animation: skeleton-in .3s ease both;
+}
+
+.member-skeleton-avatar {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.member-skeleton-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.member-skeleton-copy i {
+  height: 7px;
+  border-radius: 99px;
+}
+
+.member-skeleton-copy i:first-child { width: 62%; }
+.member-skeleton-copy i:last-child { width: 40%; height: 6px; }
+
+.member-skeleton-avatar,
+.member-skeleton-copy i {
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--theme-text) 7%, transparent) 22%,
+    color-mix(in srgb, var(--theme-text) 14%, transparent) 42%,
+    color-mix(in srgb, var(--theme-text) 7%, transparent) 62%
+  );
+  background-size: 260% 100%;
+  animation: skeleton-wave 1.5s ease-in-out infinite;
+}
+
+.member-list[aria-busy="true"] {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-skeleton,
+  .member-skeleton-avatar,
+  .member-skeleton-copy i {
+    animation: none !important;
+  }
+}
+
 /* ── Khung soạn tin ───────────────────────────────────────── */
 .app-view .composer-box {
   transition: border-color .18s ease, box-shadow .18s ease;
