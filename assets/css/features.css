@@ -371,3 +371,85 @@ body[data-density="compact"] .app-view .message-bubble { line-height: 1.45; }
   .palette-layer, .palette-panel, .accent-swatch, .spoiler { transition: none; }
   .accent-swatch:hover { transform: none; }
 }
+
+/* ───────────── Bảo vệ chống spam: chip trạng thái + hộp xác thực ───────────── */
+.security-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-text, #fff) 8%, transparent);
+  color: var(--theme-muted, #9a9a9a);
+  font-size: 8px;
+  font-weight: 800;
+}
+.security-chip::before { content: '⛨'; font-size: 9px; }
+.security-chip[data-tone="warn"] {
+  background: color-mix(in srgb, var(--theme-accent, #d5763c) 18%, transparent);
+  color: color-mix(in srgb, var(--theme-accent, #d5763c) 85%, var(--theme-text, #fff));
+}
+.security-chip[data-tone="danger"] {
+  background: color-mix(in srgb, #e05555 20%, transparent);
+  color: #ff9a9a;
+}
+.security-layer {
+  position: fixed;
+  z-index: 280;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(6, 4, 12, .6);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+.security-layer.open { opacity: 1; }
+.security-panel {
+  width: min(430px, 100%);
+  padding: 18px;
+  border: 1px solid var(--theme-line-strong, rgba(255,255,255,.14));
+  border-radius: 18px;
+  background: var(--theme-panel, #171717);
+  color: var(--theme-text, #f3f3f3);
+  box-shadow: 0 28px 80px rgba(0,0,0,.45);
+  transform: translateY(8px) scale(.99);
+  transition: transform .2s var(--ease, ease);
+}
+.security-layer.open .security-panel { transform: translateY(0) scale(1); }
+.security-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.security-head strong { font-size: 13px; }
+.security-copy { margin: 0 0 10px; font-size: 10.5px; line-height: 1.6; color: var(--theme-muted, #9a9a9a); }
+.security-challenge-status { min-height: 16px; margin: 0 0 12px; font-size: 10px; color: var(--theme-accent, #d5763c); }
+.security-challenge-run {
+  width: 100%;
+  min-height: 36px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--cat-gradient, var(--theme-accent, #d5763c));
+  color: var(--cat-face-ink, #fff);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+}
+.security-challenge-run:disabled { opacity: .6; cursor: progress; }
+
+@media (prefers-reduced-motion: reduce) {
+  .security-layer, .security-panel { transition: none; }
+}
+
+/* Dự phòng xác thực khi thiết bị không có WebCrypto */
+.security-fallback { display: grid; gap: 8px; font-size: 10px; color: var(--theme-muted, #9a9a9a); }
+.security-fallback strong { color: var(--theme-accent, #d5763c); font-size: 13px; }
+.security-fallback-input {
+  width: 100%;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--theme-line-strong, rgba(255,255,255,.16));
+  border-radius: 10px;
+  background: var(--theme-input, rgba(255,255,255,.05));
+  color: var(--theme-text, #f3f3f3);
+  font-size: 12px;
+}

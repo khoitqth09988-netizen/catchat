@@ -83,6 +83,7 @@ function clearReplyTarget() {
 
 async function toggleMessageReaction(messageId, reactionKey) {
   if (!currentUser || !messageReactionsRef || !messages.has(messageId) || !REACTIONS.some((item) => item.key === reactionKey)) return;
+  if (CatChat.features.run('guardWrite', { type: 'reaction', id: messageId }) === true) return;
   const reactionRef = messageReactionsRef.child(messageId).child(reactionKey).child(currentUser.uid);
   try {
     if (messageReactions[messageId]?.[reactionKey]?.[currentUser.uid]) await reactionRef.remove();

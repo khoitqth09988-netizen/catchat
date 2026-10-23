@@ -9,6 +9,7 @@
      messageTools    — thêm nút vào thanh công cụ của từng tin nhắn
      memberActions   — thêm hành động vào hồ sơ thành viên
      themeExtras     — thêm điều khiển vào hộp thoại giao diện
+     guardWrite      — chặn một thao tác ghi (reaction, ...) bằng cách trả về true
      keydown         — bắt phím tắt toàn cục (trả về true để chặn xử lý mặc định)
    Tính năng lỗi sẽ chỉ bị tắt riêng nó, phần còn lại của CatChat vẫn chạy. */
 'use strict';
@@ -24,6 +25,7 @@ const FEATURE_HOOKS = [
   'messageTools',
   'memberActions',
   'themeExtras',
+  'guardWrite',
   'keydown'
 ];
 const featureRegistry = [];

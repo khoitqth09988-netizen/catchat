@@ -23,7 +23,11 @@ const firebaseConfig = {
   projectId: "chat-e58b5",
   storageBucket: "chat-e58b5.firebasestorage.app",
   messagingSenderId: "723561612208",
-  appId: "1:723561612208:web:03f38d2ac4b85e59e18c75"
+  appId: "1:723561612208:web:03f38d2ac4b85e59e18c75",
+  // Tuỳ chọn nhưng rất nên bật khi chạy thật: Firebase App Check (reCAPTCHA v3).
+  // Lấy site key ở Firebase Console → App Check → Apps → reCAPTCHA v3, rồi dán vào đây.
+  // Để trống thì app chạy bình thường, chỉ là không có lớp xác thực thiết bị ở phía máy chủ.
+  appCheckSiteKey: ""
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);
