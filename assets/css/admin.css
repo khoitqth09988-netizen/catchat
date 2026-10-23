@@ -1,0 +1,61 @@
+/* CatChat · Admin nâng cao: tổng quan, cấm chat, nhật ký, export.
+   Tách từ index.html — nạp bằng <link> theo đúng thứ tự trong index.html. */
+
+/* ═══════════ Admin: tổng quan, cấm chat, nhật ký ═══════════ */
+.admin-overview-hero { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 14px; border: 1px solid var(--theme-line); border-radius: 16px; background: radial-gradient(circle at 100% 0%, var(--cat-glow), transparent 66%), var(--theme-panel-alt); }
+.admin-overview-cat { display: grid; width: 44px; height: 44px; flex: 0 0 auto; place-items: center; border-radius: 15px; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); box-shadow: 0 10px 22px var(--cat-glow); }
+.admin-overview-cat .icon { width: 24px; height: 24px; }
+.admin-overview-hero h3 { margin: 0; color: var(--theme-text); font-size: 13px; font-weight: 800; letter-spacing: -.02em; }
+.admin-overview-hero p { margin: 4px 0 0; color: var(--theme-muted); font-size: 9px; }
+.admin-overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.admin-overview-card { display: flex; align-items: center; gap: 9px; padding: 11px; border: 1px solid var(--theme-line); border-radius: 13px; background: var(--theme-panel-alt); }
+.admin-overview-icon { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border-radius: 10px; background: var(--theme-accent-soft); color: var(--theme-accent); }
+.admin-overview-icon .icon { width: 15px; height: 15px; }
+.admin-overview-icon.online { background: color-mix(in srgb, #2fa06a 16%, transparent); color: #2fa06a; }
+.admin-overview-icon.warn { background: color-mix(in srgb, #d99a24 18%, transparent); color: #cf8c12; }
+.admin-overview-icon.danger { background: color-mix(in srgb, var(--theme-danger) 16%, transparent); color: var(--theme-danger); }
+.admin-overview-card strong { display: block; color: var(--theme-text); font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.admin-overview-card span:not(.admin-overview-icon) { display: block; margin-top: 3px; color: var(--theme-muted); font-size: 8px; }
+.admin-quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+.admin-quick { display: flex; min-height: 36px; align-items: center; gap: 7px; padding: 0 11px; border: 1px solid var(--theme-line); border-radius: 11px; background: var(--theme-panel-alt); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; text-align: left; transition: border-color .16s, background .16s, color .16s; }
+.admin-quick:hover { border-color: var(--theme-accent); background: var(--theme-panel); color: var(--theme-accent); }
+.admin-quick .icon { width: 14px; height: 14px; flex: 0 0 auto; }
+.admin-muted-block, .admin-log-block { margin-top: 16px; }
+.admin-block-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.admin-block-heading h4 { margin: 0; color: var(--theme-text); font-size: 10px; font-weight: 800; letter-spacing: .02em; }
+.admin-block-heading span { color: var(--theme-muted); font-size: 8px; }
+.admin-log-clear { border: 0; border-radius: 7px; background: transparent; color: var(--theme-muted); cursor: pointer; font-size: 8px; font-weight: 700; padding: 3px 6px; }
+.admin-log-clear:hover { background: var(--theme-hover); color: var(--theme-danger); }
+.admin-muted-row { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border: 1px solid color-mix(in srgb, #d99a24 34%, transparent); border-radius: 11px; background: color-mix(in srgb, #d99a24 9%, var(--theme-panel-alt)); margin-bottom: 7px; }
+.admin-muted-row .avatar { width: 28px; height: 28px; border-radius: 9px; font-size: 8px; }
+.admin-muted-copy { min-width: 0; flex: 1; }
+.admin-muted-copy strong { display: block; overflow: hidden; color: var(--theme-text); font-size: 9px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.admin-muted-copy span { display: block; margin-top: 3px; color: var(--theme-muted); font-size: 8px; }
+.admin-muted-row button { flex: 0 0 auto; min-height: 26px; padding: 0 9px; border: 1px solid var(--theme-line); border-radius: 8px; background: var(--theme-panel); color: var(--theme-secondary); cursor: pointer; font-size: 8px; font-weight: 700; }
+.admin-muted-row button:hover { border-color: #2fa06a; color: #2fa06a; }
+.admin-log-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 9px; border-bottom: 1px solid var(--theme-line); }
+.admin-log-item:last-child { border-bottom: 0; }
+.admin-log-icon { display: grid; width: 24px; height: 24px; flex: 0 0 auto; place-items: center; border-radius: 8px; background: var(--theme-accent-soft); color: var(--theme-accent); }
+.admin-log-icon .icon { width: 12px; height: 12px; }
+.admin-log-copy { min-width: 0; flex: 1; }
+.admin-log-copy strong { display: block; color: var(--theme-text); font-size: 9px; font-weight: 700; overflow-wrap: anywhere; }
+.admin-log-copy span { display: block; margin-top: 3px; color: var(--theme-muted); font-size: 8px; }
+.admin-log-empty { padding: 14px; color: var(--theme-muted); font-size: 9px; text-align: center; }
+
+/* Cấm chat */
+.mute-dialog { width: min(400px, 100%); }
+.mute-durations { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 16px 0 12px; }
+.mute-duration { min-height: 34px; border: 1px solid var(--theme-line); border-radius: 10px; background: var(--theme-panel-alt); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; transition: border-color .16s, background .16s, color .16s; }
+.mute-duration:hover { border-color: var(--theme-accent); }
+.mute-duration.selected { border-color: transparent; background: var(--theme-accent); color: var(--theme-accent-contrast); }
+.mute-banner { display: flex; align-items: center; gap: 9px; margin: 0 19px 10px; padding: 9px 12px; border: 1px solid color-mix(in srgb, #d99a24 42%, transparent); border-radius: 12px; background: color-mix(in srgb, #d99a24 12%, var(--theme-panel)); color: var(--theme-secondary); font-size: 9px; }
+.mute-banner .icon { width: 14px; height: 14px; color: #cf8c12; flex: 0 0 auto; }
+.mute-banner strong { color: var(--theme-text); font-weight: 800; }
+.tag-muted { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; background: color-mix(in srgb, #d99a24 18%, transparent); color: #cf8c12; font-size: 7.5px; font-weight: 800; }
+.tag-muted .icon { width: 9px; height: 9px; }
+@media (max-width: 760px) {
+  .admin-overview-grid { grid-template-columns: 1fr 1fr; }
+  .admin-quick-actions { grid-template-columns: 1fr; }
+  .mute-durations { grid-template-columns: 1fr 1fr; }
+  .mute-banner { margin: 0 9px 8px; }
+}

@@ -1,0 +1,111 @@
+/* CatChat · Giao diện cho các tính năng mở rộng trong assets/js/features/.
+   Mỗi khối ghi rõ tính năng tương ứng để dễ thêm/bớt độc lập. */
+
+/* ───────────── Slash commands: gợi ý lệnh trên khung soạn tin ───────────── */
+.slash-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 8px;
+  border: 1px solid var(--theme-line, rgba(255,255,255,.08));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--theme-panel, #1b1b1b) 92%, transparent);
+  box-shadow: 0 12px 30px rgba(0,0,0,.22);
+}
+.slash-hint-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 10px;
+  border: 1px solid var(--theme-line, rgba(255,255,255,.08));
+  border-radius: 10px;
+  background: var(--theme-panel-alt, rgba(255,255,255,.04));
+  color: var(--theme-secondary, #d6d6d6);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s, background .15s, transform .15s;
+}
+.slash-hint-item:hover { border-color: var(--theme-accent, #d5763c); transform: translateY(-1px); }
+.slash-hint-item strong { font-size: 10px; color: var(--theme-accent, #d5763c); }
+.slash-hint-item span { font-size: 8.5px; color: var(--theme-muted, #9a9a9a); }
+
+/* ───────────── Shortcuts: bảng phím tắt (phím ?) ───────────── */
+.shortcut-layer {
+  position: fixed;
+  z-index: 260;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(6, 4, 12, .58);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+.shortcut-layer.open { opacity: 1; }
+.shortcut-panel {
+  width: min(520px, 100%);
+  max-height: min(78vh, 620px);
+  overflow: auto;
+  padding: 18px 18px 20px;
+  border: 1px solid var(--theme-line-strong, rgba(255,255,255,.12));
+  border-radius: 20px;
+  background: var(--theme-panel, #171717);
+  color: var(--theme-text, #f3f3f3);
+  box-shadow: 0 30px 80px rgba(0,0,0,.45);
+  transform: translateY(8px) scale(.99);
+  transition: transform .2s var(--ease, ease);
+}
+.shortcut-layer.open .shortcut-panel { transform: translateY(0) scale(1); }
+.shortcut-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.shortcut-head strong { font-size: 14px; letter-spacing: -.01em; }
+.shortcut-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--theme-line, rgba(255,255,255,.1));
+  border-radius: 10px;
+  background: transparent;
+  color: var(--theme-muted, #9a9a9a);
+  cursor: pointer;
+}
+.shortcut-close:hover { color: var(--theme-accent, #d5763c); border-color: var(--theme-accent, #d5763c); }
+.shortcut-list { display: grid; gap: 8px; margin: 0; }
+.shortcut-row {
+  display: grid;
+  grid-template-columns: minmax(96px, 148px) 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--theme-panel-alt, rgba(255,255,255,.04)) 80%, transparent);
+}
+.shortcut-row dt { margin: 0; }
+.shortcut-row dd { margin: 0; font-size: 10px; color: var(--theme-muted, #9a9a9a); }
+.shortcut-row kbd {
+  display: inline-block;
+  padding: 3px 7px;
+  border: 1px solid var(--theme-line-strong, rgba(255,255,255,.14));
+  border-bottom-width: 2px;
+  border-radius: 7px;
+  background: var(--theme-input, rgba(255,255,255,.05));
+  color: var(--theme-text, #f3f3f3);
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .shortcut-row { grid-template-columns: 1fr; gap: 3px; }
+  .shortcut-panel { padding: 14px; border-radius: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shortcut-layer, .shortcut-panel, .slash-hint-item { transition: none; }
+  .slash-hint-item:hover { transform: none; }
+}
