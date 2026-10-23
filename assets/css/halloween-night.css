@@ -1,0 +1,130 @@
+/* CatChat · Halloween ma mị: trăng, sương mù, dơi, ma, bí ngô, đom đóm.
+   Tách từ index.html — nạp bằng <link> theo đúng thứ tự trong index.html. */
+
+/* ═══════════ Halloween: ma mị hơn ═══════════ */
+body[data-theme="halloween"] {
+  --theme-bg: #0b0713;
+  --theme-sidebar: #100a1b;
+  --theme-panel: #170f26;
+  --theme-panel-alt: #1f1533;
+  --theme-input: #0d0817;
+  --theme-line: rgba(255,150,70,.16);
+  --theme-line-strong: rgba(255,150,70,.3);
+  --theme-text: #f6e8d8;
+  --theme-secondary: #e9d3ba;
+  --theme-muted: #b49a86;
+  --theme-subtle: #8b7462;
+  --theme-accent: #ff8a2b;
+  --theme-accent-contrast: #200d02;
+  --theme-accent-soft: rgba(255,138,43,.16);
+  --theme-hover: rgba(255,170,90,.1);
+  --theme-row-hover: rgba(255,170,90,.06);
+  --theme-banner: #2c1a08;
+  --theme-banner-border: rgba(255,150,60,.4);
+  --theme-danger: #ff6b6b;
+  --theme-scroll: #3d2a52;
+  --theme-avatar: linear-gradient(145deg,#5a2f7a,#2a1338);
+  --theme-shadow: 0 26px 80px rgba(0,0,0,.75);
+  --theme-overlay: rgba(4,2,8,.82);
+  --cat-gradient: linear-gradient(140deg,#ff9f43,#8b3fd6);
+  --cat-glow: rgba(255,138,43,.34);
+  --theme-bg-deep: #07040c;
+}
+body[data-theme="halloween"] .app-view {
+  background-image:
+    radial-gradient(ellipse at 50% -20%, rgba(163,95,211,.3), transparent 58%),
+    radial-gradient(circle at 6% 4%, rgba(255,138,43,.16), transparent 42%),
+    radial-gradient(circle at 94% 98%, rgba(120,40,180,.26), transparent 46%),
+    linear-gradient(180deg, #0d0817 0%, #07040c 100%);
+}
+body[data-theme="halloween"] .app-view .channel-toolbar h2,
+body[data-theme="halloween"] .chat-panel .channel-title-copy h2 { text-shadow: 0 0 14px rgba(255,138,43,.55); }
+body[data-theme="halloween"] .brand-mark { box-shadow: 0 12px 34px rgba(255,138,43,.5), inset 0 1px rgba(255,255,255,.22); animation: haunt-flicker 6.5s infinite; }
+body[data-theme="halloween"] .messages-area {
+  background-image:
+    radial-gradient(circle at 22% 12%, rgba(255,138,43,.045), transparent 46%),
+    radial-gradient(circle at 82% 88%, rgba(139,63,214,.09), transparent 52%);
+}
+body[data-theme="halloween"] .app-view .message-bubble {
+  border-color: rgba(255,150,70,.14);
+  background: linear-gradient(160deg, #1d1330, #150e24);
+  color: #f0e0cd;
+  box-shadow: 0 4px 18px rgba(0,0,0,.4);
+}
+body[data-theme="halloween"] .app-view .message-row.mine .message-bubble {
+  border-color: rgba(255,138,43,.4);
+  background: linear-gradient(150deg, rgba(255,138,43,.26), rgba(139,63,214,.26));
+  color: #fff2e2;
+  box-shadow: 0 0 22px rgba(255,138,43,.16), inset 0 1px rgba(255,255,255,.08);
+}
+body[data-theme="halloween"] .app-view .message-name { color: #ffc78f; text-shadow: 0 0 10px rgba(255,138,43,.35); }
+body[data-theme="halloween"] .app-view .channel-symbol { box-shadow: 0 0 26px rgba(255,138,43,.5); animation: haunt-flicker 5s infinite; }
+body[data-theme="halloween"] .app-view .send-button { box-shadow: 0 0 22px rgba(255,138,43,.5); }
+body[data-theme="halloween"] .app-view .composer-box { border-color: rgba(255,150,70,.22); box-shadow: 0 0 24px rgba(139,63,214,.16); }
+body[data-theme="halloween"] .app-view .composer-box:focus-within { border-color: rgba(255,138,43,.6); box-shadow: 0 0 0 3px rgba(255,138,43,.14), 0 0 30px rgba(255,138,43,.24); }
+body[data-theme="halloween"] .app-view .sidebar,
+body[data-theme="halloween"] .app-view .right-panel { box-shadow: inset 0 0 90px rgba(139,63,214,.1); }
+body[data-theme="halloween"] .app-view .server-announcement { border-color: rgba(255,150,70,.32); box-shadow: 0 0 26px rgba(255,138,43,.14); }
+
+.spooky-layer { position: fixed; z-index: 4; inset: 0; display: none; overflow: hidden; pointer-events: none; }
+body[data-theme="halloween"] .spooky-layer { display: block; }
+.spooky-moon {
+  position: absolute; top: -60px; right: 6%; width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #ffeccd, #ffbf70 42%, rgba(255,138,43,.16) 68%, transparent 72%);
+  filter: blur(.4px); opacity: .18; box-shadow: 0 0 120px 40px rgba(255,170,90,.14);
+  animation: moon-drift 22s ease-in-out infinite alternate;
+}
+.spooky-fog {
+  position: absolute; right: -20%; bottom: -22%; left: -20%; height: 46%;
+  background: radial-gradient(ellipse at 30% 70%, rgba(139,63,214,.22), transparent 62%),
+              radial-gradient(ellipse at 72% 62%, rgba(255,138,43,.12), transparent 60%);
+  filter: blur(26px); opacity: .5;
+}
+.fog-one { animation: fog-drift 26s ease-in-out infinite alternate; }
+.fog-two { bottom: -34%; height: 52%; opacity: .34; animation: fog-drift 34s ease-in-out infinite alternate-reverse; }
+.spooky-bat, .spooky-ghost, .spooky-pumpkin, .spooky-spark { position: absolute; opacity: .22; filter: drop-shadow(0 0 10px rgba(255,138,43,.5)); }
+.spooky-bat { font-size: 22px; animation: bat-fly 24s linear infinite; }
+.bat-a { top: 16%; animation-duration: 26s; }
+.bat-b { top: 34%; font-size: 16px; opacity: .16; animation-duration: 34s; animation-delay: -8s; }
+.bat-c { top: 58%; font-size: 13px; opacity: .14; animation-duration: 44s; animation-delay: -22s; }
+.spooky-ghost { font-size: 26px; right: 8%; bottom: 18%; opacity: .12; animation: ghost-float 12s ease-in-out infinite alternate; }
+.spooky-pumpkin { font-size: 24px; left: 4%; bottom: 12%; opacity: .16; animation: pumpkin-glow 5s ease-in-out infinite; }
+.spooky-spark { color: #ffcf8f; font-size: 13px; animation: spark-twinkle 4.6s ease-in-out infinite; }
+.spark-a { top: 24%; left: 18%; }
+.spark-b { top: 62%; right: 26%; animation-delay: -1.6s; }
+.spark-c { top: 44%; right: 12%; animation-delay: -3.1s; }
+.app-view .message-avatar, .app-view .avatar { position: relative; }
+
+@keyframes haunt-flicker {
+  0%, 100% { filter: brightness(1); }
+  42% { filter: brightness(1); }
+  45% { filter: brightness(1.35); }
+  47% { filter: brightness(.82); }
+  49% { filter: brightness(1.2); }
+  52% { filter: brightness(1); }
+  78% { filter: brightness(.92); }
+}
+@keyframes moon-drift { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(-26px,18px,0) scale(1.06); } }
+@keyframes fog-drift { from { transform: translate3d(-4%,2%,0) scale(1); } to { transform: translate3d(5%,-3%,0) scale(1.08); } }
+@keyframes bat-fly {
+  0% { transform: translate(-12vw, 0) rotate(-4deg) scale(.9); }
+  25% { transform: translate(28vw, -22px) rotate(6deg) scale(1); }
+  50% { transform: translate(58vw, 12px) rotate(-5deg) scale(.95); }
+  75% { transform: translate(88vw, -16px) rotate(5deg) scale(1.05); }
+  100% { transform: translate(118vw, 0) rotate(-3deg) scale(.9); }
+}
+@keyframes ghost-float { from { transform: translateY(0) rotate(-3deg); opacity: .08; } to { transform: translateY(-26px) rotate(4deg); opacity: .18; } }
+@keyframes pumpkin-glow { 0%, 100% { filter: drop-shadow(0 0 6px rgba(255,138,43,.4)); opacity: .13; } 50% { filter: drop-shadow(0 0 18px rgba(255,138,43,.75)); opacity: .22; } }
+@keyframes spark-twinkle { 0%, 100% { opacity: .06; transform: scale(.8); } 50% { opacity: .5; transform: scale(1.15); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spooky-bat, .spooky-ghost, .spooky-pumpkin, .spooky-spark, .spooky-fog, .spooky-moon { animation: none !important; }
+  body[data-theme="halloween"] .brand-mark, body[data-theme="halloween"] .channel-symbol { animation: none !important; }
+}
+@media (max-width: 760px) {
+  .spooky-moon { width: 150px; height: 150px; opacity: .14; }
+  .spooky-bat { font-size: 16px; }
+  .spooky-ghost, .spooky-pumpkin { display: none; }
+  .pinned-banner { margin: 8px 9px 0; padding: 8px 9px; }
+  .message-edit textarea { width: min(320px, 72vw); }
+}

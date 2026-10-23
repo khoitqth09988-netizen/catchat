@@ -1,0 +1,371 @@
+/* CatChat · Lớp da “tổ mèo”: bong bóng, sticker, Miu, saved, paw trail, con trỏ mèo.
+   Tách từ index.html — nạp bằng <link> theo đúng thứ tự trong index.html. */
+
+/* ═══════════════════════════════════════════════════════════════
+   CatChat — lớp da "tổ mèo": bảng màu ấm, thẻ bo tròn, mèo dẫn đường
+   ═══════════════════════════════════════════════════════════════ */
+body[data-theme="light"] {
+  color-scheme: light;
+  --theme-bg: #fdf6ee;
+  --theme-sidebar: #f8eee1;
+  --theme-panel: #fffdfa;
+  --theme-panel-alt: #f7ebdc;
+  --theme-input: #fdf3e7;
+  --theme-line: rgba(122,86,58,.12);
+  --theme-line-strong: rgba(122,86,58,.2);
+  --theme-text: #3c3128;
+  --theme-secondary: #55453a;
+  --theme-muted: #7e6a5a;
+  --theme-subtle: #a38d7b;
+  --theme-accent: #d5763c;
+  --theme-accent-contrast: #fffaf4;
+  --theme-accent-soft: #fbe4d2;
+  --theme-hover: #f3e4d3;
+  --theme-row-hover: rgba(168,114,72,.07);
+  --theme-banner: #fff5e2;
+  --theme-banner-border: #f3ddb6;
+  --theme-danger: #c2555a;
+  --theme-scroll: #e0cbb5;
+  --theme-avatar: linear-gradient(145deg,#ffdcbb,#f6b78b);
+  --theme-shadow: 0 26px 70px rgba(120,80,48,.16);
+  --theme-overlay: rgba(58,40,28,.42);
+  --cat-gradient: linear-gradient(140deg,#f9b56d,#eb7b8d);
+  --cat-glow: rgba(235,140,90,.22);
+  --cat-face-ink: #fff6ec;
+  --cat-ink: #8a4a22;
+  --cat-meow: #d5763c;
+}
+body[data-theme="dark"] {
+  color-scheme: dark;
+  --theme-bg: #161219;
+  --theme-sidebar: #1d1822;
+  --theme-panel: #241e2b;
+  --theme-panel-alt: #2c2534;
+  --theme-input: #1b1621;
+  --theme-line: rgba(255,236,224,.09);
+  --theme-line-strong: rgba(255,236,224,.16);
+  --theme-text: #f8ecec;
+  --theme-secondary: #e5d7dd;
+  --theme-muted: #b7a6b3;
+  --theme-subtle: #91818f;
+  --theme-accent: #f3a26c;
+  --theme-accent-contrast: #2a1c14;
+  --theme-accent-soft: rgba(243,162,108,.17);
+  --theme-hover: rgba(255,255,255,.06);
+  --theme-row-hover: rgba(255,255,255,.035);
+  --theme-banner: #302738;
+  --theme-banner-border: rgba(255,236,224,.14);
+  --theme-danger: #f08a92;
+  --theme-scroll: #4a3f52;
+  --theme-avatar: linear-gradient(145deg,#5f4a63,#382c40);
+  --theme-shadow: 0 26px 70px rgba(0,0,0,.5);
+  --theme-overlay: rgba(10,7,14,.66);
+  --cat-gradient: linear-gradient(140deg,#f6b26c,#c978c4);
+  --cat-glow: rgba(201,120,196,.26);
+  --cat-face-ink: #fdf1e4;
+  --cat-ink: #3d2338;
+  --cat-meow: #f3a26c;
+}
+body[data-theme="lavender"] {
+  color-scheme: light;
+  --theme-bg: #fdf3f6;
+  --theme-sidebar: #fae7ee;
+  --theme-panel: #fffbfc;
+  --theme-panel-alt: #f9eaf1;
+  --theme-input: #fdf4f8;
+  --theme-line: rgba(122,64,90,.12);
+  --theme-line-strong: rgba(122,64,90,.19);
+  --theme-text: #40303a;
+  --theme-secondary: #574450;
+  --theme-muted: #826b78;
+  --theme-subtle: #a68e9c;
+  --theme-accent: #d65c86;
+  --theme-accent-contrast: #fffafc;
+  --theme-accent-soft: #fbdbe7;
+  --theme-hover: #f6e0ea;
+  --theme-row-hover: rgba(170,80,120,.07);
+  --theme-banner: #fff3f6;
+  --theme-banner-border: #f6d8e4;
+  --theme-danger: #c1486b;
+  --theme-scroll: #e6c8d6;
+  --theme-avatar: linear-gradient(145deg,#ffd9e6,#f2adc6);
+  --theme-shadow: 0 26px 70px rgba(120,60,90,.15);
+  --theme-overlay: rgba(60,30,45,.4);
+  --cat-gradient: linear-gradient(140deg,#ffb3c9,#c98ce7);
+  --cat-glow: rgba(214,92,134,.2);
+  --cat-face-ink: #fff8fb;
+  --cat-ink: #7d2f4b;
+  --cat-meow: #d65c86;
+}
+body[data-theme="ocean"] {
+  color-scheme: light;
+  --theme-bg: #f2f8f1;
+  --theme-sidebar: #e5f1e3;
+  --theme-panel: #fcfdfa;
+  --theme-panel-alt: #eef6ec;
+  --theme-input: #f5faf3;
+  --theme-line: rgba(52,88,60,.13);
+  --theme-line-strong: rgba(52,88,60,.2);
+  --theme-text: #29382d;
+  --theme-secondary: #3d5043;
+  --theme-muted: #5f7667;
+  --theme-subtle: #8ba394;
+  --theme-accent: #4d8f63;
+  --theme-accent-contrast: #f7fdf8;
+  --theme-accent-soft: #dcefe0;
+  --theme-hover: #e2efe4;
+  --theme-row-hover: rgba(60,120,80,.07);
+  --theme-banner: #fbf7e6;
+  --theme-banner-border: #eddfb8;
+  --theme-danger: #bc5350;
+  --theme-scroll: #c3dbca;
+  --theme-avatar: linear-gradient(145deg,#d7f0dc,#a8d8b8);
+  --theme-shadow: 0 26px 70px rgba(40,80,55,.15);
+  --theme-overlay: rgba(28,52,36,.42);
+  --cat-gradient: linear-gradient(140deg,#b9e0a4,#63b58c);
+  --cat-glow: rgba(77,143,99,.22);
+  --cat-face-ink: #f8fdf9;
+  --cat-ink: #2b5539;
+  --cat-meow: #4d8f63;
+}
+
+/* Nền & bố cục mềm mại hơn */
+.app-view {
+  background-image:
+    radial-gradient(circle at 10% -8%, var(--cat-glow), transparent 38%),
+    radial-gradient(circle at 96% 104%, var(--cat-glow), transparent 34%);
+}
+.app-view .sidebar { background: linear-gradient(180deg, var(--theme-sidebar) 0%, color-mix(in srgb, var(--theme-sidebar) 86%, var(--theme-bg)) 100%); }
+.app-view .topbar { background: color-mix(in srgb, var(--theme-panel) 88%, transparent); backdrop-filter: blur(14px); }
+.app-view .chat-panel { background: var(--theme-bg); }
+.brand-mark {
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.45);
+  background: var(--cat-gradient, linear-gradient(140deg,#f9b56d,#eb7b8d));
+  box-shadow: 0 12px 28px var(--cat-glow, rgba(235,140,90,.28)), inset 0 1px rgba(255,255,255,.45);
+  color: var(--cat-face-ink, #fff6ec);
+}
+.brand-mark .icon { width: 25px; height: 25px; }
+.brand-name { letter-spacing: -.05em; }
+
+/* Thanh điều hướng & kênh */
+.app-view .nav-link { border-radius: 14px; }
+.app-view .nav-link.active { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 18%, transparent); }
+.app-view .nav-link.saved-nav-link .saved-count { background: var(--theme-accent); color: var(--theme-accent-contrast); }
+.app-view .channel-link { border-radius: 12px; }
+.app-view .sidebar-tip {
+  background:
+    radial-gradient(circle at 100% 0%, var(--cat-glow), transparent 58%),
+    var(--theme-panel);
+  border-radius: 18px;
+}
+.app-view .sidebar-tip-head .icon { color: var(--cat-meow, var(--theme-accent)); }
+.app-view .workspace-switch { border-radius: 16px; }
+.app-view .workspace-icon { border-radius: 12px; color: var(--cat-meow, var(--theme-accent)); }
+
+/* Thanh trên cùng */
+.app-view .topbar-heading h1 { font-size: 17px; letter-spacing: -.035em; }
+.app-view .topbar-button { border-radius: 999px; padding: 0 14px; }
+.app-view .topbar-button.secondary.cat-companion-button { color: var(--cat-meow, var(--theme-accent)); }
+.app-view .role-pill { border-radius: 999px; font-weight: 800; }
+.app-view .connection-pill { border-radius: 999px; }
+.app-view .channel-symbol {
+  border-radius: 14px;
+  background: var(--cat-gradient);
+  border-color: transparent;
+  color: var(--cat-face-ink, #fff);
+  box-shadow: 0 8px 20px var(--cat-glow);
+}
+.app-view .channel-toolbar { min-height: 78px; }
+.app-view .icon-button { border-radius: 11px; }
+
+/* Bong bóng tin nhắn */
+.app-view .message-row { border-radius: 18px; padding: 4px 7px; }
+.app-view .message-bubble {
+  border-radius: 6px 16px 16px 16px;
+  border-color: var(--theme-line);
+  background: var(--theme-panel);
+  color: var(--theme-secondary);
+  box-shadow: 0 3px 12px rgba(90,60,40,.05);
+}
+.app-view .message-row.mine .message-bubble {
+  border-radius: 16px 6px 16px 16px;
+  border-color: color-mix(in srgb, var(--theme-accent) 26%, transparent);
+  background: linear-gradient(140deg, var(--theme-accent-soft), color-mix(in srgb, var(--theme-accent-soft) 55%, var(--theme-panel)));
+  color: var(--theme-text);
+}
+.app-view .message-avatar { border-radius: 12px; }
+.app-view .reaction-button { border-radius: 999px; }
+.app-view .server-announcement {
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0%, var(--cat-glow), transparent 60%),
+    var(--theme-panel);
+}
+.app-view .chat-empty .empty-illustration { border-radius: 24px; }
+.app-view .chat-empty .empty-illustration .icon { color: var(--cat-meow, var(--theme-accent)); }
+.app-view .message-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 3px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--theme-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s, background .15s, color .15s;
+}
+.app-view .message-save .icon { width: 12px; height: 12px; }
+.app-view .message-save:hover { background: var(--theme-hover); color: var(--cat-meow, var(--theme-accent)); }
+.app-view .message-save.is-saved { opacity: 1; color: var(--cat-meow, var(--theme-accent)); }
+.app-view .message-save.is-saved .icon { fill: currentColor; }
+.app-view .message-row:hover .message-save, .app-view .message-save:focus-visible { opacity: 1; }
+
+/* Khung soạn tin */
+.app-view .composer-wrap { background: color-mix(in srgb, var(--theme-bg) 80%, var(--theme-panel)); }
+.app-view .composer-box {
+  border-radius: 999px;
+  padding: 8px 8px 8px 16px;
+  box-shadow: 0 10px 28px rgba(90,60,40,.08);
+}
+.app-view .send-button { border-radius: 999px; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); border-color: transparent; box-shadow: 0 8px 20px var(--cat-glow); }
+.app-view .send-button:disabled { background: var(--theme-panel-alt); box-shadow: none; color: var(--theme-subtle); }
+.app-view .reply-preview, .app-view .pending-image-preview { border-radius: 14px; }
+
+/* Dải sticker mèo */
+.sticker-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 9px; padding: 0 4px; overflow-x: auto; scrollbar-width: none; }
+.sticker-bar::-webkit-scrollbar { display: none; }
+.sticker-label { display: inline-flex; align-items: center; gap: 5px; margin-right: 2px; color: var(--theme-subtle); font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+.sticker-label .icon { width: 12px; height: 12px; color: var(--cat-meow, var(--theme-accent)); }
+.sticker-button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--theme-line);
+  border-radius: 12px;
+  background: var(--theme-panel);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: transform .16s var(--ease), border-color .16s, background .16s;
+}
+.sticker-button:hover { transform: translateY(-2px) rotate(-4deg); border-color: var(--cat-meow, var(--theme-accent)); background: var(--theme-accent-soft); }
+.sticker-button:active { transform: scale(.94); }
+
+/* Bạn mèo Miu */
+.miu-companion { position: fixed; z-index: 46; right: 22px; bottom: 22px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.miu-bubble {
+  position: relative;
+  width: min(268px, calc(100vw - 60px));
+  padding: 13px 15px;
+  border: 1px solid var(--theme-line-strong);
+  border-radius: 18px 18px 6px 18px;
+  background: var(--theme-panel);
+  box-shadow: var(--theme-shadow);
+  color: var(--theme-text);
+  animation: miu-pop .32s var(--ease) both;
+}
+.miu-bubble strong { display: flex; align-items: center; gap: 6px; color: var(--cat-meow, var(--theme-accent)); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.miu-bubble strong .icon { width: 13px; height: 13px; }
+.miu-bubble p { margin: 7px 0 0; color: var(--theme-secondary); font-size: 11px; line-height: 1.6; }
+.miu-bubble button { position: absolute; top: 8px; right: 8px; display: grid; width: 22px; height: 22px; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--theme-muted); cursor: pointer; }
+.miu-bubble button:hover { background: var(--theme-hover); color: var(--theme-text); }
+.miu-bubble button .icon { width: 12px; height: 12px; }
+.miu-face {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: 20px;
+  background: var(--cat-gradient);
+  box-shadow: 0 14px 32px var(--cat-glow), inset 0 1px rgba(255,255,255,.5);
+  color: var(--cat-face-ink, #fff6ec);
+  cursor: pointer;
+  transition: transform .2s var(--ease);
+  animation: miu-bob 5s ease-in-out infinite;
+}
+.miu-face:hover { transform: translateY(-3px) rotate(-6deg); }
+.miu-face .icon { width: 32px; height: 32px; }
+.miu-face .miu-ping { position: absolute; top: -2px; right: -2px; width: 12px; height: 12px; border: 2px solid var(--theme-panel); border-radius: 50%; background: #48b978; }
+
+/* Ngăn tin nhắn đã lưu */
+.saved-layer { position: fixed; z-index: 62; inset: 0; display: flex; justify-content: flex-end; background: var(--theme-overlay); backdrop-filter: blur(5px); }
+.saved-drawer {
+  display: flex;
+  width: min(430px, 100%);
+  height: 100%;
+  flex-direction: column;
+  border-left: 1px solid var(--theme-line-strong);
+  background: var(--theme-panel);
+  box-shadow: var(--theme-shadow);
+  animation: saved-in .3s var(--ease) both;
+}
+.saved-head { display: flex; align-items: center; gap: 12px; padding: 22px 22px 16px; border-bottom: 1px solid var(--theme-line); }
+.saved-emblem { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 14px; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); box-shadow: 0 10px 22px var(--cat-glow); }
+.saved-emblem .icon { width: 20px; height: 20px; }
+.saved-head-copy { flex: 1; min-width: 0; }
+.saved-head-copy h2 { margin: 0; color: var(--theme-text); font-size: 15px; font-weight: 750; letter-spacing: -.03em; }
+.saved-head-copy p { margin: 4px 0 0; color: var(--theme-muted); font-size: 10px; }
+.saved-tools { display: flex; gap: 6px; }
+.saved-tool { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid var(--theme-line); border-radius: 10px; background: var(--theme-panel-alt); color: var(--theme-muted); cursor: pointer; }
+.saved-tool:hover { background: var(--theme-hover); color: var(--theme-text); }
+.saved-tool .icon { width: 15px; height: 15px; }
+.saved-body { flex: 1; overflow-y: auto; padding: 16px 18px 24px; }
+.saved-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; text-align: center; color: var(--theme-muted); }
+.saved-empty .icon { width: 34px; height: 34px; color: var(--cat-meow, var(--theme-accent)); }
+.saved-empty strong { margin-top: 12px; color: var(--theme-text); font-size: 12px; }
+.saved-empty p { margin: 7px 0 0; font-size: 10px; line-height: 1.6; }
+.saved-card { position: relative; margin-bottom: 9px; padding: 12px 13px; border: 1px solid var(--theme-line); border-radius: 15px; background: var(--theme-panel-alt); }
+.saved-card-top { display: flex; align-items: center; gap: 8px; }
+.saved-card-top .avatar { width: 26px; height: 26px; border-radius: 9px; font-size: 8px; }
+.saved-card-top strong { flex: 1; min-width: 0; overflow: hidden; color: var(--theme-text); font-size: 10px; font-weight: 720; text-overflow: ellipsis; white-space: nowrap; }
+.saved-card-top time { color: var(--theme-subtle); font-size: 8px; }
+.saved-card p { margin: 8px 0 0; overflow: hidden; color: var(--theme-secondary); font-size: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+.saved-card small { display: block; margin-top: 7px; color: var(--theme-subtle); font-size: 8px; }
+.saved-card-actions { display: flex; gap: 6px; margin-top: 9px; }
+.saved-card-actions button { flex: 1; min-height: 28px; border: 1px solid var(--theme-line); border-radius: 9px; background: var(--theme-panel); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; }
+.saved-card-actions button:hover { border-color: var(--cat-meow, var(--theme-accent)); color: var(--cat-meow, var(--theme-accent)); }
+.saved-card-actions button.remove:hover { border-color: var(--theme-danger); color: var(--theme-danger); }
+
+/* Vết chân mèo khi bấm chuột */
+.paw-trail { position: fixed; z-index: 9998; color: var(--cat-meow, #d5763c); font-size: 15px; line-height: 1; pointer-events: none; opacity: .55; animation: paw-fade .9s ease-out forwards; }
+
+@keyframes miu-pop { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes miu-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes saved-in { from { transform: translateX(30px); opacity: .4; } to { transform: translateX(0); opacity: 1; } }
+.app-view .message-row.message-flash { background: var(--theme-accent-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 34%, transparent); }
+@keyframes paw-fade { 0% { opacity: .55; transform: translate(-50%,-50%) rotate(var(--paw-rot,0deg)) scale(.7); } 100% { opacity: 0; transform: translate(-50%,-130%) rotate(var(--paw-rot,0deg)) scale(1.15); } }
+
+@media (max-width: 760px) {
+  .cat-companion-button { width: 34px; padding: 0; }
+  .cat-companion-button > span { display: none; }
+}
+@media (max-width: 900px) {
+  .miu-companion { right: 14px; bottom: 88px; }
+  .miu-face { width: 48px; height: 48px; border-radius: 17px; }
+  .miu-face .icon { width: 27px; height: 27px; }
+}
+@media (max-width: 760px) {
+  .sticker-bar { gap: 5px; }
+  .sticker-button { width: 30px; height: 30px; border-radius: 10px; }
+  .app-view .composer-box { border-radius: 20px; padding: 8px; }
+  .saved-drawer { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .miu-face, .miu-bubble, .saved-drawer { animation: none !important; }
+}
+
+/* Chuột mèo: biến thể chọn trong Cài đặt, mặc định là mèo cam */
+:root { --cat-cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2734%27%20height%3D%2734%27%20viewBox%3D%270%200%2034%2034%27%3E%3Cpath%20d%3D%27M7%2012%208%204.5%2014.6%208a13%2013%200%200%201%204.8%200L26%204.5%2027%2012a12%2012%200%200%201%202%207c0%206.6-5.5%2010.5-12.5%2010.5S4%2025.6%204%2019a12%2012%200%200%201%203-7Z%27%20fill%3D%27%23f8b072%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.8%27%20stroke-linejoin%3D%27round%27%2F%3E%3Ccircle%20cx%3D%2712.4%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Ccircle%20cx%3D%2721.6%27%20cy%3D%2718.2%27%20r%3D%271.5%27%20fill%3D%27%233d3128%27%2F%3E%3Cpath%20d%3D%27M15%2022.4q2%201.8%204%200%27%20fill%3D%27none%27%20stroke%3D%27%233d3128%27%20stroke-width%3D%271.5%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 4 3, auto; }
+@media (hover: hover) and (pointer: fine) {
+  html, body, body * { cursor: var(--cat-cursor) !important; }
+  body input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+  body textarea { cursor: text !important; }
+  body [disabled], body button:disabled { cursor: var(--cat-cursor) !important; }
+  body .paw-trail { cursor: none !important; }
+}

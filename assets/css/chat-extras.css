@@ -1,0 +1,76 @@
+/* CatChat · Reaction và phòng thông báo.
+   Tách từ index.html — nạp bằng <link> theo đúng thứ tự trong index.html. */
+
+/* Reaction: gọn hơn, chỉ hiện khi hover hoặc đã có lượt chọn */
+.app-view .reaction-strip { min-height: 0; opacity: 0; transition: opacity .16s; }
+.app-view .message-row:hover .reaction-strip,
+.app-view .message-row:focus-within .reaction-strip,
+.app-view .reaction-strip.has-reactions { opacity: 1; }
+.app-view .reaction-button { transition: transform .16s var(--ease), background .16s, border-color .16s; }
+.app-view .reaction-button:hover { transform: translateY(-2px) scale(1.06); }
+.app-view .reaction-button.just-reacted { animation: reaction-pop .4s var(--ease); }
+.app-view .reaction-button.active { border-color: var(--theme-accent); background: var(--theme-accent-soft); }
+@keyframes reaction-pop { 0% { transform: scale(1); } 45% { transform: scale(1.35) rotate(-6deg); } 100% { transform: scale(1); } }
+@media (hover: none) {
+  .app-view .reaction-strip { opacity: 1; }
+}
+
+@media (max-width: 1080px) {
+  .directory-toolbar { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 15px 12px; }
+  .directory-search { width: 100%; }
+  .directory-filters { padding: 11px 15px 4px; }
+  .directory-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 9px; padding: 12px 15px 18px; }
+  .directory-footer { padding: 10px 15px 12px; }
+  .directory-heading h2 { font-size: 18px; }
+}
+@media (max-width: 760px) {
+  .directory-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .directory-card { flex-direction: column; text-align: center; gap: 8px; padding: 12px 9px; }
+  .directory-copy strong, .directory-copy small { white-space: normal; }
+  .cursor-options { grid-template-columns: repeat(3, 1fr); }
+  .emoji-grid { grid-template-columns: repeat(7, 1fr); }
+  .profile-dialog { width: 100%; }
+}
+@media (max-width: 400px) {
+  .directory-grid { grid-template-columns: 1fr; }
+  .emoji-popover { width: calc(100vw - 24px); left: -6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .directory-panel, .directory-card, .profile-dialog, .emoji-popover, .admin-welcome-card, .admin-welcome-crown { animation: none !important; }
+  .app-view .role-pill.is-admin, .app-view .nav-link.admin-hint { animation: none !important; }
+}
+
+/* ───────── Phòng thông báo (chế độ xem thông báo) ───────── */
+.announcement-mode-bar {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 12px 19px 0;
+  padding: 11px 13px;
+  border: 1px solid color-mix(in srgb, var(--theme-accent) 32%, transparent);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 100% 0%, var(--cat-glow), transparent 62%),
+    var(--theme-accent-soft);
+  animation: field-in .25s var(--ease) both;
+}
+.announcement-mode-icon { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border-radius: 11px; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); box-shadow: 0 8px 18px var(--cat-glow); }
+.announcement-mode-icon .icon { width: 16px; height: 16px; }
+.announcement-mode-copy { min-width: 0; flex: 1; }
+.announcement-mode-copy strong { display: block; color: var(--theme-text); font-size: 10px; font-weight: 800; letter-spacing: .02em; }
+.announcement-mode-copy span { display: block; margin-top: 3px; color: var(--theme-muted); font-size: 9px; }
+.announcement-mode-exit { flex: 0 0 auto; min-height: 30px; padding: 0 12px; border: 1px solid var(--theme-line-strong); border-radius: 999px; background: var(--theme-panel); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; transition: background .16s, color .16s; }
+.announcement-mode-exit:hover { background: var(--theme-panel-alt); color: var(--theme-accent); }
+.app-view .announcements-link.active { background: var(--theme-accent-soft); color: var(--theme-accent); }
+.app-view .announcements-link.active .icon { color: var(--theme-accent); }
+.app-view .announcement-mode-bar { animation: none; }
+.app-view .nav-link.admin-nav-link { color: var(--cat-meow, var(--theme-accent)); }
+.app-view .nav-link.admin-nav-link .icon { color: var(--cat-meow, var(--theme-accent)); }
+.app-view .nav-link.admin-nav-link .admin-count { background: var(--theme-accent); color: var(--theme-accent-contrast); }
+.app-view.announcement-focus .composer-wrap { background: color-mix(in srgb, var(--theme-accent-soft) 40%, var(--theme-bg)); }
+.app-view.announcement-focus .composer-box { border-color: color-mix(in srgb, var(--theme-accent) 42%, transparent); }
+@media (max-width: 760px) {
+  .announcement-mode-bar { margin: 9px 9px 0; padding: 9px 10px; gap: 8px; }
+  .announcement-mode-copy span { display: none; }
+  .announcement-mode-exit { min-height: 27px; padding: 0 9px; font-size: 8px; }
+}

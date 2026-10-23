@@ -1,0 +1,41 @@
+/* CatChat · Bảng màu gốc của theme Halloween.
+   Tách từ index.html — nạp bằng <link> theo đúng thứ tự trong index.html. */
+
+/* ═══════════════ Halloween: bảng màu mới ═══════════════ */
+body[data-theme="halloween"] {
+  color-scheme: dark;
+  --theme-bg: #140f1c;
+  --theme-sidebar: #191223;
+  --theme-panel: #221830;
+  --theme-panel-alt: #2b1f3c;
+  --theme-input: #180f22;
+  --theme-line: rgba(255,196,120,.13);
+  --theme-line-strong: rgba(255,196,120,.24);
+  --theme-text: #fbeee0;
+  --theme-secondary: #f0dcc6;
+  --theme-muted: #c3ab93;
+  --theme-subtle: #9b846e;
+  --theme-accent: #ff9a3c;
+  --theme-accent-contrast: #2a1405;
+  --theme-accent-soft: rgba(255,154,60,.18);
+  --theme-hover: rgba(255,196,120,.09);
+  --theme-row-hover: rgba(255,196,120,.055);
+  --theme-banner: #3a2412;
+  --theme-banner-border: rgba(255,171,64,.35);
+  --theme-danger: #ff7b6b;
+  --theme-scroll: #4a3559;
+  --theme-avatar: linear-gradient(145deg,#6b3f7d,#3a2247);
+  --theme-shadow: 0 26px 70px rgba(0,0,0,.62);
+  --theme-overlay: rgba(8,4,14,.72);
+  --cat-gradient: linear-gradient(140deg,#ffb347,#a35fd3);
+  --cat-glow: rgba(255,154,60,.3);
+  --cat-face-ink: #2a1405;
+  --cat-ink: #3a1d08;
+  --cat-meow: #ffab40;
+}
+body[data-theme="halloween"] .app-view {
+  background-image:
+    radial-gradient(circle at 8% -6%, rgba(255,154,60,.16), transparent 40%),
+    radial-gradient(circle at 96% 102%, rgba(163,95,211,.22), transparent 42%);
+}
+body[data-theme="halloween"] .brand-mark { box-shadow: 0 12px 30px rgba(255,154,60,.36), inset 0 1px rgba(255,255,255,.3); }

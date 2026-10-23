@@ -1,0 +1,97 @@
+/* CatChat · Bố cục workspace kiểu Discord: sidebar, kênh, hàng tin nhắn, responsive.
+   Tách từ index.html — nạp bằng <link> theo đúng thứ tự trong index.html. */
+
+/* Discord-inspired workspace: clearer surfaces, channel navigation, and readable message rows. */
+.app-view {
+  --page: #313338;
+  --surface: #2b2d31;
+  --surface-2: #232428;
+  --surface-3: #1e1f22;
+  --line: rgba(255,255,255,.075);
+  --line-strong: rgba(255,255,255,.12);
+  --text: #f2f3f5;
+  --muted: #b5bac1;
+  --muted-2: #949ba4;
+  --silver: #d6d9de;
+  --silver-bright: #f2f3f5;
+}
+.sidebar { background: #2b2d31; border-right-color: rgba(0,0,0,.25); }
+.workspace-switch { background: #1e1f22; border-color: rgba(0,0,0,.25); }
+.workspace-icon { background: #383a40; border-color: rgba(255,255,255,.08); color: #e1e3e6; }
+.nav-link.active { background: #404249; border-color: transparent; color: #fff; }
+.sidebar-channel-block { margin-top: 23px; }
+.sidebar-section-title { color: #949ba4; letter-spacing: .08em; }
+.channel-list { display: grid; max-height: min(48vh, 480px); gap: 2px; overflow-x: hidden; overflow-y: auto; scrollbar-color: #484a50 transparent; scrollbar-width: thin; }
+.channel-link { min-height: 34px; padding: 0 9px; border-radius: 6px; color: #b5bac1; font-size: 11px; }
+.channel-link:hover { background: #35373c; color: #f2f3f5; }
+.channel-link.active { background: #404249; color: #fff; }
+.channel-link.active .channel-mark { color: #f2f3f5; }
+.channel-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.announcements-link { margin-top: 7px; }
+.sidebar-section-title button:hover { background: #3b3d43; color: #fff; }
+.main-layout, .chat-panel { background: #313338; }
+.topbar { background: #313338; border-bottom-color: rgba(0,0,0,.22); }
+.channel-toolbar { background: #313338; border-bottom-color: rgba(0,0,0,.22); }
+.channel-symbol { border-radius: 10px; background: #383a40; border-color: rgba(255,255,255,.08); color: #b5bac1; }
+.right-panel { background: #2b2d31; }
+.composer-wrap { background: #313338; border-top-color: rgba(0,0,0,.25); }
+.composer-box { background: #383a40; border-color: rgba(0,0,0,.25); }
+.composer-box:focus-within { border-color: rgba(198,200,205,.42); box-shadow: 0 0 0 3px rgba(198,200,205,.08); }
+.message-input, .composer-box textarea { color: #dbdee1; }
+.messages-area { gap: 4px; padding: 18px 20px 14px; }
+.message-row { width: 100%; max-width: 100%; gap: 12px; padding: 7px 8px; border-radius: 7px; transition: background .15s; }
+.message-row:hover { background: rgba(255,255,255,.035); }
+.message-row.mine { align-self: stretch; flex-direction: row; }
+.message-content { min-width: 0; flex: 1; }
+.message-row.mine .message-content { text-align: left; }
+.message-row.mine .message-meta { justify-content: flex-start; }
+.message-avatar { width: 38px; height: 38px; border-radius: 50%; }
+.message-meta { gap: 9px; margin-bottom: 3px; }
+.message-name { color: #f2f3f5; font-size: 12px; }
+.message-time { font-size: 9px; }
+.message-bubble, .message-row.mine .message-bubble { display: block; width: fit-content; max-width: 100%; padding: 1px 0; border: 0; border-radius: 0; background: transparent; color: #dbdee1; font-size: 13px; line-height: 1.55; }
+.message-row.mine .message-delete, .message-row .message-delete { right: 8px; left: auto; top: 6px; z-index: 2; }
+.message-reply { opacity: 0; }
+.message-row:hover .message-reply, .message-reply:focus-visible { opacity: 1; }
+.message-image-link { max-width: min(100%, 520px); }
+.announcement-banner { background: #383a40; border-color: rgba(255,255,255,.1); }
+.reaction-button { background: #2b2d31; border-color: rgba(255,255,255,.1); }
+.reaction-button.active { background: #404249; border-color: rgba(255,255,255,.28); }
+.channel-create-dialog { background: #2b2d31; }
+.channel-name-field { margin-top: 17px; }
+.channel-name-field label { display: block; margin-bottom: 7px; color: #c9ccd1; font-size: 10px; font-weight: 700; }
+.channel-name-field > div { display: flex; height: 42px; align-items: center; gap: 9px; padding: 0 11px; border: 1px solid rgba(255,255,255,.13); border-radius: 9px; background: #1e1f22; color: #aeb3bb; }
+.channel-name-field > div:focus-within { border-color: #8b8f98; box-shadow: 0 0 0 3px rgba(255,255,255,.06); }
+.channel-name-field > div > span { font-weight: 700; }
+.channel-name-field input { min-width: 0; height: 100%; flex: 1; border: 0; outline: 0; background: transparent; color: #f2f3f5; font-size: 12px; }
+.channel-name-field input::placeholder { color: #737982; }
+.channel-name-field small { display: block; margin-top: 6px; color: #949ba4; font-size: 9px; }
+.channel-create-dialog .confirm-actions { align-items: center; }
+.channel-create-dialog .dialog-button.primary { display: inline-flex; align-items: center; gap: 6px; background: #4e5058; border-color: #656871; color: #fff; }
+.channel-create-dialog .dialog-button.primary .icon { width: 14px; height: 14px; }
+.mobile-channel-select, .mobile-create-channel { display: none; }
+.clear-channel-button:hover { background: rgba(255,90,90,.1); color: #ffb3b3; }
+.channel-create-dialog:focus-within { outline: none; }
+@media (max-width: 1080px) {
+  .mobile-channel-select { display: block; max-width: min(170px, 31vw); height: 34px; padding: 0 28px 0 9px; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; background: #2b2d31; color: #dbdee1; font-size: 10px; }
+  .mobile-create-channel { display: grid; }
+  .channel-tools { gap: 5px; }
+}
+@media (max-width: 760px) {
+  .messages-area { gap: 3px; padding: 14px 9px 12px; }
+  .message-row { gap: 9px; padding: 6px 4px; }
+  .message-reply { opacity: 1; }
+  .message-avatar { width: 33px; height: 33px; }
+  .message-bubble, .message-row.mine .message-bubble { font-size: 12px; }
+  .mobile-channel-select { max-width: min(132px, 36vw); }
+  .clear-channel-button { width: 29px; height: 29px; }
+}
+@media (max-width: 390px) {
+  .mobile-channel-select { max-width: 112px; font-size: 9px; }
+  .channel-tools { gap: 1px; }
+  .channel-tools > .icon-button { width: 29px; height: 29px; }
+}
+@media (max-width: 360px) {
+  .mobile-channel-select { max-width: 80px; }
+  .channel-title-group { gap: 6px; }
+}

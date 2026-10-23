@@ -1,0 +1,29 @@
+/* CatChat · Sửa/ghim tin nhắn và khoá kênh.
+   Tách từ index.html — nạp bằng <link> theo đúng thứ tự trong index.html. */
+
+/* ═══════════ Sửa / ghim tin nhắn, khoá kênh ═══════════ */
+.message-tool { display: inline-flex; align-items: center; gap: 3px; padding: 1px 3px; border: 0; border-radius: 5px; background: transparent; color: var(--theme-muted); cursor: pointer; opacity: 0; transition: opacity .15s, background .15s, color .15s; }
+.message-tool:hover { background: var(--theme-hover); color: var(--theme-accent); }
+.message-tool .icon { width: 12px; height: 12px; }
+.message-row:hover .message-tool, .message-tool:focus-visible, .message-tool.is-active { opacity: 1; }
+.message-edited { color: var(--theme-subtle); font-size: 8px; font-style: italic; }
+.message-edit { display: grid; gap: 7px; margin-top: 4px; padding: 9px 10px; border: 1px solid color-mix(in srgb, var(--theme-accent) 46%, transparent); border-radius: 12px; background: var(--theme-panel); box-shadow: 0 8px 24px rgba(0,0,0,.12); animation: field-in .2s var(--ease) both; }
+.message-edit textarea { width: min(440px, 60vw); min-height: 54px; max-height: 180px; padding: 7px 9px; resize: vertical; border: 1px solid var(--theme-line); border-radius: 9px; outline: none; background: var(--theme-input); color: var(--theme-text); font-size: 11px; line-height: 1.55; }
+.message-edit textarea:focus { border-color: var(--theme-accent); }
+.message-edit-footer { display: flex; align-items: center; gap: 6px; }
+.message-edit-hint { flex: 1; color: var(--theme-subtle); font-size: 8px; }
+.message-edit-footer button { min-height: 27px; padding: 0 11px; border: 1px solid var(--theme-line); border-radius: 8px; background: var(--theme-panel-alt); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; }
+.message-edit-footer button:hover { border-color: var(--theme-accent); color: var(--theme-accent); }
+.message-edit-footer button.save { border-color: transparent; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); }
+.pinned-banner { display: flex; align-items: center; gap: 9px; margin: 10px 19px 0; padding: 9px 11px; border: 1px solid color-mix(in srgb, var(--theme-accent) 34%, transparent); border-radius: 13px; background: var(--theme-accent-soft); animation: field-in .22s var(--ease) both; }
+.pinned-banner .pin-icon { width: 14px; height: 14px; flex: 0 0 auto; color: var(--cat-meow, var(--theme-accent)); }
+.pinned-copy { min-width: 0; flex: 1; }
+.pinned-copy strong { display: block; color: var(--theme-text); font-size: 9px; font-weight: 800; }
+.pinned-copy p { overflow: hidden; margin: 3px 0 0; color: var(--theme-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.pinned-jump { flex: 0 0 auto; min-height: 25px; padding: 0 10px; border: 1px solid var(--theme-line-strong); border-radius: 8px; background: var(--theme-panel); color: var(--theme-secondary); cursor: pointer; font-size: 8px; font-weight: 700; }
+.pinned-jump:hover { color: var(--theme-accent); border-color: var(--theme-accent); }
+.lock-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; background: color-mix(in srgb, var(--theme-danger) 15%, transparent); color: var(--theme-danger); font-size: 8px; font-weight: 800; white-space: nowrap; }
+.lock-chip .icon { width: 11px; height: 11px; }
+.app-view .channel-lock-button.is-locked { color: var(--theme-danger); background: color-mix(in srgb, var(--theme-danger) 14%, transparent); border-color: color-mix(in srgb, var(--theme-danger) 34%, transparent); }
+.app-view.channel-locked .composer-box { border-color: color-mix(in srgb, var(--theme-danger) 32%, transparent); }
+.message-row.is-pinned { box-shadow: inset 3px 0 var(--cat-meow, var(--theme-accent)); }
