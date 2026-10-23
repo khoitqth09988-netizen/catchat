@@ -50,7 +50,18 @@ Khi `appCheckSiteKey` để trống, `appcheck.js` không làm gì — app chạ
 Firebase đã có hạ tầng chống DDoS ở tầng Google, nhưng **quota vẫn có thể bị đốt** bởi request hợp lệ về
 hình thức — App Check + Rules + budget alert là bộ ba cần thiết.
 
-## 4. Giới hạn cần biết của lớp phía máy khách
+## 4. Xoá tài khoản thành viên
+
+- Admin xoá trong app: dữ liệu RTDB + cấm vĩnh viễn (`/bans/<uid>` với `deleted: true`).
+  Việc cấm này được Rules dùng để chặn mọi thao tác ghi, và listener `/bans/<uid>` đăng xuất ngay lập tức.
+- Bản ghi Firebase Authentication **chỉ** xoá được bằng Admin SDK: deploy `functions/` rồi bật
+  `enableAccountDeletionFunction`, hoặc xoá tay ở Firebase Console → Authentication.
+- Không xoá được chính mình và không xoá được tài khoản đang là admin (kiểm tra `/admins/<uid>`).
+- `/deletedUsers` chỉ admin đọc/ghi, có `validate` để không ai ghi đè người khác.
+- Sau khi xoá, người dùng có thể đăng ký lại bằng email cũ (UID mới). Muốn chặn hẳn cần kiểm tra email
+  ở server hoặc chặn domain trong Firebase Authentication.
+
+## 5. Giới hạn cần biết của lớp phía máy khách
 
 - Người dùng xoá `localStorage` là mất trạng thái phạt / khoá đăng nhập.
 - Kẻ tấn công có thể gọi thẳng REST API của Firebase, không qua UI → chỉ Rules + App Check chặn được.
@@ -58,6 +69,6 @@ hình thức — App Check + Rules + budget alert là bộ ba cần thiết.
 - Giới hạn được chọn để không ảnh hưởng người dùng bình thường; nếu cộng đồng đông hơn, tăng
   `MESSAGE_BUCKET` trong `anti-flood.js`.
 
-## 5. Báo cáo lỗi bảo mật
+## 6. Báo cáo lỗi bảo mật
 
 Nếu phát hiện lỗ hổng, đừng tạo issue công khai. Gửi email cho quản trị viên kèm mô tả và bước tái hiện.

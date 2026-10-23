@@ -49,6 +49,7 @@ let mutesRef = null;
 let adminLogRef = null;
 let pinsRef = null;
 let locksRef = null;
+let deletedUsersRef = null;
 let messageReactionsRef = null;
 let storage = null;
 let firebaseReady = false;

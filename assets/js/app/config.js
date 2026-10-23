@@ -27,7 +27,12 @@ const firebaseConfig = {
   // Tuỳ chọn nhưng rất nên bật khi chạy thật: Firebase App Check (reCAPTCHA v3).
   // Lấy site key ở Firebase Console → App Check → Apps → reCAPTCHA v3, rồi dán vào đây.
   // Để trống thì app chạy bình thường, chỉ là không có lớp xác thực thiết bị ở phía máy chủ.
-  appCheckSiteKey: ""
+  appCheckSiteKey: "",
+  // Xoá tài khoản Firebase Auth của người khác chỉ làm được bằng Admin SDK.
+  // Deploy thư mục functions/ rồi đổi thành true để app gọi Cloud Function deleteUserAccount.
+  // Để false: app vẫn xoá dữ liệu + cấm vĩnh viễn UID, nhưng bản ghi Auth phải xoá tay trong Console.
+  enableAccountDeletionFunction: false,
+  functionsRegion: "us-central1"
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);

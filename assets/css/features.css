@@ -453,3 +453,128 @@ body[data-density="compact"] .app-view .message-bubble { line-height: 1.45; }
   color: var(--theme-text, #f3f3f3);
   font-size: 12px;
 }
+
+/* ───────────── Xoá tài khoản thành viên (admin) ───────────── */
+.account-delete-layer { z-index: 290; }
+.account-delete-dialog {
+  width: min(520px, 100%);
+  max-height: min(86vh, 720px);
+  overflow-y: auto;
+  display: grid;
+  gap: 10px;
+}
+.account-delete-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.account-delete-head h2 { margin: 2px 0 0; font-size: 15px; letter-spacing: -.01em; }
+.account-delete-eyebrow { color: #ff7b7b; font-size: 8px; font-weight: 900; letter-spacing: .09em; }
+.account-delete-copy { margin: 0; font-size: 10.5px; line-height: 1.6; color: var(--theme-muted, #9a9a9a); }
+.account-delete-target {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 1px solid color-mix(in srgb, #e05555 26%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, #e05555 9%, transparent);
+}
+.account-delete-avatar .avatar { width: 32px; height: 32px; border-radius: 11px; font-size: 10px; }
+.account-delete-target-copy { display: flex; flex-direction: column; min-width: 0; gap: 1px; flex: 1; }
+.account-delete-target-copy strong { font-size: 11px; }
+.account-delete-target-copy span {
+  overflow: hidden;
+  color: var(--theme-muted, #9a9a9a);
+  font-size: 8.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-delete-copy-button {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border: 1px solid var(--theme-line-strong, rgba(255,255,255,.16));
+  border-radius: 8px;
+  background: transparent;
+  color: var(--theme-secondary, #d9d9d9);
+  cursor: pointer;
+  font-size: 8.5px;
+  font-weight: 700;
+}
+.account-delete-copy-button:hover { border-color: var(--theme-accent, #d5763c); color: var(--theme-accent, #d5763c); }
+.account-delete-list { display: grid; gap: 4px; margin: 0; padding-left: 16px; font-size: 10px; line-height: 1.55; color: var(--theme-secondary, #d9d9d9); }
+.account-delete-list li::marker { color: #e05555; }
+.account-delete-choices { display: grid; gap: 5px; }
+.account-delete-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--theme-line, rgba(255,255,255,.08));
+  border-radius: 10px;
+  background: var(--theme-panel-alt, rgba(255,255,255,.03));
+  cursor: pointer;
+}
+.account-delete-choice input { margin-top: 2px; accent-color: var(--theme-accent, #d5763c); }
+.account-delete-choice span { display: flex; flex-direction: column; gap: 1px; }
+.account-delete-choice strong { font-size: 10px; }
+.account-delete-choice small { color: var(--theme-muted, #9a9a9a); font-size: 8.5px; }
+.account-delete-note {
+  padding: 9px 11px;
+  border: 1px dashed color-mix(in srgb, var(--theme-accent, #d5763c) 42%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--theme-accent, #d5763c) 8%, transparent);
+}
+.account-delete-note strong { display: block; margin-bottom: 3px; font-size: 9.5px; color: color-mix(in srgb, var(--theme-accent, #d5763c) 82%, var(--theme-text, #fff)); }
+.account-delete-note p { margin: 0; font-size: 9px; line-height: 1.55; color: var(--theme-muted, #9a9a9a); }
+.account-delete-confirm { display: grid; gap: 4px; }
+.account-delete-confirm span { font-size: 9px; color: var(--theme-muted, #9a9a9a); }
+.account-delete-confirm strong { color: #ff9a9a; letter-spacing: .08em; }
+.account-delete-confirm input {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--theme-line-strong, rgba(255,255,255,.16));
+  border-radius: 10px;
+  background: var(--theme-input, rgba(255,255,255,.05));
+  color: var(--theme-text, #f3f3f3);
+  font-size: 11px;
+  letter-spacing: .1em;
+}
+.account-delete-confirm input:focus { border-color: #e05555; outline: none; }
+.account-delete-footer { display: flex; justify-content: flex-end; gap: 8px; }
+.account-delete-cancel,
+.account-delete-accept {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+}
+.account-delete-cancel { border: 1px solid var(--theme-line-strong, rgba(255,255,255,.16)); background: transparent; color: var(--theme-secondary, #d9d9d9); }
+.account-delete-accept { border: 0; background: linear-gradient(140deg, #ff6b6b, #b5342f); color: #fff; }
+.account-delete-accept:disabled { opacity: .45; cursor: not-allowed; }
+.account-delete-pick-list { display: grid; gap: 4px; max-height: 46vh; overflow-y: auto; }
+.account-delete-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--theme-panel-alt, rgba(255,255,255,.03));
+  color: var(--theme-secondary, #d9d9d9);
+  cursor: pointer;
+  font-size: 10px;
+  text-align: left;
+}
+.account-delete-pick:hover { border-color: #e05555; color: #ffb3b3; }
+.tag-deleted {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #e05555 15%, transparent);
+  color: #ff9a9a;
+  font-size: 8px;
+  font-weight: 800;
+}
+.tag-deleted .icon { width: 11px; height: 11px; }
+.admin-action.danger:hover { border-color: color-mix(in srgb, #e05555 60%, transparent); color: #ff8f8f; background: color-mix(in srgb, #e05555 12%, transparent); }
