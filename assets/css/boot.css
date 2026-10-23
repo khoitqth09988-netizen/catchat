@@ -26,7 +26,20 @@
     linear-gradient(168deg, var(--boot-bg-1), var(--boot-bg-2) 68%);
   color: var(--boot-ink);
   font-family: Nunito, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  transition: opacity .52s cubic-bezier(.4, 0, .2, 1), transform .52s cubic-bezier(.4, 0, .2, 1), filter .52s;
+  transition: opacity .46s cubic-bezier(.4, 0, .2, 1), transform .46s cubic-bezier(.4, 0, .2, 1);
+  contain: layout paint;
+}
+
+/* Người dùng hệ thống sáng: splash sáng ngay từ frame đầu (trước khi JS kịp áp theme),
+   tránh cảnh “nháy tối rồi chuyển sáng”. */
+@media (prefers-color-scheme: light) {
+  .boot-screen {
+    --boot-bg-1: #fffaf4;
+    --boot-bg-2: #f3ede7;
+    --boot-ink: #33291f;
+    --boot-muted: #8d8378;
+    --boot-line: rgba(51, 41, 31, .1);
+  }
 }
 
 /* Bảng màu sáng cho các theme sáng để splash không bị “nháy tối”. */
@@ -43,8 +56,7 @@ body[data-theme="ocean"] .boot-screen {
 .boot-screen.is-hidden {
   opacity: 0;
   visibility: hidden;
-  transform: scale(1.035);
-  filter: blur(8px);
+  transform: scale(1.04);
   pointer-events: none;
 }
 
@@ -55,26 +67,28 @@ body[data-theme="ocean"] .boot-screen {
   pointer-events: none;
 }
 
+/* Hai quầng sáng lớn: dùng radial-gradient thay cho filter: blur() để GPU không phải
+   blur 2 lớp phủ toàn màn hình mỗi frame — đây là phần tốn pin nhất của splash. */
 .boot-glow span {
   position: absolute;
-  width: 46vmax;
-  height: 46vmax;
+  width: 62vmax;
+  height: 62vmax;
   border-radius: 50%;
-  filter: blur(70px);
-  opacity: .38;
+  opacity: .5;
   animation: boot-drift 16s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
 .boot-glow span:first-child {
-  top: -18%;
-  left: -8%;
-  background: color-mix(in srgb, var(--boot-accent-3) 55%, transparent);
+  top: -26%;
+  left: -14%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--boot-accent-3) 26%, transparent) 0%, transparent 62%);
 }
 
 .boot-glow span:last-child {
-  right: -10%;
-  bottom: -22%;
-  background: color-mix(in srgb, var(--boot-accent) 45%, transparent);
+  right: -16%;
+  bottom: -30%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--boot-accent) 22%, transparent) 0%, transparent 62%);
   animation-duration: 19s;
   animation-direction: alternate-reverse;
 }
@@ -110,6 +124,7 @@ body[data-theme="ocean"] .boot-screen {
 
 .boot-ring {
   position: absolute;
+  will-change: transform;
   inset: 0;
   border: 1px dashed color-mix(in srgb, var(--boot-ink) 26%, transparent);
   border-radius: 50%;
@@ -128,6 +143,7 @@ body[data-theme="ocean"] .boot-screen {
 
 .boot-orbit {
   position: absolute;
+  will-change: transform;
   inset: 0;
   animation: boot-spin 7.5s linear infinite;
 }
@@ -148,13 +164,12 @@ body[data-theme="ocean"] .boot-screen {
   place-items: center;
   border: 1px solid var(--boot-line);
   border-radius: 50%;
-  background: color-mix(in srgb, var(--boot-ink) 9%, transparent);
+  background: color-mix(in srgb, var(--boot-bg-1) 62%, var(--boot-ink) 12%);
   box-shadow: 0 6px 18px rgba(0, 0, 0, .18);
   font-size: 12px;
   font-style: normal;
   line-height: 1;
   transform: translate(-50%, -50%);
-  backdrop-filter: blur(4px);
 }
 
 .boot-orbit.orbit-b i {
@@ -179,6 +194,7 @@ body[data-theme="ocean"] .boot-screen {
     0 18px 44px color-mix(in srgb, var(--boot-accent) 32%, transparent),
     inset 0 1px rgba(255, 255, 255, .55);
   animation: boot-breathe 3.2s ease-in-out infinite;
+  will-change: transform;
 }
 
 .boot-face .icon {
@@ -230,7 +246,8 @@ body[data-theme="ocean"] .boot-screen {
   border-radius: inherit;
   background: linear-gradient(90deg, var(--boot-accent), var(--boot-accent-2) 55%, var(--boot-accent-3));
   box-shadow: 0 0 14px color-mix(in srgb, var(--boot-accent) 55%, transparent);
-  transition: width .55s cubic-bezier(.2, .8, .2, 1);
+  transition: width .5s cubic-bezier(.2, .8, .2, 1);
+  will-change: width;
 }
 
 .boot-progress-fill::after {

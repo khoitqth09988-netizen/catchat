@@ -12,9 +12,9 @@
     try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
     catch (_) { return false; }
   };
-  const MIN_VISIBLE = prefersReducedMotion() ? 0 : 900;
+  const MIN_VISIBLE = prefersReducedMotion() ? 0 : 720;
   const SLOW_HINT_AFTER = 15000;
-  const EXIT_MS = prefersReducedMotion() ? 30 : 560;
+  const EXIT_MS = prefersReducedMotion() ? 30 : 500;
   const startedAt = Date.now();
 
   let screen = null;

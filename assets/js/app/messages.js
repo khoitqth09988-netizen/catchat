@@ -356,6 +356,13 @@ function buildMessageNode(id, data, grouped = false) {
       image.alt = data.imageName || `Ảnh được gửi bởi ${name}`;
       image.loading = 'lazy';
       image.decoding = 'async';
+      // Ảnh hiện dần khi tải xong để danh sách không bị “nhảy” và không có khung trống.
+      const revealImage = () => image.classList.add('is-loaded');
+      if (image.complete && image.naturalWidth) revealImage();
+      else image.addEventListener('load', revealImage, { once: true });
+      image.addEventListener('error', () => image.classList.add('is-loaded', 'is-broken'), { once: true });
+      link.classList.add('is-loading-image');
+      image.addEventListener('load', () => link.classList.remove('is-loading-image'), { once: true });
       link.appendChild(image);
       content.appendChild(link);
     }

@@ -1,0 +1,179 @@
+/* CatChat · Hiệu ứng con trỏ: vệt sáng khi di chuyển, sóng khi bấm, dấu chân khi cuộn.
+   Chỉ bật trên thiết bị có chuột thật, tôn trọng prefers-reduced-motion.
+   Mọi phần tử đều dùng transform/opacity (compositor) và pointer-events: none. */
+
+.cursor-fx {
+  --fx-color: var(--cat-meow, var(--theme-accent, #ff9d5c));
+  position: fixed;
+  z-index: 9998;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+.cursor-fx * {
+  pointer-events: none;
+}
+
+.cursor-fx[hidden] {
+  display: none !important;
+}
+
+/* Vòng sáng đi theo con trỏ (bám trễ để tạo cảm giác mượt) */
+.cursor-fx-follower {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  will-change: transform;
+  opacity: 0;
+  transition: opacity .28s ease;
+}
+
+.cursor-fx.is-active .cursor-fx-follower {
+  opacity: 1;
+}
+
+.cursor-fx-follower i {
+  position: absolute;
+  top: -14px;
+  left: -14px;
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid color-mix(in srgb, var(--fx-color) 62%, transparent);
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--fx-color) 20%, transparent), transparent 70%);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--fx-color) 26%, transparent);
+  transform: scale(1);
+  transition: transform .24s cubic-bezier(.2, .8, .2, 1), border-color .24s ease, box-shadow .24s ease;
+}
+
+.cursor-fx.is-pressed .cursor-fx-follower i {
+  transform: scale(.62);
+  border-color: color-mix(in srgb, var(--fx-color) 88%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--fx-color) 40%, transparent);
+}
+
+.cursor-fx.is-hot .cursor-fx-follower i {
+  transform: scale(1.55);
+  border-color: color-mix(in srgb, var(--fx-color) 78%, transparent);
+}
+
+/* Hạt sáng khi bấm / khi di chuyển */
+.cursor-fx-spark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--fx-color);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--fx-color) 60%, transparent);
+  animation: fx-spark-fly var(--fx-dur, 640ms) cubic-bezier(.16, .72, .28, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.cursor-fx-trail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fx-color) 72%, transparent);
+  filter: blur(.3px);
+  animation: fx-trail-fade 620ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
+/* Sóng lan khi bấm */
+.cursor-fx-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border: 2px solid color-mix(in srgb, var(--fx-color) 72%, transparent);
+  border-radius: 50%;
+  animation: fx-ring-pop 680ms cubic-bezier(.16, .72, .28, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Dấu chân khi bấm mạnh / khi cuộn */
+.cursor-fx-paw {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: -9px 0 0 -9px;
+  color: var(--fx-color);
+  font-size: 14px;
+  line-height: 1;
+  animation: fx-paw-drift var(--fx-dur, 900ms) ease-out forwards;
+  will-change: transform, opacity;
+}
+
+/* Vệt sáng chạy dọc khi cuộn */
+.cursor-fx-streak {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 26px;
+  margin: -13px 0 0 -1px;
+  border-radius: 99px;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--fx-color) 72%, transparent), transparent);
+  animation: fx-streak 700ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes fx-spark-fly {
+  0% { opacity: .95; transform: translate3d(0, 0, 0) scale(1); }
+  70% { opacity: .6; }
+  100% { opacity: 0; transform: translate3d(var(--dx, 0px), var(--dy, 0px), 0) scale(.18); }
+}
+
+@keyframes fx-trail-fade {
+  0% { opacity: .6; transform: translate3d(0, 0, 0) scale(1); }
+  100% { opacity: 0; transform: translate3d(var(--dx, 0px), var(--dy, 0px), 0) scale(.25); }
+}
+
+@keyframes fx-ring-pop {
+  0% { opacity: .5; transform: translate3d(-50%, -50%, 0) scale(.3); }
+  60% { opacity: .35; }
+  100% { opacity: 0; transform: translate3d(-50%, -50%, 0) scale(2.6); }
+}
+
+@keyframes fx-paw-drift {
+  0% { opacity: 0; transform: translate3d(-50%, -50%, 0) rotate(var(--rot, 0deg)) scale(.55); }
+  22% { opacity: .82; }
+  100% { opacity: 0; transform: translate3d(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px)), 0) rotate(calc(var(--rot, 0deg) + 26deg)) scale(1.08); }
+}
+
+@keyframes fx-streak {
+  0% { opacity: 0; transform: translate3d(-50%, -50%, 0) scaleY(.4); }
+  25% { opacity: .7; }
+  100% { opacity: 0; transform: translate3d(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px)), 0) scaleY(1.7); }
+}
+
+/* Thiết bị cảm ứng / người dùng muốn giảm chuyển động: không tạo hiệu ứng nào */
+@media (hover: none), (pointer: coarse) {
+  .cursor-fx { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-fx { display: none !important; }
+}
+
+/* Ghi chú nhỏ trong hộp thoại giao diện khi thiết bị không có chuột */
+.appearance-note {
+  margin: 2px 0 0;
+  color: var(--theme-subtle, rgba(140, 130, 120, .9));
+  font-size: 9.5px;
+  line-height: 1.5;
+}
