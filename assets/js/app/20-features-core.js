@@ -3,18 +3,33 @@
    Hook cho phép tính năng mở rộng app mà không phải sửa code lõi:
      start           — chạy một lần khi app khởi động
      outgoingText    — chỉnh/sửa/chặn nội dung trước khi gửi tin nhắn
+     messageBody     — định dạng, tô màu, chèn liên kết cho nội dung tin nhắn
+     incomingMessage — biết có tin nhắn mới vừa tới (thông báo, âm thanh, highlight)
+     channelChanged  — chạy sau khi chuyển kênh (khôi phục bản nháp, cuộn, ...)
      messageTools    — thêm nút vào thanh công cụ của từng tin nhắn
      memberActions   — thêm hành động vào hồ sơ thành viên
+     themeExtras     — thêm điều khiển vào hộp thoại giao diện
      keydown         — bắt phím tắt toàn cục (trả về true để chặn xử lý mặc định)
    Tính năng lỗi sẽ chỉ bị tắt riêng nó, phần còn lại của CatChat vẫn chạy. */
 'use strict';
 
 const CatChat = window.CatChat || (window.CatChat = {});
 
-const FEATURE_HOOKS = ['start', 'outgoingText', 'messageTools', 'memberActions', 'keydown'];
+const FEATURE_HOOKS = [
+  'start',
+  'outgoingText',
+  'messageBody',
+  'incomingMessage',
+  'channelChanged',
+  'messageTools',
+  'memberActions',
+  'themeExtras',
+  'keydown'
+];
 const featureRegistry = [];
 const featureHooks = new Map(FEATURE_HOOKS.map((name) => [name, []]));
 const featureFailures = [];
+const CHAINED_HOOKS = new Set(['outgoingText']);
 
 function reportFeatureFailure(featureId, hookName, error) {
   featureFailures.push({ featureId, hookName, message: String(error?.message || error) });
@@ -46,27 +61,58 @@ function registerFeature(feature) {
 function runFeatureHook(hookName, ...args) {
   const handlers = featureHooks.get(hookName);
   if (!handlers || !handlers.length) return args[0];
-  if (args.length > 1) {
-    handlers.forEach(({ featureId, handler }) => {
-      try {
-        handler(...args);
-      } catch (error) {
-        reportFeatureFailure(featureId, hookName, error);
-      }
-    });
-    return args[0];
-  }
+  // Chỉ hook một tham số dạng "payload" mới nối tiếp kết quả của nhau.
+  const chained = args.length === 1 && CHAINED_HOOKS.has(hookName);
   let current = args[0];
+  let handled = false;
   handlers.forEach(({ featureId, handler }) => {
     try {
-      const next = handler(current);
-      if (next !== undefined && next !== null) current = next;
+      const result = handler(...(chained ? [current] : args));
+      if (result === true) handled = true;
+      if (chained && result !== undefined && result !== null) current = result;
     } catch (error) {
       reportFeatureFailure(featureId, hookName, error);
     }
   });
-  return current;
+  if (chained) return current;
+  return handled ? true : args[0];
 }
+
+/* ── Thanh hành động dùng chung ────────────────────────────────────────────
+   Tính năng đăng ký hành động ở đây để bảng lệnh nhanh (Alt+K) và các nơi khác
+   dùng lại mà không cần biết hành động đó thuộc tính năng nào. */
+const sharedActions = [];
+
+function registerAction(action) {
+  const id = String(action?.id || '').trim();
+  if (!id) throw new Error('Hành động phải có id.');
+  const entry = {
+    id,
+    label: String(action.label || id),
+    hint: String(action.hint || ''),
+    icon: String(action.icon || 'sparkles'),
+    group: String(action.group || 'Hành động'),
+    when: typeof action.when === 'function' ? action.when : null,
+    run: action.run
+  };
+  const index = sharedActions.findIndex((item) => item.id === id);
+  if (index >= 0) sharedActions[index] = entry;
+  else sharedActions.push(entry);
+  return entry;
+}
+
+function listActions() {
+  return sharedActions.filter((action) => {
+    if (!action.when) return true;
+    try {
+      return Boolean(action.when());
+    } catch (error) {
+      return false;
+    }
+  });
+}
+
+CatChat.actions = { register: registerAction, list: listActions };
 
 CatChat.features = {
   register: registerFeature,

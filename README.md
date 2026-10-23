@@ -43,8 +43,15 @@ assets/js/app/                 Lõi ứng dụng, nạp theo thứ tự bằng <
   24-boot.js                   Khởi động app (luôn nạp cuối)
 assets/js/features/            Tính năng mở rộng, mỗi tính năng một file
   slash-commands.js            Lệnh gõ “/”: /me, /shrug, /flip, /8ball, /cat, /roll, /help
+  rich-text.js                 Định dạng tin nhắn: **đậm**, *nghiêng*, ~~gạch~~, `mã`,
+                               ```khối mã```, ||spoiler|| và liên kết tự động
+  mentions.js                  Gợi ý @tên khi gõ, tô sáng mention, nháy tiêu đề + chuông
+                               khi bạn được nhắc tên
   message-tools.js             Nút sao chép tin nhắn + “Tìm tin nhắn trong kênh” ở hồ sơ
+  drafts.js                    Bản nháp riêng cho từng kênh (localStorage), Alt+D để xoá
   shortcuts.js                 Bảng phím tắt “?”, Alt+↑/↓ chuyển kênh, Alt+S/T/A
+  command-palette.js           Bảng lệnh nhanh Alt+K: kênh, thành viên, hành động
+  appearance-extras.js         Màu nhấn, cỡ chữ, mật độ tin nhắn trong hộp thoại giao diện
 ```
 
 Không dùng bundler: mọi file là script cổ điển nạp bằng `<script defer>` để giữ đúng thứ tự,
@@ -61,9 +68,24 @@ nên vẫn mở trực tiếp `index.html` bằng `file://` được (chỉ cầ
     name: 'Tên tính năng',
     start() { /* chạy một lần khi app khởi động: gắn DOM, listener riêng */ },
     outgoingText(payload) { /* đổi payload.text hoặc trả { cancel: true } để chặn gửi */ },
+    messageBody(element, { id, data }) { /* định dạng/tô màu nội dung tin nhắn */ },
+    incomingMessage({ id, data, channelId }) { /* tin nhắn mới vừa tới */ },
+    channelChanged(channelId) { /* vừa chuyển kênh */ },
     messageTools(container, { id, data }) { /* thêm nút vào thanh công cụ tin nhắn */ },
     memberActions({ uid, name, addAction }) { /* thêm hành động trong hồ sơ thành viên */ },
+    themeExtras(container) { /* thêm điều khiển vào hộp thoại giao diện */ },
     keydown(event) { /* trả về true nếu đã xử lý phím */ }
+  });
+
+  // Hành động dùng chung: tự hiện trong bảng lệnh nhanh Alt+K
+  CatChat.actions.register({
+    id: 'ten-hanh-dong',
+    label: 'Nhãn hiển thị',
+    hint: 'Mô tả ngắn',
+    icon: 'sparkles',
+    group: 'Nhóm',
+    when: () => Boolean(currentUser), // tuỳ chọn
+    run() { toast('Xin chào!', 'success'); }
   });
 })();
 ```
