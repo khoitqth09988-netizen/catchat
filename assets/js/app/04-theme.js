@@ -27,6 +27,11 @@ function applyTheme(themeId, persist = true) {
 }
 
 function openThemeDialog() {
+  const extras = $('#appearanceExtras');
+  if (extras) {
+    extras.replaceChildren();
+    CatChat.features.run('themeExtras', extras);
+  }
   els.themeDialog.hidden = false;
   els.themeDialog.setAttribute('aria-hidden', 'false');
   requestAnimationFrame(() => els.themeDialog.classList.add('open'));

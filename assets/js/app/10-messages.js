@@ -180,7 +180,7 @@ function buildMessageNode(id, data) {
     const quote = makeReplyQuote(data);
     if (quote) announcement.appendChild(quote);
     if (editing) announcement.appendChild(makeEditControls(id, data));
-    else announcement.appendChild(textElement('p', '', data.text || ''));
+    else announcement.appendChild(makeMessageText(data.text || '', { tag: 'p', className: '', id, data }));
     const meta = textElement('div', 'server-announcement-meta');
     meta.append(textElement('span', '', `Gửi bởi ${name}`));
     const stamp = textElement('span');
@@ -228,7 +228,7 @@ function buildMessageNode(id, data) {
       content.appendChild(link);
     }
     if (editing) content.appendChild(makeEditControls(id, data));
-    else if (data.text) content.appendChild(textElement('div', 'message-bubble', data.text));
+    else if (data.text) content.appendChild(makeMessageText(data.text, { id, data }));
     content.appendChild(makeReactionStrip(id));
     row.append(avatar, content);
   }

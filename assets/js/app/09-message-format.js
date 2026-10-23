@@ -45,3 +45,15 @@ function makeReplyButton(messageId) {
   button.appendChild(icon('reply'));
   return button;
 }
+
+/**
+ * Tạo phần nội dung tin nhắn và cho các tính năng mở rộng định dạng thêm
+ * (markdown nhẹ, link, @mention, spoiler...) qua hook messageBody.
+ */
+function makeMessageText(text, { tag = 'div', className = 'message-bubble', id = '', data = null } = {}) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  element.textContent = String(text ?? '');
+  CatChat.features.run('messageBody', element, { id, data, text: String(text ?? '') });
+  return element;
+}

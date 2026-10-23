@@ -200,6 +200,7 @@ async function switchChannel(channelId, { skipConfirm = false, force = false } =
   renderAllMessages(false);
   updateAnnouncementBanner();
   await startChannelMessageListeners(user, generation, channelId, channelRun, ref);
+  CatChat.features.run('channelChanged', channelId);
   return true;
 }
 
@@ -223,6 +224,7 @@ async function startChannelMessageListeners(user, generation, channelId, channel
       if (isNew) {
         renderAllMessages(false, true);
         syncReactionListeners(generation, channelRun);
+        CatChat.features.run('incomingMessage', { id: child.key, data: child.val() || {}, channelId });
       }
       updateAnnouncementBanner();
       renderAdminPanel();
