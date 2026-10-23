@@ -4,6 +4,14 @@
 
 function attachEvents() {
   savedMessages = loadSavedMessages();
+  // Liên kết “bỏ qua điều hướng”: đưa focus tới đúng vùng đang dùng được.
+  document.querySelector('.ds-skip-link')?.addEventListener('click', (event) => {
+    const target = els.appView.hidden ? els.email : els.messageInput;
+    if (!target) return;
+    event.preventDefault();
+    target.focus({ preventScroll: true });
+    if (typeof target.scrollIntoView === 'function') target.scrollIntoView({ block: 'nearest' });
+  });
   renderCursorOptions();
   renderEmojiPicker();
   setWorkspaceView('chat');

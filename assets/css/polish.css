@@ -1,0 +1,1647 @@
+/* CatChat · Lớp hoàn thiện thiết kế (design polish).
+   Nạp sau chat-pro.css và trước halloween-night.css — mọi rule ở đây dùng biến
+   --theme-* + token --ds-* nên áp dụng đồng nhất cho cả 5 bảng màu.
+   Nguyên tắc:
+     1. Không đổi bố cục (grid/flex) trừ khi thật cần — chỉ tinh chỉnh bề mặt.
+     2. Ưu tiên transform/opacity cho chuyển động.
+     3. Mọi hiệu ứng tôn trọng prefers-reduced-motion (xem cuối file). */
+
+/* ───────────────────────── 1. Nền tảng ───────────────────────── */
+
+body {
+  font-family: var(--ds-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--theme-accent) 26%, transparent);
+  color: var(--theme-text);
+}
+
+/* Vòng focus thống nhất, chỉ hiện với điều hướng bàn phím */
+:where(button, a, input, textarea, select, [role="button"], [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--ds-focus);
+  border-radius: var(--ds-radius-sm);
+}
+
+/* Thanh cuộn mảnh, đồng bộ màu theme */
+.app-view *,
+.app-view {
+  scrollbar-color: color-mix(in srgb, var(--theme-scroll) 78%, transparent) transparent;
+  scrollbar-width: thin;
+}
+
+.app-view ::-webkit-scrollbar { width: 9px; height: 9px; }
+.app-view ::-webkit-scrollbar-track { background: transparent; }
+
+.app-view ::-webkit-scrollbar-thumb {
+  border: 2.5px solid transparent;
+  border-radius: var(--ds-radius-pill);
+  background: color-mix(in srgb, var(--theme-scroll) 72%, transparent);
+  background-clip: content-box;
+}
+
+.app-view ::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-scroll);
+  background-clip: content-box;
+}
+
+/* Số liệu thẳng cột (đếm thành viên, giờ, phần trăm) */
+.nav-count,
+.tool-caption,
+.message-time,
+.server-stat strong,
+.admin-tab-count,
+.message-search-count,
+.char-count,
+#messageCharCount {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ───────────────────────── 2. Màn hình đăng nhập ───────────────────────── */
+
+.auth-screen {
+  padding: clamp(20px, 4vw, 44px) clamp(16px, 4vw, 32px);
+  background:
+    radial-gradient(38% 32% at 12% 6%, color-mix(in srgb, var(--theme-accent) 13%, transparent), transparent 70%),
+    radial-gradient(34% 30% at 92% 94%, color-mix(in srgb, var(--cat-meow, var(--theme-accent)) 12%, transparent), transparent 72%),
+    var(--theme-bg, #f2f3f5);
+  transition: background var(--ds-dur-slow) var(--ds-ease-in-out);
+}
+
+.auth-card {
+  border: 1px solid var(--theme-line-strong);
+  border-radius: clamp(20px, 2.4vw, 30px);
+  background: color-mix(in srgb, var(--theme-panel) 92%, transparent);
+  box-shadow: var(--ds-elev-3), var(--ds-inner-light);
+  animation: card-in .62s var(--ds-ease-spring) both;
+}
+
+.auth-showcase {
+  background:
+    radial-gradient(ellipse at 14% 74%, color-mix(in srgb, var(--theme-accent) 16%, transparent), transparent 42%),
+    radial-gradient(ellipse at 88% 16%, color-mix(in srgb, var(--cat-meow, var(--theme-accent)) 14%, transparent), transparent 44%),
+    linear-gradient(150deg, color-mix(in srgb, var(--theme-panel) 96%, #000 4%), var(--theme-panel-alt));
+}
+
+.auth-showcase::before {
+  border-color: color-mix(in srgb, var(--theme-text) 8%, transparent);
+  box-shadow:
+    0 0 0 48px color-mix(in srgb, var(--theme-text) 2%, transparent),
+    0 0 0 96px color-mix(in srgb, var(--theme-text) 1.4%, transparent);
+}
+
+.brand-mark {
+  border-radius: 15px;
+  background: var(--cat-gradient, linear-gradient(145deg, var(--theme-accent), var(--theme-accent-soft)));
+  box-shadow: 0 10px 26px var(--cat-glow, rgba(120, 120, 120, .28)), var(--ds-inner-light);
+  color: var(--cat-face-ink, #fff);
+}
+
+.brand-name {
+  color: var(--theme-text);
+  font-size: 19px;
+  font-weight: var(--ds-weight-black);
+  letter-spacing: -.04em;
+}
+
+.brand-caption {
+  color: var(--theme-subtle);
+  font-size: 7.5px;
+  font-weight: var(--ds-weight-bold);
+  letter-spacing: .2em;
+}
+
+.showcase-copy h1 {
+  letter-spacing: -.045em;
+  line-height: 1.08;
+}
+
+.showcase-copy > p {
+  color: var(--theme-muted);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.eyebrow {
+  color: color-mix(in srgb, var(--theme-accent) 74%, var(--theme-muted));
+  font-weight: var(--ds-weight-black);
+}
+
+.chat-float {
+  border: 1px solid var(--theme-line-strong);
+  background: color-mix(in srgb, var(--theme-panel) 88%, transparent);
+  box-shadow: var(--ds-elev-2);
+  color: var(--theme-secondary);
+}
+
+.orbit-particle {
+  border-color: var(--theme-line-strong);
+  background: color-mix(in srgb, var(--theme-panel) 92%, transparent);
+  color: var(--theme-muted);
+  box-shadow: var(--ds-elev-1);
+}
+
+.showcase-footer { color: var(--theme-subtle); }
+.showcase-footer .online-note { color: var(--theme-muted); }
+.secure-note .icon { color: var(--ds-success); }
+
+.auth-panel {
+  background: color-mix(in srgb, var(--theme-panel) 97%, transparent);
+  border-left: 1px solid var(--theme-line);
+}
+
+.auth-heading h2 {
+  font-weight: var(--ds-weight-black);
+  letter-spacing: -.045em;
+}
+
+.auth-heading p:last-child { color: var(--theme-muted); font-size: 13px; }
+.auth-heading .eyebrow { color: var(--theme-accent); }
+
+.field-heading label,
+.form-field > label {
+  color: var(--theme-secondary);
+  font-size: 11.5px;
+  font-weight: var(--ds-weight-bold);
+}
+
+.field-shell input {
+  height: 50px;
+  border: 1.5px solid var(--theme-line);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-input);
+  color: var(--theme-text);
+  font-size: 12.5px;
+  font-weight: var(--ds-weight-medium);
+  transition:
+    border-color var(--ds-dur-fast) var(--ds-ease-out),
+    box-shadow var(--ds-dur-base) var(--ds-ease-out),
+    background var(--ds-dur-base) var(--ds-ease-out);
+}
+
+.field-shell input::placeholder { color: var(--theme-subtle); }
+.field-shell > .icon { color: var(--theme-subtle); transition: color var(--ds-dur-fast); }
+
+.field-shell input:focus {
+  border-color: color-mix(in srgb, var(--theme-accent) 62%, transparent);
+  background: var(--theme-panel);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 14%, transparent);
+}
+
+.field-shell:focus-within > .icon { color: var(--theme-accent); }
+
+.field-action { border-radius: var(--ds-radius-xs); color: var(--theme-subtle); }
+.field-action:hover { background: var(--theme-hover); color: var(--theme-text); }
+
+.auth-submit {
+  min-height: 50px;
+  border: 0;
+  border-radius: var(--ds-radius-md);
+  background: var(--cat-gradient, linear-gradient(120deg, var(--theme-accent), var(--theme-accent)));
+  color: var(--cat-face-ink, var(--theme-accent-contrast));
+  box-shadow: 0 10px 24px var(--cat-glow, rgba(90, 100, 240, .28)), var(--ds-inner-light);
+  font-size: 12.5px;
+  font-weight: var(--ds-weight-black);
+  letter-spacing: .004em;
+  transition: transform var(--ds-dur-fast) var(--ds-ease-out), box-shadow var(--ds-dur-base), filter var(--ds-dur-fast);
+}
+
+.auth-submit:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow: 0 16px 32px var(--cat-glow, rgba(90, 100, 240, .32)), var(--ds-inner-light);
+  filter: saturate(1.06);
+}
+
+.auth-submit:active:not(:disabled) { transform: translateY(0) scale(.99); }
+
+.auth-switch { color: var(--theme-muted); font-size: 11.5px; }
+.auth-switch button { color: var(--theme-accent); font-weight: var(--ds-weight-black); }
+.auth-switch button:hover { color: color-mix(in srgb, var(--theme-accent) 76%, var(--theme-text)); }
+
+.auth-divider { color: var(--theme-subtle); }
+.auth-divider::before,
+.auth-divider::after { background: var(--theme-line); }
+
+.auth-footnote { color: var(--theme-subtle); font-size: 10.5px; }
+.auth-footnote .icon { color: var(--theme-muted); }
+
+.auth-notice {
+  border: 1px solid var(--theme-line-strong);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-panel-alt);
+  color: var(--theme-secondary);
+  font-size: 11.5px;
+}
+
+.auth-notice.success {
+  border-color: color-mix(in srgb, var(--ds-success) 34%, transparent);
+  background: var(--ds-success-soft);
+  color: color-mix(in srgb, var(--ds-success) 62%, var(--theme-text));
+}
+
+.auth-notice.error,
+#authError {
+  border-color: color-mix(in srgb, var(--ds-danger) 34%, transparent);
+  background: var(--ds-danger-soft);
+  color: color-mix(in srgb, var(--ds-danger) 62%, var(--theme-text));
+}
+
+.auth-notice.error .icon,
+#authError .icon { color: var(--ds-danger); }
+
+/* ───────────────────────── 3. Khung ứng dụng ───────────────────────── */
+
+/* Chỉ đổi độ rộng sidebar ở màn hình lớn: từ 1080px trở xuống, base.css thu
+   sidebar thành thanh icon 72px và phải giữ nguyên. */
+@media (min-width: 1081px) {
+  .app-shell {
+    grid-template-columns: 250px minmax(0, 1fr);
+  }
+}
+
+/* Sidebar */
+.sidebar {
+  border-right: 1px solid var(--theme-line);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--theme-accent) 4%, transparent), transparent 180px),
+    var(--theme-sidebar);
+}
+
+.sidebar .brand-mark {
+  box-shadow: 0 8px 20px var(--cat-glow, rgba(120, 120, 120, .24)), var(--ds-inner-light);
+}
+
+.workspace-switch {
+  border: 1px solid var(--theme-line);
+  background: color-mix(in srgb, var(--theme-panel) 62%, transparent);
+  box-shadow: var(--ds-elev-1);
+  transition: border-color var(--ds-dur-fast), background var(--ds-dur-fast), transform var(--ds-dur-fast);
+}
+
+.workspace-switch:hover {
+  border-color: color-mix(in srgb, var(--theme-accent) 34%, var(--theme-line));
+  background: var(--theme-panel);
+  transform: translateY(-1px);
+}
+
+.side-label {
+  color: var(--theme-subtle);
+  font-size: 9px;
+  font-weight: var(--ds-weight-black);
+  letter-spacing: .14em;
+}
+
+.nav-link {
+  position: relative;
+  border-radius: var(--ds-radius-sm);
+  color: var(--theme-muted);
+  font-size: 12px;
+  font-weight: var(--ds-weight-medium);
+  transition: background var(--ds-dur-fast), color var(--ds-dur-fast), padding-left var(--ds-dur-base) var(--ds-ease-out);
+}
+
+@media (min-width: 1081px) {
+  .nav-link { min-height: 38px; }
+}
+
+.nav-link .icon { color: inherit; opacity: .82; transition: opacity var(--ds-dur-fast), transform var(--ds-dur-base) var(--ds-ease-spring); }
+.nav-link:hover { background: var(--theme-hover); color: var(--theme-text); }
+.nav-link:hover .icon { opacity: 1; transform: translateY(-.5px); }
+
+.nav-link.active {
+  background: var(--theme-hover);
+  color: var(--theme-text);
+  font-weight: var(--ds-weight-bold);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 18%, transparent);
+}
+
+/* Vạch nhấn bên trái của mục đang chọn */
+.nav-link.active::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 17px;
+  border-radius: 0 var(--ds-radius-pill) var(--ds-radius-pill) 0;
+  background: var(--cat-gradient, var(--theme-accent));
+  content: "";
+  transform: translateY(-50%);
+  animation: nav-pill-in var(--ds-dur-base) var(--ds-ease-spring) both;
+}
+
+.nav-link.active .icon { color: var(--theme-accent); opacity: 1; }
+
+.nav-count {
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--ds-radius-pill);
+  font-size: 9.5px;
+  font-weight: var(--ds-weight-black);
+}
+
+.sidebar-section-title {
+  color: var(--theme-subtle);
+  font-size: 9px;
+  letter-spacing: .13em;
+}
+
+.channel-link {
+  min-height: 34px;
+  border-radius: var(--ds-radius-xs);
+  color: var(--theme-muted);
+  font-size: 12px;
+  transition: background var(--ds-dur-fast), color var(--ds-dur-fast), transform var(--ds-dur-fast);
+}
+
+.channel-link:hover { background: var(--theme-hover); color: var(--theme-text); transform: translateX(1.5px); }
+
+.channel-link.active {
+  background: color-mix(in srgb, var(--theme-accent) 12%, var(--theme-hover));
+  color: var(--theme-text);
+  font-weight: var(--ds-weight-bold);
+}
+
+.channel-link.active .channel-mark { color: var(--theme-accent); }
+
+.sidebar-tip {
+  border: 1px solid var(--theme-line);
+  box-shadow: var(--ds-elev-1);
+}
+
+.profile-chip {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-md);
+  background: color-mix(in srgb, var(--theme-panel) 56%, transparent);
+  box-shadow: var(--ds-elev-1);
+  transition: border-color var(--ds-dur-fast), background var(--ds-dur-fast);
+}
+
+.profile-chip:hover {
+  border-color: color-mix(in srgb, var(--theme-accent) 30%, var(--theme-line));
+  background: var(--theme-panel);
+}
+
+.profile-text strong { color: var(--theme-text); font-size: 11.5px; font-weight: var(--ds-weight-bold); }
+.profile-text span { color: var(--theme-subtle); font-size: 9.5px; }
+
+.profile-logout {
+  border-radius: var(--ds-radius-xs);
+  color: var(--theme-subtle);
+  transition: background var(--ds-dur-fast), color var(--ds-dur-fast);
+}
+
+.profile-logout:hover {
+  background: var(--ds-danger-soft);
+  color: var(--ds-danger);
+}
+
+/* Topbar */
+.topbar {
+  border-bottom: 1px solid var(--theme-line);
+  background: color-mix(in srgb, var(--theme-bg) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+.breadcrumbs {
+  color: var(--theme-subtle);
+  font-size: 9px;
+  font-weight: var(--ds-weight-black);
+  letter-spacing: .15em;
+}
+
+.breadcrumbs span { color: color-mix(in srgb, var(--theme-accent) 68%, var(--theme-subtle)); }
+
+.topbar-heading h1 {
+  color: var(--theme-text);
+  font-size: 17.5px;
+  font-weight: var(--ds-weight-black);
+  letter-spacing: -.035em;
+}
+
+.topbar-button {
+  min-height: 34px;
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-pill);
+  background: var(--theme-panel);
+  color: var(--theme-secondary);
+  font-size: 11px;
+  font-weight: var(--ds-weight-bold);
+  box-shadow: var(--ds-elev-1);
+  transition: transform var(--ds-dur-fast) var(--ds-ease-out), border-color var(--ds-dur-fast), background var(--ds-dur-fast), color var(--ds-dur-fast);
+}
+
+.topbar-button:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--theme-accent) 36%, var(--theme-line));
+  background: var(--theme-panel-alt);
+  color: var(--theme-text);
+}
+
+.topbar-button:active { transform: translateY(0) scale(.98); }
+
+.topbar-button.admin-button {
+  border-color: transparent;
+  background: var(--cat-gradient, var(--theme-accent));
+  color: var(--cat-face-ink, var(--theme-accent-contrast));
+  box-shadow: 0 8px 20px var(--cat-glow, rgba(90, 100, 240, .26));
+}
+
+.connection-pill {
+  border: 1px solid var(--theme-line);
+  background: var(--theme-panel);
+  color: var(--theme-muted);
+  font-size: 10px;
+  font-weight: var(--ds-weight-bold);
+}
+
+.connection-dot { position: relative; background: var(--theme-subtle); }
+
+.connection-pill.online .connection-dot { background: var(--ds-success); }
+
+.connection-pill.online .connection-dot::after {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--ds-success);
+  content: "";
+  opacity: .28;
+  animation: status-pulse 2.4s var(--ds-ease-in-out) infinite;
+}
+
+.connection-pill.offline .connection-dot { background: var(--ds-danger); }
+.connection-pill.offline { color: var(--ds-danger); border-color: color-mix(in srgb, var(--ds-danger) 30%, var(--theme-line)); }
+
+.role-pill {
+  border: 1px solid color-mix(in srgb, var(--theme-accent) 30%, transparent);
+  background: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+  color: color-mix(in srgb, var(--theme-accent) 72%, var(--theme-text));
+  font-size: 9.5px;
+  letter-spacing: .04em;
+}
+
+/* ───────────────────────── 4. Thanh kênh ───────────────────────── */
+
+.channel-toolbar {
+  border-bottom: 1px solid var(--theme-line);
+  background: color-mix(in srgb, var(--theme-bg) 92%, var(--theme-panel));
+}
+
+.channel-symbol {
+  border-radius: var(--ds-radius-md);
+  background: var(--cat-gradient, var(--theme-accent));
+  border-color: transparent;
+  color: var(--cat-face-ink, #fff);
+  font-weight: var(--ds-weight-black);
+  box-shadow: 0 8px 20px var(--cat-glow, rgba(90, 100, 240, .22));
+}
+
+.channel-title-copy h2 {
+  color: var(--theme-text);
+  font-size: 14px;
+  font-weight: var(--ds-weight-black);
+  letter-spacing: -.02em;
+}
+
+.channel-title-copy p {
+  color: var(--theme-subtle);
+  font-size: 10.5px;
+}
+
+.tool-caption { color: var(--theme-muted); font-size: 10.5px; }
+.tool-divider { background: var(--theme-line); }
+
+.icon-button {
+  border-radius: var(--ds-radius-sm);
+  color: var(--theme-muted);
+  transition: background var(--ds-dur-fast), color var(--ds-dur-fast), transform var(--ds-dur-fast);
+}
+
+.icon-button:hover {
+  background: var(--theme-hover);
+  color: var(--theme-text);
+  transform: translateY(-1px);
+}
+
+.icon-button:active { transform: translateY(0) scale(.95); }
+
+.lock-chip {
+  border: 1px solid color-mix(in srgb, var(--ds-warning) 34%, transparent);
+  background: var(--ds-warning-soft);
+  color: color-mix(in srgb, var(--ds-warning) 70%, var(--theme-text));
+  font-weight: var(--ds-weight-bold);
+}
+
+.tool-avatars .avatar { border: 2px solid var(--theme-bg); margin-left: -7px; }
+.tool-avatars .avatar:first-child { margin-left: 0; }
+
+/* ───────────────────────── 5. Tin nhắn ───────────────────────── */
+
+.messages-area {
+  background:
+    radial-gradient(60% 40% at 50% 0%, color-mix(in srgb, var(--theme-accent) 4%, transparent), transparent 70%),
+    var(--theme-bg);
+}
+
+/* Dải ngày dính đỉnh khi cuộn — giống các app chat chuyên nghiệp */
+.date-divider {
+  position: sticky;
+  z-index: 3;
+  top: -1px;
+  padding: 4px 0;
+  /* Nền đặc thay cho backdrop-filter: dải này dính đỉnh trong lúc cuộn nên
+     blur sẽ bị tính lại mỗi frame — đây là điểm dễ tụt FPS nhất. */
+  background: var(--theme-bg);
+}
+
+.date-divider span {
+  padding: 2px 10px;
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-pill);
+  background: var(--theme-panel);
+  box-shadow: var(--ds-elev-1);
+  color: var(--theme-muted);
+}
+
+/* Nhóm nút thao tác nổi ở góc phải mỗi tin nhắn */
+.app-view .message-row .message-meta {
+  align-items: center;
+  min-height: 18px;
+}
+
+.app-view .message-meta > .message-reply,
+.app-view .message-meta > .message-save,
+.app-view .message-meta > .message-tool {
+  display: inline-flex;
+  width: 21px;
+  height: 21px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--ds-radius-xs);
+  background: transparent;
+  color: var(--theme-subtle);
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity var(--ds-dur-fast), transform var(--ds-dur-fast), background var(--ds-dur-fast), color var(--ds-dur-fast);
+}
+
+.app-view .message-row:hover .message-meta > .message-reply,
+.app-view .message-row:hover .message-meta > .message-save,
+.app-view .message-row:hover .message-meta > .message-tool,
+.app-view .message-row:focus-within .message-meta > .message-reply,
+.app-view .message-row:focus-within .message-meta > .message-save,
+.app-view .message-row:focus-within .message-meta > .message-tool {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.app-view .message-meta > .message-reply:hover,
+.app-view .message-meta > .message-save:hover,
+.app-view .message-meta > .message-tool:hover {
+  border-color: var(--theme-line);
+  background: var(--theme-panel);
+  color: var(--theme-accent);
+  box-shadow: var(--ds-elev-1);
+}
+
+.app-view .message-meta > .message-save.is-saved { opacity: 1; color: var(--theme-accent); }
+
+.message-row.mine .message-meta > .message-tool,
+.message-row.mine .message-meta > .message-save { order: -1; }
+
+.message-avatar {
+  border: 1px solid var(--theme-line);
+  background: var(--theme-avatar);
+  color: var(--theme-text);
+  font-weight: var(--ds-weight-black);
+  font-size: 11px;
+}
+
+.message-name { color: var(--theme-text); font-weight: var(--ds-weight-bold); }
+
+.message-bubble {
+  border: 1px solid var(--theme-line);
+  border-left: 2.5px solid color-mix(in srgb, var(--theme-accent) 34%, transparent);
+  background: color-mix(in srgb, var(--theme-panel) 96%, transparent);
+  color: var(--theme-secondary);
+  box-shadow: var(--ds-elev-1);
+  transition: box-shadow var(--ds-dur-base), border-color var(--ds-dur-base);
+}
+
+.message-row:hover .message-bubble { box-shadow: var(--ds-elev-2); }
+
+.message-row.mine .message-bubble {
+  border-left-width: 1px;
+  border-right: 2.5px solid color-mix(in srgb, var(--theme-accent) 42%, transparent);
+  background: linear-gradient(140deg, var(--theme-accent-soft), color-mix(in srgb, var(--theme-accent-soft) 52%, var(--theme-panel)));
+  color: var(--theme-text);
+}
+
+.message-quote {
+  border-left: 2.5px solid color-mix(in srgb, var(--theme-accent) 56%, transparent);
+  border-radius: 0 var(--ds-radius-xs) var(--ds-radius-xs) 0;
+  background: color-mix(in srgb, var(--theme-accent) 7%, transparent);
+  transition: background var(--ds-dur-fast);
+}
+
+.message-quote:hover { background: color-mix(in srgb, var(--theme-accent) 13%, transparent); }
+.message-quote-copy strong { color: var(--theme-text); }
+.message-quote-copy span { color: var(--theme-muted); }
+
+.message-image-link {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-md);
+  box-shadow: var(--ds-elev-1);
+  transition: box-shadow var(--ds-dur-base), transform var(--ds-dur-base) var(--ds-ease-out);
+}
+
+.message-image-link:hover { transform: translateY(-1px); box-shadow: var(--ds-elev-2); }
+
+.reaction-button {
+  border: 1px solid var(--theme-line);
+  background: var(--theme-panel);
+  color: var(--theme-secondary);
+  box-shadow: var(--ds-elev-1);
+  transition: transform var(--ds-dur-fast) var(--ds-ease-spring), border-color var(--ds-dur-fast), background var(--ds-dur-fast);
+}
+
+.reaction-button:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--theme-accent) 34%, var(--theme-line)); }
+
+.reaction-button.active {
+  border-color: color-mix(in srgb, var(--theme-accent) 46%, transparent);
+  background: color-mix(in srgb, var(--theme-accent) 12%, var(--theme-panel));
+  color: var(--theme-text);
+}
+
+/* Tin nhắn hệ thống / thông báo */
+.server-announcement {
+  border: 1px solid color-mix(in srgb, var(--theme-accent) 24%, var(--theme-line));
+  background:
+    radial-gradient(circle at 100% 0%, var(--cat-glow, transparent), transparent 62%),
+    color-mix(in srgb, var(--theme-accent) 6%, var(--theme-panel));
+  box-shadow: var(--ds-elev-1);
+}
+
+/* ───────────────────────── 6. Khung soạn tin ───────────────────────── */
+
+.composer-wrap {
+  border-top: 1px solid var(--theme-line);
+  background: color-mix(in srgb, var(--theme-bg) 74%, var(--theme-panel));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.composer-box {
+  border: 1.5px solid var(--theme-line-strong);
+  background: var(--theme-panel);
+  box-shadow: var(--ds-elev-1);
+  transition: border-color var(--ds-dur-fast), box-shadow var(--ds-dur-base);
+}
+
+.composer-box:focus-within {
+  border-color: color-mix(in srgb, var(--theme-accent) 50%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-accent) 12%, transparent), var(--ds-elev-2);
+}
+
+.composer-box textarea {
+  color: var(--theme-text);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.composer-box textarea::placeholder { color: var(--theme-subtle); }
+
+.attach-button {
+  border-radius: var(--ds-radius-xs);
+  color: var(--theme-muted);
+  transition: background var(--ds-dur-fast), color var(--ds-dur-fast), transform var(--ds-dur-fast);
+}
+
+.attach-button:hover { background: var(--theme-hover); color: var(--theme-accent); transform: translateY(-1px); }
+
+.send-button {
+  background: var(--cat-gradient, var(--theme-accent));
+  color: var(--cat-face-ink, var(--theme-accent-contrast));
+  border: 0;
+  box-shadow: 0 8px 20px var(--cat-glow, rgba(90, 100, 240, .26));
+}
+
+.send-button:not(:disabled):hover { box-shadow: 0 12px 26px var(--cat-glow, rgba(90, 100, 240, .32)); }
+
+.composer-hint { color: var(--theme-subtle); font-size: 9.5px; }
+.composer-hint strong { color: var(--theme-muted); font-weight: var(--ds-weight-bold); }
+.char-count { color: var(--theme-subtle); }
+
+.sticker-button {
+  border: 1px solid var(--theme-line);
+  background: var(--theme-panel);
+  box-shadow: var(--ds-elev-1);
+  transition: transform var(--ds-dur-fast) var(--ds-ease-spring), border-color var(--ds-dur-fast), background var(--ds-dur-fast);
+}
+
+.sticker-button:hover {
+  transform: translateY(-2px) scale(1.06);
+  border-color: color-mix(in srgb, var(--theme-accent) 36%, var(--theme-line));
+  background: var(--theme-panel-alt);
+}
+
+.sticker-button:active { transform: scale(.94); }
+
+.sticker-label { color: var(--theme-subtle); }
+
+/* Banner (ghim / thông báo / tìm kiếm / mute) */
+.pinned-banner,
+.announcement-banner,
+.mute-banner,
+.message-search-bar {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-panel);
+  box-shadow: var(--ds-elev-1);
+}
+
+.mute-banner {
+  border-color: color-mix(in srgb, var(--ds-warning) 32%, transparent);
+  background: var(--ds-warning-soft);
+  color: color-mix(in srgb, var(--ds-warning) 68%, var(--theme-text));
+}
+
+.pinned-banner { border-left: 3px solid var(--theme-accent); }
+
+/* ───────────────────────── 7. Cột phải ───────────────────────── */
+
+.right-panel {
+  border-left: 1px solid var(--theme-line);
+  background: color-mix(in srgb, var(--theme-sidebar) 72%, var(--theme-bg));
+}
+
+.server-card {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-lg);
+  background:
+    radial-gradient(circle at 100% 0%, var(--cat-glow, transparent), transparent 62%),
+    var(--theme-panel);
+  box-shadow: var(--ds-elev-1);
+}
+
+.server-card-label { color: var(--theme-subtle); font-size: 8.5px; letter-spacing: .13em; }
+.server-card h2 { color: var(--theme-text); font-weight: var(--ds-weight-black); letter-spacing: -.02em; }
+.server-card p { color: var(--theme-muted); }
+
+.server-stat strong {
+  color: var(--theme-text);
+  font-weight: var(--ds-weight-black);
+  font-size: 17px;
+  letter-spacing: -.03em;
+}
+
+.server-stat span { color: var(--theme-subtle); font-size: 9px; }
+
+.panel-heading h3 { color: var(--theme-text); font-size: 10.5px; font-weight: var(--ds-weight-black); letter-spacing: .04em; }
+.panel-heading span { color: var(--theme-subtle); font-size: 9.5px; }
+
+.member-row {
+  border: 1px solid transparent;
+  border-radius: var(--ds-radius-sm);
+  transition: background var(--ds-dur-fast), border-color var(--ds-dur-fast), transform var(--ds-dur-fast);
+}
+
+.member-row:hover {
+  border-color: var(--theme-line);
+  background: var(--theme-panel);
+  transform: translateX(1.5px);
+  box-shadow: var(--ds-elev-1);
+}
+
+.member-row:focus-visible { border-color: color-mix(in srgb, var(--theme-accent) 44%, transparent); }
+
+.member-row .avatar { border: 1px solid var(--theme-line); background: var(--theme-avatar); }
+.member-copy strong { color: var(--theme-text); font-size: 11.5px; font-weight: var(--ds-weight-bold); }
+.member-copy > span:last-child { color: var(--theme-subtle); font-size: 9.5px; }
+
+.presence-indicator {
+  border: 2px solid var(--theme-sidebar);
+  background: var(--theme-subtle);
+}
+
+.presence-indicator.is-online { background: var(--ds-success); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ds-success) 22%, transparent); }
+
+.member-badge {
+  border: 1px solid color-mix(in srgb, var(--theme-accent) 26%, transparent);
+  background: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+  color: color-mix(in srgb, var(--theme-accent) 72%, var(--theme-text));
+  font-size: 8.5px;
+  font-weight: var(--ds-weight-black);
+}
+
+.tag-muted {
+  border: 1px solid color-mix(in srgb, var(--ds-warning) 30%, transparent);
+  background: var(--ds-warning-soft);
+  color: color-mix(in srgb, var(--ds-warning) 70%, var(--theme-text));
+}
+
+.members-footer { color: var(--theme-subtle); border-top-color: var(--theme-line); }
+.members-footer .icon { color: var(--ds-success); }
+
+/* ───────────────────────── 8. Hộp thoại & overlay ───────────────────────── */
+
+.confirm-layer,
+.profile-layer,
+.saved-layer,
+.palette-layer,
+.shortcut-layer {
+  background: color-mix(in srgb, var(--theme-overlay) 88%, transparent);
+  backdrop-filter: blur(7px) saturate(120%);
+  -webkit-backdrop-filter: blur(7px) saturate(120%);
+}
+
+.confirm-dialog,
+.profile-dialog,
+.palette-panel,
+.shortcut-panel,
+.account-delete-dialog,
+.theme-dialog {
+  border: 1px solid var(--theme-line-strong);
+  border-radius: var(--ds-radius-xl);
+  background: var(--theme-panel);
+  box-shadow: var(--ds-elev-3), var(--ds-inner-light);
+}
+
+.confirm-dialog h2,
+.profile-dialog h2,
+.account-delete-dialog h2 { color: var(--theme-text); font-weight: var(--ds-weight-black); letter-spacing: -.03em; }
+
+.confirm-dialog p,
+.account-delete-copy { color: var(--theme-muted); }
+
+.confirm-icon {
+  border: 1px solid color-mix(in srgb, var(--theme-accent) 26%, transparent);
+  background: color-mix(in srgb, var(--theme-accent) 10%, transparent);
+  color: var(--theme-accent);
+  box-shadow: var(--ds-elev-1);
+}
+
+.dialog-button {
+  border: 1px solid var(--theme-line-strong);
+  border-radius: var(--ds-radius-sm);
+  background: var(--theme-panel-alt);
+  color: var(--theme-secondary);
+  font-weight: var(--ds-weight-bold);
+  transition: transform var(--ds-dur-fast), background var(--ds-dur-fast), border-color var(--ds-dur-fast), color var(--ds-dur-fast);
+}
+
+.dialog-button:hover { background: var(--theme-hover); color: var(--theme-text); transform: translateY(-1px); }
+.dialog-button:active { transform: translateY(0) scale(.98); }
+
+.dialog-button.primary {
+  border-color: transparent;
+  background: var(--cat-gradient, var(--theme-accent));
+  color: var(--cat-face-ink, var(--theme-accent-contrast));
+  box-shadow: 0 8px 20px var(--cat-glow, rgba(90, 100, 240, .24));
+}
+
+.dialog-button.danger {
+  border-color: color-mix(in srgb, var(--ds-danger) 34%, transparent);
+  background: var(--ds-danger-soft);
+  color: var(--ds-danger);
+}
+
+.dialog-button.danger:hover { background: color-mix(in srgb, var(--ds-danger) 20%, transparent); color: var(--ds-danger); }
+
+/* Hồ sơ thành viên */
+.profile-dialog { overflow: hidden; }
+
+.profile-hero {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--theme-accent) 22%, transparent), transparent 66%),
+    linear-gradient(180deg, color-mix(in srgb, var(--theme-accent) 12%, var(--theme-panel)), var(--theme-panel));
+}
+
+.profile-avatar-slot .avatar {
+  border: 3px solid var(--theme-panel);
+  box-shadow: 0 12px 30px rgba(20, 12, 4, .16);
+}
+
+.profile-dialog h2 { font-size: 20px; }
+#profileStatus { color: var(--theme-muted); }
+
+.profile-tag {
+  border: 1px solid var(--theme-line);
+  background: var(--theme-panel-alt);
+  color: var(--theme-secondary);
+  font-weight: var(--ds-weight-bold);
+}
+
+.profile-tag.online {
+  border-color: color-mix(in srgb, var(--ds-success) 34%, transparent);
+  background: var(--ds-success-soft);
+  color: color-mix(in srgb, var(--ds-success) 68%, var(--theme-text));
+}
+
+.profile-tag.admin {
+  border-color: color-mix(in srgb, var(--theme-accent) 32%, transparent);
+  background: color-mix(in srgb, var(--theme-accent) 12%, transparent);
+  color: color-mix(in srgb, var(--theme-accent) 72%, var(--theme-text));
+}
+
+.profile-tag.banned {
+  border-color: color-mix(in srgb, var(--ds-danger) 32%, transparent);
+  background: var(--ds-danger-soft);
+  color: var(--ds-danger);
+}
+
+.profile-fact {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-sm);
+  background: var(--theme-bg);
+}
+
+.profile-fact dt { color: var(--theme-subtle); }
+.profile-fact dd { color: var(--theme-text); font-weight: var(--ds-weight-bold); }
+
+.profile-actions .dialog-button,
+.profile-actions button { border-radius: var(--ds-radius-sm); }
+
+/* Hộp thoại giao diện */
+.theme-option {
+  border: 1.5px solid var(--theme-line);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-bg);
+  transition: border-color var(--ds-dur-fast), transform var(--ds-dur-fast), background var(--ds-dur-fast);
+}
+
+.theme-option:hover { transform: translateY(-1.5px); border-color: color-mix(in srgb, var(--theme-accent) 36%, var(--theme-line)); }
+.theme-option.selected { border-color: var(--theme-accent); background: color-mix(in srgb, var(--theme-accent) 8%, var(--theme-bg)); }
+.theme-option-copy strong { color: var(--theme-text); }
+.theme-option-copy small { color: var(--theme-subtle); }
+
+.cursor-option {
+  border: 1.5px solid var(--theme-line);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-bg);
+  transition: border-color var(--ds-dur-fast), transform var(--ds-dur-fast);
+}
+
+.cursor-option:hover { transform: translateY(-1.5px); }
+.cursor-option.selected { border-color: var(--theme-accent); background: color-mix(in srgb, var(--theme-accent) 8%, var(--theme-bg)); }
+
+.appearance-segmented {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-pill);
+  background: var(--theme-bg);
+}
+
+.appearance-segmented button { border-radius: var(--ds-radius-pill); color: var(--theme-muted); font-weight: var(--ds-weight-bold); }
+.appearance-segmented button.selected { box-shadow: var(--ds-elev-1); }
+
+/* ───────────────────────── 9. Bảng quản trị ───────────────────────── */
+
+.admin-drawer {
+  border-left: 1px solid var(--theme-line-strong);
+  background: var(--theme-panel);
+  box-shadow: -24px 0 60px rgba(12, 8, 4, .22);
+}
+
+.admin-header {
+  border-bottom: 1px solid var(--theme-line);
+  background:
+    radial-gradient(circle at 0% 0%, var(--cat-glow, transparent), transparent 58%),
+    var(--theme-panel);
+}
+
+.admin-emblem {
+  border-radius: var(--ds-radius-sm);
+  background: var(--cat-gradient, var(--theme-accent));
+  color: var(--cat-face-ink, #fff);
+  box-shadow: 0 8px 18px var(--cat-glow, rgba(90, 100, 240, .22));
+}
+
+.admin-header h2 { color: var(--theme-text); font-weight: var(--ds-weight-black); letter-spacing: -.03em; }
+.admin-header p { color: var(--theme-muted); }
+
+.admin-tabs {
+  border-bottom: 1px solid var(--theme-line);
+  background: var(--theme-panel);
+}
+
+.admin-tab {
+  position: relative;
+  border-radius: var(--ds-radius-sm);
+  color: var(--theme-muted);
+  font-weight: var(--ds-weight-bold);
+  transition: color var(--ds-dur-fast), background var(--ds-dur-fast);
+}
+
+.admin-tab:hover { background: var(--theme-hover); color: var(--theme-text); }
+
+.admin-tab.active {
+  border-bottom-color: transparent;
+  color: var(--theme-text);
+  background: color-mix(in srgb, var(--theme-accent) 10%, transparent);
+}
+
+.admin-tab.active::after {
+  position: absolute;
+  right: 12px;
+  bottom: -1px;
+  left: 12px;
+  height: 2px;
+  border-radius: var(--ds-radius-pill);
+  background: var(--cat-gradient, var(--theme-accent));
+  content: "";
+  animation: tab-underline var(--ds-dur-base) var(--ds-ease-spring) both;
+}
+
+.admin-overview-card,
+.admin-stat-card,
+.admin-member-row,
+.admin-quick {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-bg);
+  box-shadow: var(--ds-elev-1);
+  transition: transform var(--ds-dur-fast), border-color var(--ds-dur-fast), background var(--ds-dur-fast);
+}
+
+.admin-overview-card:hover,
+.admin-member-row:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--theme-accent) 26%, var(--theme-line));
+  background: var(--theme-panel-alt);
+}
+
+.admin-quick:hover {
+  transform: translateY(-1.5px);
+  border-color: color-mix(in srgb, var(--theme-accent) 34%, var(--theme-line));
+  color: var(--theme-text);
+  box-shadow: var(--ds-elev-2);
+}
+
+.admin-overview-card strong,
+.admin-stat-card strong {
+  color: var(--theme-text);
+  font-weight: var(--ds-weight-black);
+  letter-spacing: -.03em;
+}
+
+.admin-overview-card span,
+.admin-stat-card span { color: var(--theme-subtle); }
+
+.admin-overview-icon { border-radius: var(--ds-radius-sm); }
+.admin-overview-icon.online { background: var(--ds-success-soft); color: var(--ds-success); }
+.admin-overview-icon.warn { background: var(--ds-warning-soft); color: var(--ds-warning); }
+.admin-overview-icon.danger { background: var(--ds-danger-soft); color: var(--ds-danger); }
+
+.admin-action {
+  border-radius: var(--ds-radius-xs);
+  transition: transform var(--ds-dur-fast), background var(--ds-dur-fast), color var(--ds-dur-fast), border-color var(--ds-dur-fast);
+}
+
+.admin-action:hover { transform: translateY(-1px); }
+.admin-action.danger:hover,
+.admin-action[data-member-action="ban"]:hover { background: var(--ds-danger-soft); color: var(--ds-danger); border-color: transparent; }
+.admin-action.unban:hover,
+.admin-action[data-member-action="unmute"]:hover { background: var(--ds-success-soft); color: var(--ds-success); }
+
+.status-tag { border-radius: var(--ds-radius-pill); font-weight: var(--ds-weight-bold); }
+.status-tag .tag-dot { background: var(--theme-subtle); }
+.status-tag:not(.banned) .tag-dot { background: var(--ds-success); }
+.status-tag.banned { background: var(--ds-danger-soft); color: var(--ds-danger); }
+.status-tag.banned .tag-dot { background: var(--ds-danger); }
+
+.tag-deleted {
+  border: 1px solid color-mix(in srgb, var(--ds-danger) 26%, transparent);
+  background: var(--ds-danger-soft);
+  color: var(--ds-danger);
+}
+
+.admin-empty,
+.member-empty,
+.directory-empty {
+  border: 1px dashed var(--theme-line-strong);
+  border-radius: var(--ds-radius-md);
+  color: var(--theme-subtle);
+  background: color-mix(in srgb, var(--theme-bg) 60%, transparent);
+}
+
+/* ───────────────────────── 10. Toast ───────────────────────── */
+
+.toast-region {
+  gap: 9px;
+  bottom: 22px;
+  right: 22px;
+}
+
+.toast {
+  position: relative;
+  overflow: hidden;
+  padding: 12px 13px 12px 15px;
+  border: 1px solid var(--theme-line-strong);
+  border-radius: var(--ds-radius-md);
+  background: color-mix(in srgb, var(--theme-panel) 97%, transparent);
+  box-shadow: var(--ds-elev-3), var(--ds-inner-light);
+  color: var(--theme-secondary);
+  font-size: 11.5px;
+  line-height: 1.55;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  animation: toast-in .3s var(--ds-ease-spring) both;
+}
+
+/* Vạch màu ngữ nghĩa bên trái */
+.toast::before {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 var(--ds-radius-pill) var(--ds-radius-pill) 0;
+  background: var(--theme-accent);
+  content: "";
+}
+
+.toast.success::before { background: var(--ds-success); }
+.toast.error::before { background: var(--ds-danger); }
+.toast.info::before { background: var(--ds-info); }
+
+.toast .icon { margin-top: 2px; }
+.toast.success .icon { color: var(--ds-success); }
+.toast.error .icon { color: var(--ds-danger); }
+.toast.info .icon { color: var(--ds-info); }
+
+.toast.success { border-color: color-mix(in srgb, var(--ds-success) 26%, var(--theme-line-strong)); }
+.toast.error { border-color: color-mix(in srgb, var(--ds-danger) 28%, var(--theme-line-strong)); }
+
+.toast-close { border-radius: var(--ds-radius-xs); transition: background var(--ds-dur-fast), color var(--ds-dur-fast); }
+.toast-close:hover { background: var(--theme-hover); color: var(--theme-text); }
+
+/* ───────────────────────── 11. Chi tiết khác ───────────────────────── */
+
+/* Bảng lệnh nhanh */
+.palette-search,
+.palette-list .palette-item {
+  border-radius: var(--ds-radius-sm);
+}
+
+.palette-item:hover,
+.palette-item.is-active {
+  background: color-mix(in srgb, var(--theme-accent) 10%, transparent);
+}
+
+.palette-item.is-active {
+  box-shadow: inset 2px 0 var(--theme-accent);
+}
+
+.palette-group { color: var(--theme-subtle); font-weight: var(--ds-weight-black); letter-spacing: .1em; }
+.palette-icon {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-xs);
+  background: var(--theme-bg);
+  color: var(--theme-accent);
+}
+
+/* Bảng phím tắt */
+.shortcut-row { border-bottom: 1px solid var(--theme-line); }
+.shortcut-row kbd,
+.shortcut-panel kbd {
+  border: 1px solid var(--theme-line-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--ds-radius-xs);
+  background: var(--theme-bg);
+  color: var(--theme-secondary);
+  font-size: 9.5px;
+  font-weight: var(--ds-weight-bold);
+}
+
+/* Tin nhắn đã lưu */
+.saved-drawer {
+  border-left: 1px solid var(--theme-line-strong);
+  background: var(--theme-panel);
+  box-shadow: -24px 0 60px rgba(12, 8, 4, .22);
+}
+
+.saved-card {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-bg);
+  transition: transform var(--ds-dur-fast), border-color var(--ds-dur-fast), box-shadow var(--ds-dur-fast);
+}
+
+.saved-card:hover {
+  transform: translateY(-1.5px);
+  border-color: color-mix(in srgb, var(--theme-accent) 26%, var(--theme-line));
+  box-shadow: var(--ds-elev-1);
+}
+
+/* Gợi ý lệnh “/” */
+.slash-hint,
+.slash-hint-panel {
+  border: 1px solid var(--theme-line-strong);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-panel);
+  box-shadow: var(--ds-elev-2);
+}
+
+.slash-hint-item.is-active {
+  background: color-mix(in srgb, var(--theme-accent) 10%, transparent);
+}
+
+/* Miu & bong bóng */
+.miu-face {
+  background: var(--cat-gradient, var(--theme-accent));
+  color: var(--cat-face-ink, #fff);
+  box-shadow: 0 14px 32px var(--cat-glow, rgba(90, 100, 240, .3));
+}
+
+.miu-bubble {
+  border: 1px solid var(--theme-line-strong);
+  border-radius: var(--ds-radius-lg);
+  background: var(--theme-panel);
+  box-shadow: var(--ds-elev-3);
+  color: var(--theme-secondary);
+}
+
+/* Nút “tin nhắn mới” và “tải thêm” dùng chung ngôn ngữ với toast */
+.new-message-pill,
+.load-older-button {
+  border: 1px solid var(--theme-line-strong);
+  background: var(--theme-panel);
+  color: var(--theme-secondary);
+  box-shadow: var(--ds-elev-2);
+  font-weight: var(--ds-weight-bold);
+}
+
+.new-message-pill { border-color: color-mix(in srgb, var(--theme-accent) 36%, var(--theme-line-strong)); }
+.new-message-pill .icon { color: var(--theme-accent); }
+
+/* Thanh tiến trình mảnh ở đầu trang khi đang tải thêm */
+.load-older-button .load-older-spinner { border-top-color: var(--theme-accent); }
+
+/* ───────────────────────── 12. Chuyển cảnh & keyframes ───────────────────────── */
+
+@keyframes nav-pill-in {
+  from { opacity: 0; transform: translateY(-50%) scaleY(.4); }
+  to { opacity: 1; transform: translateY(-50%) scaleY(1); }
+}
+
+@keyframes tab-underline {
+  from { opacity: 0; transform: scaleX(.3); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes status-pulse {
+  0% { opacity: .3; transform: scale(.7); }
+  70% { opacity: 0; transform: scale(1.5); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+/* Chuyển tab Trò chuyện ↔ Thành viên mượt hơn */
+.app-view[data-view="chat"] .chat-panel { animation: view-in var(--ds-dur-slow) var(--ds-ease-out) both; }
+.app-view[data-view="members"] .directory-panel { animation: view-in var(--ds-dur-slow) var(--ds-ease-out) both; }
+
+@keyframes view-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ───────────────────────── 13. Responsive ───────────────────────── */
+
+@media (min-width: 1081px) and (max-width: 1180px) {
+  .app-shell { grid-template-columns: 226px minmax(0, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .topbar { padding-left: 14px; padding-right: 14px; }
+  .topbar-heading h1 { font-size: 16px; }
+  .right-panel { box-shadow: -18px 0 48px rgba(12, 8, 4, .2); }
+}
+
+@media (max-width: 640px) {
+  .auth-panel { padding: 30px 22px 26px; }
+  .auth-heading h2 { font-size: 26px; }
+  .topbar-button { padding: 0 11px; }
+  .toast-region { right: 12px; bottom: 14px; width: calc(100vw - 24px); }
+  .server-card { border-radius: var(--ds-radius-md); }
+  .admin-tab { font-size: 10.5px; }
+}
+
+/* ───────────────────────── 14. Tôn trọng tuỳ chọn người dùng ───────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link.active::before,
+  .admin-tab.active::after,
+  .connection-pill.online .connection-dot::after,
+  .app-view[data-view="chat"] .chat-panel,
+  .app-view[data-view="members"] .directory-panel {
+    animation: none !important;
+  }
+
+  .workspace-switch:hover,
+  .channel-link:hover,
+  .topbar-button:hover,
+  .icon-button:hover,
+  .member-row:hover,
+  .sticker-button:hover,
+  .reaction-button:hover,
+  .dialog-button:hover,
+  .admin-quick:hover,
+  .theme-option:hover,
+  .cursor-option:hover,
+  .message-image-link:hover,
+  .saved-card:hover,
+  .admin-overview-card:hover,
+  .admin-member-row:hover,
+  .auth-submit:hover:not(:disabled) {
+    transform: none !important;
+  }
+}
+
+/* Người dùng cần độ tương phản cao: viền rõ hơn, bỏ hiệu ứng mờ */
+@media (prefers-contrast: more) {
+  .auth-card,
+  .composer-box,
+  .confirm-dialog,
+  .profile-dialog,
+  .toast,
+  .admin-drawer,
+  .right-panel,
+  .sidebar {
+    border-color: color-mix(in srgb, var(--theme-text) 34%, transparent);
+  }
+
+  .message-bubble,
+  .reaction-button,
+  .topbar-button,
+  .icon-button {
+    border-color: color-mix(in srgb, var(--theme-text) 30%, transparent);
+  }
+
+  .topbar,
+  .composer-wrap,
+  .date-divider,
+  .confirm-layer,
+  .profile-layer,
+  .saved-layer,
+  .palette-layer,
+  .shortcut-layer,
+  .toast {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ───────────────────── 15. Chi tiết của các tính năng mở rộng ───────────────────── */
+
+/* @mention và liên kết trong tin nhắn */
+.message-link {
+  color: var(--theme-accent);
+  text-decoration-color: color-mix(in srgb, var(--theme-accent) 42%, transparent);
+  text-underline-offset: 2.5px;
+  transition: color var(--ds-dur-fast), text-decoration-color var(--ds-dur-fast);
+}
+
+.message-link:hover {
+  color: color-mix(in srgb, var(--theme-accent) 74%, var(--theme-text));
+  text-decoration-color: currentColor;
+}
+
+.mention-chip,
+.mention-option {
+  border-radius: var(--ds-radius-xs);
+  background: color-mix(in srgb, var(--theme-accent) 14%, transparent);
+  color: color-mix(in srgb, var(--theme-accent) 78%, var(--theme-text));
+  font-weight: var(--ds-weight-bold);
+  transition: background var(--ds-dur-fast), color var(--ds-dur-fast);
+}
+
+.mention-chip:hover { background: color-mix(in srgb, var(--theme-accent) 22%, transparent); }
+
+.mention-option:hover,
+.mention-option.is-active {
+  background: color-mix(in srgb, var(--theme-accent) 18%, transparent);
+  color: var(--theme-text);
+}
+
+.mention-popup {
+  border: 1px solid var(--theme-line-strong);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-panel);
+  box-shadow: var(--ds-elev-3);
+}
+
+/* Markdown: mã, khối mã, spoiler */
+.message-code {
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  background: var(--theme-panel-alt);
+  color: color-mix(in srgb, var(--ds-danger) 62%, var(--theme-text));
+  font-size: .92em;
+}
+
+.message-code-block {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-sm);
+  background: var(--theme-bg);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .04);
+}
+
+/* Chip nháp & các chip trạng thái nhỏ */
+.draft-chip,
+.security-chip {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-pill);
+  background: var(--theme-panel-alt);
+  color: var(--theme-muted);
+  font-size: 9px;
+  font-weight: var(--ds-weight-bold);
+}
+
+/* Hộp thoại xác thực bảo mật (proof-of-work) */
+.security-panel {
+  border: 1px solid var(--theme-line-strong);
+  border-radius: var(--ds-radius-xl);
+  background: var(--theme-panel);
+  box-shadow: var(--ds-elev-3);
+}
+
+.security-head { border-bottom: 1px solid var(--theme-line); }
+.security-challenge-run {
+  border-radius: var(--ds-radius-sm);
+  background: var(--cat-gradient, var(--theme-accent));
+  color: var(--cat-face-ink, var(--theme-accent-contrast));
+  font-weight: var(--ds-weight-bold);
+}
+
+/* Xoá tài khoản: nút nguy hiểm phân cấp rõ ràng */
+.account-delete-dialog { border-color: color-mix(in srgb, var(--ds-danger) 26%, var(--theme-line-strong)); }
+.account-delete-eyebrow { color: var(--ds-danger); }
+.account-delete-target {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-md);
+  background: var(--theme-bg);
+}
+
+.account-delete-choice {
+  border: 1px solid var(--theme-line);
+  border-radius: var(--ds-radius-sm);
+  background: var(--theme-bg);
+  transition: border-color var(--ds-dur-fast), background var(--ds-dur-fast);
+}
+
+.account-delete-choice:hover { border-color: color-mix(in srgb, var(--ds-danger) 30%, var(--theme-line)); }
+
+.account-delete-confirm input {
+  border: 1.5px solid var(--theme-line-strong);
+  border-radius: var(--ds-radius-sm);
+  background: var(--theme-input);
+  color: var(--theme-text);
+}
+
+.account-delete-confirm input:focus {
+  border-color: var(--ds-danger);
+  box-shadow: 0 0 0 3px var(--ds-danger-soft);
+}
+
+.account-delete-accept {
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-danger);
+  color: #fff;
+  font-weight: var(--ds-weight-black);
+}
+
+.account-delete-accept:disabled { opacity: .45; }
+
+/* Swatch màu nhấn trong hộp thoại giao diện */
+.accent-swatch {
+  border: 2px solid transparent;
+  box-shadow: var(--ds-ring);
+  transition: transform var(--ds-dur-fast) var(--ds-ease-spring), border-color var(--ds-dur-fast);
+}
+
+.accent-swatch:hover { transform: scale(1.1); }
+.accent-swatch.selected { border-color: var(--theme-text); }
+
+/* Thanh trên cùng của hộp thoại phím tắt / bảng lệnh */
+.shortcut-head,
+.palette-panel > header {
+  border-bottom: 1px solid var(--theme-line);
+}
+
+.shortcut-close { border-radius: var(--ds-radius-xs); }
+.shortcut-close:hover { background: var(--theme-hover); color: var(--theme-text); }
+
+/* ───────────────────── 16. Thanh đếm ngược trên toast ─────────────────────
+   Toast tự đóng sau 4,8 giây (xem toast() trong admin.js) nên thanh mảnh dưới
+   đáy chạy đúng nhịp đó — người dùng biết thông báo sắp biến mất. */
+.toast::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: color-mix(in srgb, var(--theme-accent) 60%, transparent);
+  content: "";
+  transform-origin: left center;
+  animation: toast-countdown 4.8s linear forwards;
+}
+
+.toast.success::after { background: color-mix(in srgb, var(--ds-success) 68%, transparent); }
+.toast.error::after { background: color-mix(in srgb, var(--ds-danger) 68%, transparent); }
+
+@keyframes toast-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast::after { animation: none; opacity: .35; }
+}
+
+/* ───────────────────── 17. Khôi phục bố cục di động ─────────────────────
+   Ở màn hình hẹp, base.css biến sidebar thành thanh điều hướng dưới đáy và
+   thanh icon dọc. Các rule bề mặt ở trên chỉ dành cho desktop nên phần này
+   đưa lại đúng hình dáng đó, chỉ thay màu cho khớp theme. */
+@media (max-width: 1080px) {
+  .sidebar {
+    border-right: 1px solid var(--theme-line);
+    background: var(--theme-sidebar);
+  }
+}
+
+@media (max-width: 560px) {
+  .sidebar {
+    border: 1px solid var(--theme-line-strong);
+    border-radius: var(--ds-radius-lg);
+    background: color-mix(in srgb, var(--theme-panel) 94%, transparent);
+    box-shadow: var(--ds-elev-3);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+  }
+
+  .profile-chip {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .profile-chip:hover {
+    border: 0;
+    background: transparent;
+  }
+
+  .nav-link { min-height: 43px; }
+  .nav-link.active::before { display: none; }
+  .nav-link.active { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 26%, transparent); }
+
+  /* Trong thanh dưới đáy, chấm online nhỏ lại để không tràn viền */
+  .presence-indicator { border-color: var(--theme-panel); }
+}
+
+/* Thiết bị cảm ứng: không có hover nên nút thao tác tin nhắn phải luôn hiện,
+   nếu không người dùng mobile sẽ không tìm thấy nút trả lời / lưu / sao chép. */
+@media (hover: none) {
+  .app-view .message-meta > .message-reply,
+  .app-view .message-meta > .message-save,
+  .app-view .message-meta > .message-tool {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Máy nhỏ / cấu hình yếu: bỏ lớp kính mờ để cuộn và mở hộp thoại mượt hơn.
+   Nền vẫn đủ đục nên không mất khả năng đọc. */
+@media (max-width: 640px) {
+  .topbar,
+  .composer-wrap,
+  .toast,
+  .confirm-layer,
+  .profile-layer,
+  .saved-layer,
+  .palette-layer,
+  .shortcut-layer,
+  .sidebar {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .confirm-layer,
+  .profile-layer,
+  .saved-layer,
+  .palette-layer,
+  .shortcut-layer {
+    background: color-mix(in srgb, var(--theme-overlay) 96%, transparent);
+  }
+
+  .topbar,
+  .composer-wrap { background: var(--theme-bg); }
+  .toast { background: var(--theme-panel); }
+}
