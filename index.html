@@ -2029,6 +2029,161 @@
       .mute-durations { grid-template-columns: 1fr 1fr; }
       .mute-banner { margin: 0 9px 8px; }
     }
+
+    /* ═══════════ Sửa / ghim tin nhắn, khoá kênh ═══════════ */
+    .message-tool { display: inline-flex; align-items: center; gap: 3px; padding: 1px 3px; border: 0; border-radius: 5px; background: transparent; color: var(--theme-muted); cursor: pointer; opacity: 0; transition: opacity .15s, background .15s, color .15s; }
+    .message-tool:hover { background: var(--theme-hover); color: var(--theme-accent); }
+    .message-tool .icon { width: 12px; height: 12px; }
+    .message-row:hover .message-tool, .message-tool:focus-visible, .message-tool.is-active { opacity: 1; }
+    .message-edited { color: var(--theme-subtle); font-size: 8px; font-style: italic; }
+    .message-edit { display: grid; gap: 7px; margin-top: 4px; padding: 9px 10px; border: 1px solid color-mix(in srgb, var(--theme-accent) 46%, transparent); border-radius: 12px; background: var(--theme-panel); box-shadow: 0 8px 24px rgba(0,0,0,.12); animation: field-in .2s var(--ease) both; }
+    .message-edit textarea { width: min(440px, 60vw); min-height: 54px; max-height: 180px; padding: 7px 9px; resize: vertical; border: 1px solid var(--theme-line); border-radius: 9px; outline: none; background: var(--theme-input); color: var(--theme-text); font-size: 11px; line-height: 1.55; }
+    .message-edit textarea:focus { border-color: var(--theme-accent); }
+    .message-edit-footer { display: flex; align-items: center; gap: 6px; }
+    .message-edit-hint { flex: 1; color: var(--theme-subtle); font-size: 8px; }
+    .message-edit-footer button { min-height: 27px; padding: 0 11px; border: 1px solid var(--theme-line); border-radius: 8px; background: var(--theme-panel-alt); color: var(--theme-secondary); cursor: pointer; font-size: 9px; font-weight: 700; }
+    .message-edit-footer button:hover { border-color: var(--theme-accent); color: var(--theme-accent); }
+    .message-edit-footer button.save { border-color: transparent; background: var(--cat-gradient); color: var(--cat-face-ink, #fff); }
+    .pinned-banner { display: flex; align-items: center; gap: 9px; margin: 10px 19px 0; padding: 9px 11px; border: 1px solid color-mix(in srgb, var(--theme-accent) 34%, transparent); border-radius: 13px; background: var(--theme-accent-soft); animation: field-in .22s var(--ease) both; }
+    .pinned-banner .pin-icon { width: 14px; height: 14px; flex: 0 0 auto; color: var(--cat-meow, var(--theme-accent)); }
+    .pinned-copy { min-width: 0; flex: 1; }
+    .pinned-copy strong { display: block; color: var(--theme-text); font-size: 9px; font-weight: 800; }
+    .pinned-copy p { overflow: hidden; margin: 3px 0 0; color: var(--theme-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .pinned-jump { flex: 0 0 auto; min-height: 25px; padding: 0 10px; border: 1px solid var(--theme-line-strong); border-radius: 8px; background: var(--theme-panel); color: var(--theme-secondary); cursor: pointer; font-size: 8px; font-weight: 700; }
+    .pinned-jump:hover { color: var(--theme-accent); border-color: var(--theme-accent); }
+    .lock-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; background: color-mix(in srgb, var(--theme-danger) 15%, transparent); color: var(--theme-danger); font-size: 8px; font-weight: 800; white-space: nowrap; }
+    .lock-chip .icon { width: 11px; height: 11px; }
+    .app-view .channel-lock-button.is-locked { color: var(--theme-danger); background: color-mix(in srgb, var(--theme-danger) 14%, transparent); border-color: color-mix(in srgb, var(--theme-danger) 34%, transparent); }
+    .app-view.channel-locked .composer-box { border-color: color-mix(in srgb, var(--theme-danger) 32%, transparent); }
+    .message-row.is-pinned { box-shadow: inset 3px 0 var(--cat-meow, var(--theme-accent)); }
+
+    /* ═══════════ Halloween: ma mị hơn ═══════════ */
+    body[data-theme="halloween"] {
+      --theme-bg: #0b0713;
+      --theme-sidebar: #100a1b;
+      --theme-panel: #170f26;
+      --theme-panel-alt: #1f1533;
+      --theme-input: #0d0817;
+      --theme-line: rgba(255,150,70,.16);
+      --theme-line-strong: rgba(255,150,70,.3);
+      --theme-text: #f6e8d8;
+      --theme-secondary: #e9d3ba;
+      --theme-muted: #b49a86;
+      --theme-subtle: #8b7462;
+      --theme-accent: #ff8a2b;
+      --theme-accent-contrast: #200d02;
+      --theme-accent-soft: rgba(255,138,43,.16);
+      --theme-hover: rgba(255,170,90,.1);
+      --theme-row-hover: rgba(255,170,90,.06);
+      --theme-banner: #2c1a08;
+      --theme-banner-border: rgba(255,150,60,.4);
+      --theme-danger: #ff6b6b;
+      --theme-scroll: #3d2a52;
+      --theme-avatar: linear-gradient(145deg,#5a2f7a,#2a1338);
+      --theme-shadow: 0 26px 80px rgba(0,0,0,.75);
+      --theme-overlay: rgba(4,2,8,.82);
+      --cat-gradient: linear-gradient(140deg,#ff9f43,#8b3fd6);
+      --cat-glow: rgba(255,138,43,.34);
+      --theme-bg-deep: #07040c;
+    }
+    body[data-theme="halloween"] .app-view {
+      background-image:
+        radial-gradient(ellipse at 50% -20%, rgba(163,95,211,.3), transparent 58%),
+        radial-gradient(circle at 6% 4%, rgba(255,138,43,.16), transparent 42%),
+        radial-gradient(circle at 94% 98%, rgba(120,40,180,.26), transparent 46%),
+        linear-gradient(180deg, #0d0817 0%, #07040c 100%);
+    }
+    body[data-theme="halloween"] .app-view .channel-toolbar h2,
+    body[data-theme="halloween"] .chat-panel .channel-title-copy h2 { text-shadow: 0 0 14px rgba(255,138,43,.55); }
+    body[data-theme="halloween"] .brand-mark { box-shadow: 0 12px 34px rgba(255,138,43,.5), inset 0 1px rgba(255,255,255,.22); animation: haunt-flicker 6.5s infinite; }
+    body[data-theme="halloween"] .messages-area {
+      background-image:
+        radial-gradient(circle at 22% 12%, rgba(255,138,43,.045), transparent 46%),
+        radial-gradient(circle at 82% 88%, rgba(139,63,214,.09), transparent 52%);
+    }
+    body[data-theme="halloween"] .app-view .message-bubble {
+      border-color: rgba(255,150,70,.14);
+      background: linear-gradient(160deg, #1d1330, #150e24);
+      color: #f0e0cd;
+      box-shadow: 0 4px 18px rgba(0,0,0,.4);
+    }
+    body[data-theme="halloween"] .app-view .message-row.mine .message-bubble {
+      border-color: rgba(255,138,43,.4);
+      background: linear-gradient(150deg, rgba(255,138,43,.26), rgba(139,63,214,.26));
+      color: #fff2e2;
+      box-shadow: 0 0 22px rgba(255,138,43,.16), inset 0 1px rgba(255,255,255,.08);
+    }
+    body[data-theme="halloween"] .app-view .message-name { color: #ffc78f; text-shadow: 0 0 10px rgba(255,138,43,.35); }
+    body[data-theme="halloween"] .app-view .channel-symbol { box-shadow: 0 0 26px rgba(255,138,43,.5); animation: haunt-flicker 5s infinite; }
+    body[data-theme="halloween"] .app-view .send-button { box-shadow: 0 0 22px rgba(255,138,43,.5); }
+    body[data-theme="halloween"] .app-view .composer-box { border-color: rgba(255,150,70,.22); box-shadow: 0 0 24px rgba(139,63,214,.16); }
+    body[data-theme="halloween"] .app-view .composer-box:focus-within { border-color: rgba(255,138,43,.6); box-shadow: 0 0 0 3px rgba(255,138,43,.14), 0 0 30px rgba(255,138,43,.24); }
+    body[data-theme="halloween"] .app-view .sidebar,
+    body[data-theme="halloween"] .app-view .right-panel { box-shadow: inset 0 0 90px rgba(139,63,214,.1); }
+    body[data-theme="halloween"] .app-view .server-announcement { border-color: rgba(255,150,70,.32); box-shadow: 0 0 26px rgba(255,138,43,.14); }
+
+    .spooky-layer { position: fixed; z-index: 4; inset: 0; display: none; overflow: hidden; pointer-events: none; }
+    body[data-theme="halloween"] .spooky-layer { display: block; }
+    .spooky-moon {
+      position: absolute; top: -60px; right: 6%; width: 220px; height: 220px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 34%, #ffeccd, #ffbf70 42%, rgba(255,138,43,.16) 68%, transparent 72%);
+      filter: blur(.4px); opacity: .18; box-shadow: 0 0 120px 40px rgba(255,170,90,.14);
+      animation: moon-drift 22s ease-in-out infinite alternate;
+    }
+    .spooky-fog {
+      position: absolute; right: -20%; bottom: -22%; left: -20%; height: 46%;
+      background: radial-gradient(ellipse at 30% 70%, rgba(139,63,214,.22), transparent 62%),
+                  radial-gradient(ellipse at 72% 62%, rgba(255,138,43,.12), transparent 60%);
+      filter: blur(26px); opacity: .5;
+    }
+    .fog-one { animation: fog-drift 26s ease-in-out infinite alternate; }
+    .fog-two { bottom: -34%; height: 52%; opacity: .34; animation: fog-drift 34s ease-in-out infinite alternate-reverse; }
+    .spooky-bat, .spooky-ghost, .spooky-pumpkin, .spooky-spark { position: absolute; opacity: .22; filter: drop-shadow(0 0 10px rgba(255,138,43,.5)); }
+    .spooky-bat { font-size: 22px; animation: bat-fly 24s linear infinite; }
+    .bat-a { top: 16%; animation-duration: 26s; }
+    .bat-b { top: 34%; font-size: 16px; opacity: .16; animation-duration: 34s; animation-delay: -8s; }
+    .bat-c { top: 58%; font-size: 13px; opacity: .14; animation-duration: 44s; animation-delay: -22s; }
+    .spooky-ghost { font-size: 26px; right: 8%; bottom: 18%; opacity: .12; animation: ghost-float 12s ease-in-out infinite alternate; }
+    .spooky-pumpkin { font-size: 24px; left: 4%; bottom: 12%; opacity: .16; animation: pumpkin-glow 5s ease-in-out infinite; }
+    .spooky-spark { color: #ffcf8f; font-size: 13px; animation: spark-twinkle 4.6s ease-in-out infinite; }
+    .spark-a { top: 24%; left: 18%; }
+    .spark-b { top: 62%; right: 26%; animation-delay: -1.6s; }
+    .spark-c { top: 44%; right: 12%; animation-delay: -3.1s; }
+    .app-view .message-avatar, .app-view .avatar { position: relative; }
+
+    @keyframes haunt-flicker {
+      0%, 100% { filter: brightness(1); }
+      42% { filter: brightness(1); }
+      45% { filter: brightness(1.35); }
+      47% { filter: brightness(.82); }
+      49% { filter: brightness(1.2); }
+      52% { filter: brightness(1); }
+      78% { filter: brightness(.92); }
+    }
+    @keyframes moon-drift { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(-26px,18px,0) scale(1.06); } }
+    @keyframes fog-drift { from { transform: translate3d(-4%,2%,0) scale(1); } to { transform: translate3d(5%,-3%,0) scale(1.08); } }
+    @keyframes bat-fly {
+      0% { transform: translate(-12vw, 0) rotate(-4deg) scale(.9); }
+      25% { transform: translate(28vw, -22px) rotate(6deg) scale(1); }
+      50% { transform: translate(58vw, 12px) rotate(-5deg) scale(.95); }
+      75% { transform: translate(88vw, -16px) rotate(5deg) scale(1.05); }
+      100% { transform: translate(118vw, 0) rotate(-3deg) scale(.9); }
+    }
+    @keyframes ghost-float { from { transform: translateY(0) rotate(-3deg); opacity: .08; } to { transform: translateY(-26px) rotate(4deg); opacity: .18; } }
+    @keyframes pumpkin-glow { 0%, 100% { filter: drop-shadow(0 0 6px rgba(255,138,43,.4)); opacity: .13; } 50% { filter: drop-shadow(0 0 18px rgba(255,138,43,.75)); opacity: .22; } }
+    @keyframes spark-twinkle { 0%, 100% { opacity: .06; transform: scale(.8); } 50% { opacity: .5; transform: scale(1.15); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .spooky-bat, .spooky-ghost, .spooky-pumpkin, .spooky-spark, .spooky-fog, .spooky-moon { animation: none !important; }
+      body[data-theme="halloween"] .brand-mark, body[data-theme="halloween"] .channel-symbol { animation: none !important; }
+    }
+    @media (max-width: 760px) {
+      .spooky-moon { width: 150px; height: 150px; opacity: .14; }
+      .spooky-bat { font-size: 16px; }
+      .spooky-ghost, .spooky-pumpkin { display: none; }
+      .pinned-banner { margin: 8px 9px 0; padding: 8px 9px; }
+      .message-edit textarea { width: min(320px, 72vw); }
+    }
   </style>
 </head>
 <body>
@@ -2066,6 +2221,9 @@
     <symbol id="i-cat" viewBox="0 0 32 32"><path d="m5 11 1-7 7 4a13 13 0 0 1 6 0l7-4 1 7a12 12 0 0 1 2 7c0 7-5.7 11-13 11S3 25 3 18a12 12 0 0 1 2-7Z" fill="currentColor"/><path d="M10 17h.2M22 17h.2M14 21q2 2 4 0M16 20v2" fill="none" stroke="var(--cat-ink,#4b3448)" stroke-width="1.7" stroke-linecap="round"/><path d="m8 21-4 1m4 1-4 2m20-3 4 1m-4 2 4 2" fill="none" stroke="var(--cat-ink,#4b3448)" stroke-width="1.2" stroke-linecap="round"/></symbol>
     <symbol id="i-paw" viewBox="0 0 24 24"><path d="M8.2 11.1c-1.6 1-3.3 2.2-3.3 4.3 0 2 1.5 3.1 3.4 3.1 1.4 0 2.4-.7 3.7-.7s2.3.7 3.7.7c1.9 0 3.4-1.1 3.4-3.1 0-2.1-1.7-3.3-3.3-4.3-1.2-.7-2.4-1.2-3.8-1.2s-2.6.5-3.8 1.2ZM5.4 9.4c1.1 0 1.8-1.2 1.6-2.6-.2-1.5-1.2-2.7-2.4-2.7S2.8 5.3 3 6.8c.2 1.4 1.3 2.6 2.4 2.6Zm5-2.4c1.2 0 2-1.2 1.9-2.7C12.2 2.8 11.3 2 10.1 2s-2.1 1.2-2 2.7c.1 1.4 1.1 2.3 2.3 2.3Zm8.2 2.4c1.2 0 2.2-1.2 2.4-2.6.2-1.5-.4-2.7-1.6-2.7S17.2 5.3 17 6.8c-.2 1.4.5 2.6 1.6 2.6Zm-5-2.4c1.2 0 2.2-.9 2.3-2.3.1-1.5-.8-2.7-2-2.7s-2.1.8-2.2 2.3c-.1 1.5.7 2.7 1.9 2.7Z" fill="currentColor"/></symbol>
     <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 4.8A1.8 1.8 0 0 1 7.8 3h8.4A1.8 1.8 0 0 1 18 4.8V21l-6-4-6 4V4.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 0 1 7.6-1.7M12 14v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.5 2.5 0 0 0-3.5-3.5L4.5 16.5 4 20Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m13.5 7.5 3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M9 3h6l-1 6 3 3v2h-5v7l-1 1-1-1v-7H5v-2l3-3-1-6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
     <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h3l4 3.5v-11L7 10H4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m15.5 9 4.5 4.5M20 9l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
     <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 14.2c.9 1.4 2.1 2.1 3.5 2.1s2.6-.7 3.5-2.1M9 9.6h.01M15 9.6h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
     <symbol id="i-sparkle-star" viewBox="0 0 24 24"><path d="m12 3 2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2L12 3Z" fill="currentColor"/></symbol>
@@ -2163,6 +2321,19 @@
   </main>
 
   <div class="app-view" id="appView" data-theme="light" hidden>
+    <div class="spooky-layer" aria-hidden="true">
+      <span class="spooky-moon"></span>
+      <span class="spooky-fog fog-one"></span>
+      <span class="spooky-fog fog-two"></span>
+      <span class="spooky-bat bat-a">🦇</span>
+      <span class="spooky-bat bat-b">🦇</span>
+      <span class="spooky-bat bat-c">🦇</span>
+      <span class="spooky-ghost ghost-a">👻</span>
+      <span class="spooky-pumpkin pumpkin-a">🎃</span>
+      <span class="spooky-spark spark-a">✦</span>
+      <span class="spooky-spark spark-b">✧</span>
+      <span class="spooky-spark spark-c">✦</span>
+    </div>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Điều hướng">
         <div class="brand-lockup">
@@ -2237,6 +2408,8 @@
                 <div class="tool-avatars" id="headerAvatars" aria-hidden="true"></div>
                 <span class="tool-caption" id="headerMemberCount">0 thành viên</span>
                 <span class="tool-divider"></span>
+                <span class="lock-chip" id="lockChip" hidden><svg class="icon"><use href="#i-lock"></use></svg><span>Đã khoá</span></span>
+                <button class="icon-button channel-lock-button" id="channelLockButton" type="button" title="Khoá kênh" aria-label="Khoá kênh" hidden><svg class="icon"><use href="#i-lock"></use></svg></button>
                 <button class="icon-button clear-channel-button" id="clearChannelButton" type="button" title="Xóa toàn bộ tin nhắn trong kênh" aria-label="Xóa toàn bộ tin nhắn trong kênh" hidden><svg class="icon"><use href="#i-trash"></use></svg></button>
                 <button class="icon-button" id="searchMessagesButton" type="button" title="Tìm tin nhắn" aria-label="Tìm tin nhắn" aria-expanded="false"><svg class="icon"><use href="#i-search"></use></svg></button>
                 <button class="icon-button" id="jumpLatestButton" type="button" title="Tin nhắn mới nhất" aria-label="Đi tới tin nhắn mới nhất"><svg class="icon"><use href="#i-clock"></use></svg></button>
@@ -2253,6 +2426,12 @@
             <div class="mute-banner" id="muteBanner" hidden>
               <svg class="icon"><use href="#i-mute"></use></svg>
               <span id="muteBannerText"></span>
+            </div>
+            <div class="pinned-banner" id="pinnedBanner" hidden>
+              <svg class="icon pin-icon"><use href="#i-pin"></use></svg>
+              <div class="pinned-copy"><strong id="pinnedAuthor">Tin nhắn đã ghim</strong><p id="pinnedText"></p></div>
+              <button class="pinned-jump" id="pinnedJumpButton" type="button">Xem</button>
+              <button class="banner-close" id="unpinButton" type="button" title="Bỏ ghim" aria-label="Bỏ ghim" hidden><svg class="icon"><use href="#i-close"></use></svg></button>
             </div>
             <div class="message-search-bar" id="messageSearchBar" hidden>
               <svg class="icon"><use href="#i-search"></use></svg>
@@ -2623,6 +2802,8 @@
       let bansRef = null;
       let mutesRef = null;
       let adminLogRef = null;
+      let pinsRef = null;
+      let locksRef = null;
       let messageReactionsRef = null;
       let storage = null;
       let firebaseReady = false;
@@ -2635,6 +2816,8 @@
       let presence = {};
       let bans = {};
       let mutes = {};
+      let pins = {};
+      let locks = {};
       let adminLogEntries = [];
       let muteDurationMinutes = 1440;
       let channels = {};
@@ -2660,6 +2843,8 @@
       let stopMuteListener = null;
       let stopAdminLogListener = null;
       let stopOwnMuteListener = null;
+      let stopPinListener = null;
+      let stopLockListener = null;
       let muteResolver = null;
       let authGeneration = 0;
       let connectionIsOnline = false;
@@ -3011,6 +3196,8 @@
         stopMuteListener = null;
         stopAdminLogListener = null;
         stopOwnMuteListener = null;
+        stopPinListener = null;
+        stopLockListener = null;
         hasAdminMarker = false;
         hasAdminClaim = false;
         hasAdminEmail = false;
@@ -3024,6 +3211,10 @@
         presence = {};
         bans = {};
         mutes = {};
+        pins = {};
+        locks = {};
+        editingMessageId = null;
+        editingDraft = '';
         adminLogEntries = [];
         clearReplyTarget();
         clearPendingImage();
@@ -3083,6 +3274,7 @@
           }
         }
         if (!isAdmin && announcementMode) setAnnouncementMode(false);
+        syncChannelChrome();
         updateMessageComposer();
         if (!isAdmin && !els.channelDialog.hidden) closeChannelDialog();
         if (isAdmin && bansRef && !stopAdminBanListener) {
@@ -3207,6 +3399,7 @@
             ? 'Đăng thông báo tới toàn bộ tổ mèo'
             : 'Chỉ quản trị viên được đăng thông báo';
           els.mobileChannelSelect.value = activeChannelId;
+          syncChannelChrome();
           return;
         }
         const name = channelNameFor(activeChannelId);
@@ -3225,6 +3418,7 @@
         });
         els.clearChannelButton.title = `Xóa toàn bộ tin nhắn trong #${name}`;
         els.clearChannelButton.setAttribute('aria-label', `Xóa toàn bộ tin nhắn trong #${name}`);
+        syncChannelChrome();
       }
 
       function openChannelDialog() {
@@ -3338,6 +3532,8 @@
         messageReactions = {};
         clearReplyTarget();
         clearPendingImage();
+        editingMessageId = null;
+        editingDraft = '';
         els.messageInput.value = '';
         messageSearchQuery = '';
         els.messageSearchInput.value = '';
@@ -3346,6 +3542,7 @@
         announcementDismissedId = null;
         renderChannelList();
         updateActiveChannelUI();
+        syncChannelChrome();
         renderAllMessages(false);
         updateAnnouncementBanner();
         await startChannelMessageListeners(user, generation, channelId, channelRun, ref);
@@ -3527,6 +3724,18 @@
             void switchChannel('general', { skipConfirm: true, force: true });
           } else updateActiveChannelUI();
         }, (error) => showDatabaseError(error, 'Không thể tải danh sách kênh trong /channels.'));
+
+        subscribe(pinsRef, 'value', (snapshot) => {
+          if (generation !== authGeneration) return;
+          pins = snapshot.val() || {};
+          renderPinnedBanner();
+        }, (error) => console.warn('Không tải được ghim tin nhắn:', error));
+        subscribe(locksRef, 'value', (snapshot) => {
+          if (generation !== authGeneration) return;
+          locks = snapshot.val() || {};
+          syncChannelChrome();
+          updateMessageComposer();
+        }, (error) => console.warn('Không tải được trạng thái khoá kênh:', error));
 
         subscribe(membersRef, 'value', (snapshot) => {
           if (generation !== authGeneration) return;
@@ -3859,30 +4068,80 @@
         return quote;
       }
 
+      function makeEditControls(id, data) {
+        const wrap = textElement('div', 'message-edit');
+        const input = document.createElement('textarea');
+        input.className = 'message-edit-input';
+        input.maxLength = data.kind === 'announcement' ? 500 : 800;
+        input.value = editingDraft;
+        input.setAttribute('aria-label', 'Sửa nội dung tin nhắn');
+        input.addEventListener('input', () => { editingDraft = input.value; });
+        input.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            cancelMessageEdit();
+          } else if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            void saveMessageEdit(id);
+          }
+        });
+        const footer = textElement('div', 'message-edit-footer');
+        footer.appendChild(textElement('span', 'message-edit-hint', 'Esc để huỷ · Ctrl/⌘ + Enter để lưu'));
+        const cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.dataset.editCancel = id;
+        cancel.textContent = 'Huỷ';
+        const save = document.createElement('button');
+        save.type = 'button';
+        save.className = 'save';
+        save.dataset.editSave = id;
+        save.textContent = 'Lưu';
+        footer.append(cancel, save);
+        wrap.append(input, footer);
+        return wrap;
+      }
+
       function buildMessageNode(id, data) {
         const isAnnouncement = data.kind === 'announcement';
         const isMine = data.uid === currentUser?.uid;
         const name = data.name || 'Thành viên';
         const time = timestampOf(data);
-        const row = textElement('article', `message-row${isMine ? ' mine' : ''}${isAnnouncement ? ' announcement-row' : ''}`);
+        const isPinned = Boolean(pins[activeChannelId] && pins[activeChannelId].messageId === id);
+        const editing = editingMessageId === id;
+        const row = textElement('article', `message-row${isMine ? ' mine' : ''}${isAnnouncement ? ' announcement-row' : ''}${isPinned ? ' is-pinned' : ''}`);
         row.dataset.messageId = id;
         row.dataset.timestamp = String(time);
         row.setAttribute('aria-label', isAnnouncement ? 'Thông báo toàn máy chủ' : `Tin nhắn từ ${name}`);
+
+        const editedLabel = editWindowLabel(data);
+        const canEditNow = canEditMessage(data);
+        const canDeleteNow = canDeleteMessage(data);
 
         if (isAnnouncement) {
           const announcement = textElement('div', 'server-announcement');
           const head = textElement('div', 'server-announcement-head');
           head.append(icon('megaphone'));
           head.append(textElement('span', '', 'Thông báo toàn máy chủ'));
+          if (isPinned) {
+            const pinnedBadge = textElement('span', 'message-edited');
+            pinnedBadge.textContent = '· đã ghim';
+            head.appendChild(pinnedBadge);
+          }
           const quote = makeReplyQuote(data);
           if (quote) announcement.appendChild(quote);
-          const content = textElement('p', '', data.text || '');
+          if (editing) announcement.appendChild(makeEditControls(id, data));
+          else announcement.appendChild(textElement('p', '', data.text || ''));
           const meta = textElement('div', 'server-announcement-meta');
           meta.append(textElement('span', '', `Gửi bởi ${name}`));
-          meta.append(textElement('time', '', formatDateTime(time)));
+          const stamp = textElement('span');
+          stamp.append(textElement('time', '', formatDateTime(time)));
+          if (editedLabel) stamp.appendChild(textElement('span', 'message-edited', ` · ${editedLabel}`));
+          meta.appendChild(stamp);
           meta.appendChild(makeReplyButton(id));
           meta.appendChild(makeSaveButton(id));
-          announcement.append(head, content, meta, makeReactionStrip(id));
+          if (canEditNow) meta.appendChild(makeMessageTool('edit', 'Sửa thông báo', { editMessage: id }));
+          if (isAdmin) meta.appendChild(makeMessageTool('pin', isPinned ? 'Bỏ ghim thông báo' : 'Ghim thông báo', { pinMessage: id }));
+          announcement.append(head, meta, makeReactionStrip(id));
           row.appendChild(announcement);
         } else {
           const avatar = makeAvatar(name, data.uid, 'avatar message-avatar', members[data.uid]?.photoURL || '');
@@ -3890,8 +4149,12 @@
           const meta = textElement('div', 'message-meta');
           meta.append(textElement('span', 'message-name', name));
           meta.append(textElement('time', 'message-time', formatTime(time)));
+          if (editedLabel) meta.appendChild(textElement('span', 'message-edited', editedLabel));
+          if (isPinned) meta.appendChild(textElement('span', 'message-edited', '· đã ghim'));
           meta.appendChild(makeReplyButton(id));
           meta.appendChild(makeSaveButton(id));
+          if (canEditNow) meta.appendChild(makeMessageTool('edit', 'Sửa tin nhắn', { editMessage: id }));
+          if (isAdmin) meta.appendChild(makeMessageTool('pin', isPinned ? 'Bỏ ghim tin nhắn' : 'Ghim tin nhắn', { pinMessage: id }));
           const quote = makeReplyQuote(data);
           if (quote) content.appendChild(quote);
           content.appendChild(meta);
@@ -3912,15 +4175,22 @@
             link.appendChild(image);
             content.appendChild(link);
           }
-          if (data.text) content.appendChild(textElement('div', 'message-bubble', data.text));
+          if (editing) content.appendChild(makeEditControls(id, data));
+          else if (data.text) content.appendChild(textElement('div', 'message-bubble', data.text));
           content.appendChild(makeReactionStrip(id));
           row.append(avatar, content);
         }
-        if (isAdmin) row.appendChild(makeDeleteButton(id, isAnnouncement ? 'Xóa thông báo' : 'Xóa tin nhắn'));
+        if (canDeleteNow) {
+          row.appendChild(makeDeleteButton(id, isAnnouncement ? 'Xoá thông báo' : isMine && !isAdmin ? 'Xoá tin nhắn của bạn' : 'Xoá tin nhắn'));
+        }
         return row;
       }
 
       function renderAllMessages(scrollToEnd = false, newArrival = false) {
+        if (editingMessageId && !messageDataById(editingMessageId)) {
+          editingMessageId = null;
+          editingDraft = '';
+        }
         const wasNearBottom = els.chatMessages.scrollHeight - els.chatMessages.scrollTop - els.chatMessages.clientHeight < 130;
         const sortedMessages = Array.from(messages.entries()).sort((a, b) => timestampOf(a[1]) - timestampOf(b[1]));
         const allMessages = announcementMode
@@ -4173,13 +4443,17 @@
         els.messageCharCount.textContent = `${length} / ${limit}`;
         const blockedByPermission = postingAnnouncement && !isAdmin;
         const muted = Boolean(currentUser && isMuted(currentUser.uid));
+        const locked = !isAdmin && isChannelLocked(activeChannelId);
         els.messageInput.placeholder = muted
           ? `Bạn đang bị cấm chat ${muteRemainingLabel(mutes[currentUser?.uid])}`
-          : postingAnnouncement
-            ? (isAdmin ? 'Viết thông báo gửi tới toàn bộ tổ mèo...' : 'Chỉ quản trị viên được đăng thông báo')
-            : `Nhắn tin trong #${channelNameFor(activeChannelId)}...`;
-        els.sendButton.disabled = isSendingMessage || !currentUser || blockedByPermission || muted || (!els.messageInput.value.trim() && !pendingImageFile) || length > limit;
-        els.messageInput.disabled = isSendingMessage || blockedByPermission;
+          : locked
+            ? `#${channelNameFor(activeChannelId)} đang bị quản trị viên khoá`
+            : postingAnnouncement
+              ? (isAdmin ? 'Viết thông báo gửi tới toàn bộ tổ mèo...' : 'Chỉ quản trị viên được đăng thông báo')
+              : `Nhắn tin trong #${channelNameFor(activeChannelId)}...`;
+        const blocked = blockedByPermission || locked;
+        els.sendButton.disabled = isSendingMessage || !currentUser || blocked || muted || (!els.messageInput.value.trim() && !pendingImageFile) || length > limit;
+        els.messageInput.disabled = isSendingMessage || blocked;
         els.attachImageButton.disabled = isSendingMessage || (postingAnnouncement && !isAdmin);
         els.chatImageInput.disabled = isSendingMessage;
         els.messageInput.style.height = 'auto';
@@ -4238,6 +4512,10 @@
         const reply = replyTarget ? { ...replyTarget } : null;
         if (isMuted(user.uid)) {
           toast(`Bạn đang bị cấm chat ${muteRemainingLabel(mutes[user.uid])}.`, 'error');
+          return;
+        }
+        if (!isAdmin && isChannelLocked(activeChannelId)) {
+          toast(`Kênh #${channelNameFor(activeChannelId)} đang bị khoá. Chỉ quản trị viên gửi được.`, 'error');
           return;
         }
         if (postingAnnouncement) {
@@ -4380,15 +4658,19 @@
       }
 
       async function deleteMessage(messageId) {
-        if (!isAdmin) return;
         const data = messages.get(messageId) || announcementMessages.get(messageId);
-        if (!data) return;
+        if (!data || !canDeleteMessage(data)) {
+          toast('Bạn chỉ xoá được tin nhắn của chính mình.', 'error');
+          return;
+        }
         const isAnnouncement = data.kind === 'announcement';
-        const targetRef = isAnnouncement ? generalMessagesRef : messagesRef;
+        const targetRef = messageTargetRef(data);
         if (!targetRef) return;
         const confirm = await openConfirm({
           title: isAnnouncement ? 'Xóa thông báo này?' : 'Xóa tin nhắn này?',
-          description: 'Thao tác này sẽ xóa nội dung khỏi máy chủ và tất cả thành viên sẽ không còn nhìn thấy tin nhắn.',
+          description: isAdmin && !isMessageOwner(data)
+            ? 'Bạn đang xoá tin nhắn của thành viên khác. Nội dung sẽ biến mất với mọi người và không thể khôi phục.'
+            : 'Tin nhắn sẽ biến mất với tất cả mọi người và không thể khôi phục.',
           acceptLabel: 'Xóa nội dung',
           tone: 'danger',
           iconName: 'trash'
@@ -4397,10 +4679,14 @@
         try {
           await targetRef.child(messageId).remove();
           await messageReactionsRef.child(messageId).remove().catch((error) => console.warn('Không dọn được reactions cũ:', error));
+          if (isAdmin && pinsRef && pins[activeChannelId]?.messageId === messageId) {
+            await pinsRef.child(activeChannelId).remove().catch((error) => console.warn('Không bỏ ghim được tin nhắn đã xoá:', error));
+          }
+          if (editingMessageId === messageId) { editingMessageId = null; editingDraft = ''; }
           toast(isAnnouncement ? 'Đã xóa thông báo.' : 'Đã xóa tin nhắn.', 'success');
-          void logAdminAction('delete', `${isAnnouncement ? 'Xoá thông báo' : 'Xoá tin nhắn'} của ${data.name || 'thành viên'}: ${String(data.text || '[ảnh]').slice(0, 80)}`, data.uid || '');
+          if (isAdmin) void logAdminAction('delete', `${isAnnouncement ? 'Xoá thông báo' : 'Xoá tin nhắn'} của ${data.name || 'thành viên'}: ${String(data.text || '[ảnh]').slice(0, 80)}`, data.uid || '');
         } catch (error) {
-          showDatabaseError(error, 'Không thể xóa nội dung. Hãy kiểm tra quyền admin trong Firebase.');
+          showDatabaseError(error, 'Không thể xóa nội dung. Firebase Rules phải cho phép chủ tin nhắn hoặc admin xoá.');
         }
       }
 
@@ -5065,6 +5351,10 @@ ${extra}
             closeMemberProfile();
             void manageBan(uid, !banned);
           });
+          addAction(`Xoá tin nhắn trong #${channelNameFor(activeChannelId)}`, 'danger', 'trash', () => {
+            closeMemberProfile();
+            void purgeUserMessages(uid);
+          });
         }
         if (!isSelf) {
           addAction('Nhắn trong phòng chung', 'primary', 'chat', () => {
@@ -5240,9 +5530,249 @@ ${extra}
          Quản trị nâng cao: cấm chat có thời hạn, bảng tổng quan,
          nhật ký quản trị và xuất dữ liệu kênh.
          ─────────────────────────────────────────────────────────────── */
+      /* ───────────────────────────────────────────────────────────────
+         Chỉnh sửa / xoá tin nhắn của chính mình, admin sửa mọi tin,
+         ghim tin nhắn và khoá kênh.
+         ─────────────────────────────────────────────────────────────── */
+      let editingMessageId = null;
+      let editingDraft = '';
+      let pinnedJumpId = null;
+
+      function messageTargetRef(data) {
+        if (!data) return messagesRef;
+        if (data.kind === 'announcement') return generalMessagesRef || messagesRef;
+        return messagesRef;
+      }
+
+      function isMessageOwner(data) {
+        return Boolean(currentUser && data && data.uid && data.uid === currentUser.uid);
+      }
+
+      function canEditMessage(data) {
+        if (!currentUser || !data) return false;
+        if (isAdmin) return true;
+        if (data.kind === 'announcement') return false;
+        if (currentUser.uid && isMuted(currentUser.uid)) return false;
+        return isMessageOwner(data);
+      }
+
+      function canDeleteMessage(data) {
+        if (!currentUser || !data) return false;
+        if (data.kind === 'announcement') return isAdmin;
+        return isAdmin || isMessageOwner(data);
+      }
+
+      function editWindowLabel(data) {
+        if (!data?.editedAt) return '';
+        return `đã chỉnh sửa · ${formatDateTime(timestampOf({ timestamp: data.editedAt }))}`;
+      }
+
+      function makeMessageTool(iconName, label, dataset) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'message-tool';
+        button.setAttribute('aria-label', label);
+        button.title = label;
+        Object.entries(dataset || {}).forEach(([key, value]) => { button.dataset[key] = value; });
+        button.appendChild(icon(iconName));
+        return button;
+      }
+
+      function messageDataById(messageId) {
+        return messages.get(messageId) || announcementMessages.get(messageId) || null;
+      }
+
+      function beginMessageEdit(messageId) {
+        const data = messageDataById(messageId);
+        if (!data) {
+          toast('Tin nhắn này không còn trong danh sách gần đây.', 'info');
+          return;
+        }
+        if (!canEditMessage(data)) {
+          toast(isMuted(currentUser?.uid) ? 'Bạn đang bị cấm chat nên không sửa được tin nhắn.' : 'Bạn chỉ sửa được tin nhắn của chính mình.', 'error');
+          return;
+        }
+        editingMessageId = messageId;
+        editingDraft = String(data.text || '');
+        setEmojiPickerOpen(false);
+        renderAllMessages(false);
+        const input = els.chatMessages.querySelector('.message-edit textarea');
+        if (input) {
+          input.focus();
+          input.setSelectionRange(input.value.length, input.value.length);
+        }
+      }
+
+      function cancelMessageEdit() {
+        if (!editingMessageId) return;
+        editingMessageId = null;
+        editingDraft = '';
+        renderAllMessages(false);
+      }
+
+      async function saveMessageEdit(messageId = editingMessageId) {
+        if (!messageId) return;
+        const data = messageDataById(messageId);
+        if (!data || !canEditMessage(data)) {
+          cancelMessageEdit();
+          return;
+        }
+        const text = editingDraft.trim();
+        if (!text) {
+          toast('Nội dung tin nhắn không được để trống.', 'error');
+          return;
+        }
+        if (text === String(data.text || '').trim()) {
+          cancelMessageEdit();
+          return;
+        }
+        const targetRef = messageTargetRef(data);
+        if (!targetRef) return;
+        try {
+          await targetRef.child(messageId).update({ text: text.slice(0, 800), editedAt: currentTimestamp() });
+          editingMessageId = null;
+          editingDraft = '';
+          toast('Đã cập nhật tin nhắn.', 'success');
+          if (isAdmin && !isMessageOwner(data)) {
+            void logAdminAction('edit', `Sửa tin nhắn của ${data.name || 'thành viên'}: ${text.slice(0, 80)}`, data.uid || '');
+          }
+        } catch (error) {
+          showDatabaseError(error, 'Không sửa được tin nhắn. Kiểm tra quyền ghi /messages trong Firebase Rules.');
+        }
+      }
+
+      async function togglePinMessage(messageId) {
+        if (!isAdmin || !pinsRef) {
+          toast('Chỉ quản trị viên được ghim tin nhắn.', 'error');
+          return;
+        }
+        const data = messageDataById(messageId);
+        if (!data) return;
+        const current = pins[activeChannelId];
+        try {
+          if (current && current.messageId === messageId) {
+            await pinsRef.child(activeChannelId).remove();
+            toast('Đã bỏ ghim tin nhắn.', 'success');
+            void logAdminAction('unpin', `Bỏ ghim tin nhắn của ${data.name || 'thành viên'}`);
+            return;
+          }
+          await pinsRef.child(activeChannelId).set({
+            messageId,
+            name: data.name || 'Thành viên',
+            text: String(data.text || (data.imageURL ? '[Ảnh đính kèm]' : '')).slice(0, 180),
+            by: currentUser.uid,
+            at: currentTimestamp()
+          });
+          toast('Đã ghim tin nhắn vào đầu kênh.', 'success');
+          void logAdminAction('pin', `Ghim tin nhắn của ${data.name || 'thành viên'}: ${String(data.text || '').slice(0, 80)}`, data.uid || '');
+        } catch (error) {
+          showDatabaseError(error, 'Không ghim được tin nhắn. Kiểm tra quyền /pins trong Firebase Rules.');
+        }
+      }
+
+      function isChannelLocked(channelId = activeChannelId) {
+        return Boolean(locks[channelId] && locks[channelId].locked === true);
+      }
+
+      async function toggleChannelLock() {
+        if (!isAdmin || !locksRef) {
+          toast('Chỉ quản trị viên được khoá kênh.', 'error');
+          return;
+        }
+        const channelId = activeChannelId;
+        const locked = isChannelLocked(channelId);
+        const name = channelNameFor(channelId);
+        const confirm = await openConfirm({
+          title: locked ? `Mở khoá #${name}?` : `Khoá #${name}?`,
+          description: locked
+            ? 'Mọi thành viên có thể gửi tin nhắn trở lại trong kênh này.'
+            : 'Thành viên sẽ không gửi được tin nhắn mới trong kênh này. Quản trị viên vẫn đăng được.',
+          acceptLabel: locked ? 'Mở khoá' : 'Khoá kênh',
+          tone: locked ? 'primary' : 'danger',
+          iconName: locked ? 'unlock' : 'lock'
+        });
+        if (!confirm) return;
+        try {
+          if (locked) {
+            await locksRef.child(channelId).remove();
+            toast(`Đã mở khoá #${name}.`, 'success');
+            void logAdminAction('unlock', `Mở khoá kênh #${name}`);
+          } else {
+            await locksRef.child(channelId).set({ locked: true, by: currentUser.uid, at: currentTimestamp(), name: displayNameFor(currentUser).slice(0, 32) });
+            toast(`Đã khoá #${name}.`, 'success');
+            void logAdminAction('lock', `Khoá kênh #${name}`);
+          }
+        } catch (error) {
+          showDatabaseError(error, 'Không đổi được trạng thái khoá kênh. Kiểm tra quyền /locks.');
+        }
+      }
+
+      function renderPinnedBanner() {
+        const banner = $('#pinnedBanner');
+        if (!banner) return;
+        const pin = pins[activeChannelId];
+        if (!pin || !pin.messageId) {
+          banner.hidden = true;
+          return;
+        }
+        banner.hidden = false;
+        $('#pinnedAuthor').textContent = `Đã ghim · ${pin.name || 'Thành viên'}`;
+        $('#pinnedText').textContent = pin.text || '[Ảnh đính kèm]';
+        pinnedJumpId = pin.messageId;
+        $('#unpinButton').hidden = !isAdmin;
+      }
+
+      function syncChannelChrome() {
+        const locked = isChannelLocked(activeChannelId);
+        const lockChip = $('#lockChip');
+        const lockButton = $('#channelLockButton');
+        if (lockChip) lockChip.hidden = !locked;
+        if (lockButton) {
+          lockButton.hidden = !isAdmin;
+          lockButton.classList.toggle('is-locked', locked);
+          lockButton.title = locked ? 'Mở khoá kênh' : 'Khoá kênh (chỉ admin gửi được)';
+          lockButton.setAttribute('aria-label', lockButton.title);
+          const use = lockButton.querySelector('use');
+          if (use) use.setAttribute('href', locked ? '#i-unlock' : '#i-lock');
+        }
+        els.appView.classList.toggle('channel-locked', locked);
+        renderPinnedBanner();
+      }
+
+      async function purgeUserMessages(uid) {
+        if (!isAdmin || !currentUser || !uid || !messagesRef) return;
+        if (uid === currentUser.uid) {
+          toast('Dùng nút dọn kênh để xoá toàn bộ tin nhắn.', 'info');
+          return;
+        }
+        const name = memberDisplayName(uid, members[uid]);
+        const targets = Array.from(messages.entries()).filter(([, data]) => data && data.uid === uid).map(([id]) => id);
+        if (!targets.length) {
+          toast(`${name} chưa có tin nhắn nào trong kênh này.`, 'info');
+          return;
+        }
+        const confirm = await openConfirm({
+          title: `Xoá ${targets.length} tin nhắn của ${name}?`,
+          description: 'Chỉ xoá tin nhắn của người này trong kênh đang mở. Hành động không thể hoàn tác.',
+          acceptLabel: `Xoá ${targets.length} tin nhắn`,
+          tone: 'danger',
+          iconName: 'trash'
+        });
+        if (!confirm) return;
+        try {
+          await Promise.all(targets.map((id) => messagesRef.child(id).remove()));
+          await Promise.all(targets.map((id) => messageReactionsRef.child(id).remove().catch(() => {})));
+          toast(`Đã xoá ${targets.length} tin nhắn của ${name}.`, 'success');
+          void logAdminAction('purge', `Xoá ${targets.length} tin nhắn của ${name} trong #${channelNameFor(activeChannelId)}`, uid);
+        } catch (error) {
+          showDatabaseError(error, 'Không xoá được tin nhắn của thành viên này. Kiểm tra Rules.');
+        }
+      }
+
       const ADMIN_LOG_ICONS = {
         ban: 'ban', unban: 'unban', mute: 'mute', unmute: 'smile',
-        delete: 'trash', clear: 'trash', announcement: 'megaphone', export: 'download', channel: 'hash'
+        delete: 'trash', clear: 'trash', announcement: 'megaphone', export: 'download', channel: 'hash',
+        edit: 'edit', pin: 'pin', unpin: 'pin', lock: 'lock', unlock: 'unlock', purge: 'trash'
       };
 
       function renderMuteBanner() {
@@ -5674,6 +6204,21 @@ ${extra}
           } else setMessageSearchOpen(false);
         });
         $('#jumpLatestButton').addEventListener('click', () => els.chatMessages.scrollTo({ top: els.chatMessages.scrollHeight, behavior: 'smooth' }));
+        $('#channelLockButton').addEventListener('click', () => { void toggleChannelLock(); });
+        $('#unpinButton').addEventListener('click', () => {
+          if (pins[activeChannelId]?.messageId) void togglePinMessage(pins[activeChannelId].messageId);
+        });
+        $('#pinnedJumpButton').addEventListener('click', () => {
+          if (!pinnedJumpId) return;
+          const row = Array.from(els.chatMessages.querySelectorAll('.message-row')).find((item) => item.dataset.messageId === pinnedJumpId);
+          if (!row) {
+            toast('Tin nhắn đã ghim không còn trong 100 tin gần nhất của kênh.', 'info');
+            return;
+          }
+          row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          row.classList.add('message-flash');
+          window.setTimeout(() => row.classList.remove('message-flash'), 1400);
+        });
         $('#closeAnnouncementBanner').addEventListener('click', () => {
           const latest = Array.from(announcementMessages.entries()).sort((a, b) => timestampOf(b[1]) - timestampOf(a[1]))[0];
           announcementDismissedId = latest?.[0] || null;
@@ -5769,6 +6314,26 @@ ${extra}
             toggleSaveMessage(save.dataset.saveMessage);
             return;
           }
+          const editButton = target.closest('[data-edit-message]');
+          if (editButton) {
+            beginMessageEdit(editButton.dataset.editMessage);
+            return;
+          }
+          const pinButton = target.closest('[data-pin-message]');
+          if (pinButton) {
+            void togglePinMessage(pinButton.dataset.pinMessage);
+            return;
+          }
+          const editSave = target.closest('[data-edit-save]');
+          if (editSave) {
+            void saveMessageEdit(editSave.dataset.editSave);
+            return;
+          }
+          const editCancel = target.closest('[data-edit-cancel]');
+          if (editCancel) {
+            cancelMessageEdit();
+            return;
+          }
           const remove = target.closest('[data-delete-message]');
           if (remove) void deleteMessage(remove.dataset.deleteMessage);
         });
@@ -5782,6 +6347,7 @@ ${extra}
             setMessageSearchOpen(true);
           }
           if (event.key === 'Escape') {
+            if (editingMessageId) { cancelMessageEdit(); return; }
             if (!$('#muteDialog').hidden) closeMuteDialog(null);
             else if (!$('#emojiPopover').hidden) setEmojiPickerOpen(false);
             else if (!$('#memberProfileLayer').hidden) closeMemberProfile();
@@ -5824,6 +6390,8 @@ ${extra}
           bansRef = database.ref('bans');
           mutesRef = database.ref('mutes');
           adminLogRef = database.ref('adminLog');
+          pinsRef = database.ref('pins');
+          locksRef = database.ref('locks');
           messageReactionsRef = database.ref('messageReactions');
           storage = firebase.storage ? firebase.storage() : null;
           firebaseReady = true;
