@@ -167,7 +167,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cursor-fx { display: none !important; }
+  html:not([data-motion="full"]) .cursor-fx { display: none !important; }
 }
 
 /* Ghi chú nhỏ trong hộp thoại giao diện khi thiết bị không có chuột */

@@ -106,8 +106,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shortcut-layer, .shortcut-panel, .slash-hint-item { transition: none; }
-  .slash-hint-item:hover { transform: none; }
+  html:not([data-motion="full"]) .shortcut-layer,
+  html:not([data-motion="full"]) .shortcut-panel,
+  html:not([data-motion="full"]) .slash-hint-item { transition: none; }
+  html:not([data-motion="full"]) .slash-hint-item:hover { transform: none; }
 }
 
 /* ───────────── Rich text: đậm/nghiêng/mã/link/spoiler ───────────── */
@@ -216,7 +218,7 @@
   font-size: 8px;
   font-weight: 800;
 }
-.draft-chip::before { content: '✎'; }
+.draft-chip::before { content: "✎"; }
 
 /* ───────────── Command palette (Alt + K) ───────────── */
 .palette-layer {
@@ -336,7 +338,7 @@
 .accent-swatch:hover { transform: translateY(-1px) scale(1.05); }
 .accent-swatch.selected { border-color: var(--theme-text, #fff); box-shadow: 0 0 0 2px color-mix(in srgb, var(--swatch, #fff) 40%, transparent); }
 .accent-swatch.is-default { background: conic-gradient(from 40deg, #ff8a2b, #9b6bff, #3ec9a3, #ff8a2b); }
-.accent-swatch.is-default::after { content: ''; }
+.accent-swatch.is-default::after { content: ""; }
 .appearance-toggle {
   padding: 4px 11px;
   border: 1px solid var(--theme-line-strong, rgba(255,255,255,.16));
@@ -368,8 +370,11 @@ body[data-density="compact"] .app-view .message-bubble { line-height: 1.45; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .palette-layer, .palette-panel, .accent-swatch, .spoiler { transition: none; }
-  .accent-swatch:hover { transform: none; }
+  html:not([data-motion="full"]) .palette-layer,
+  html:not([data-motion="full"]) .palette-panel,
+  html:not([data-motion="full"]) .accent-swatch,
+  html:not([data-motion="full"]) .spoiler { transition: none; }
+  html:not([data-motion="full"]) .accent-swatch:hover { transform: none; }
 }
 
 /* ───────────── Bảo vệ chống spam: chip trạng thái + hộp xác thực ───────────── */
@@ -384,7 +389,7 @@ body[data-density="compact"] .app-view .message-bubble { line-height: 1.45; }
   font-size: 8px;
   font-weight: 800;
 }
-.security-chip::before { content: '⛨'; font-size: 9px; }
+.security-chip::before { content: "⛨"; font-size: 9px; }
 .security-chip[data-tone="warn"] {
   background: color-mix(in srgb, var(--theme-accent, #d5763c) 18%, transparent);
   color: color-mix(in srgb, var(--theme-accent, #d5763c) 85%, var(--theme-text, #fff));
@@ -437,7 +442,8 @@ body[data-density="compact"] .app-view .message-bubble { line-height: 1.45; }
 .security-challenge-run:disabled { opacity: .6; cursor: progress; }
 
 @media (prefers-reduced-motion: reduce) {
-  .security-layer, .security-panel { transition: none; }
+  html:not([data-motion="full"]) .security-layer,
+  html:not([data-motion="full"]) .security-panel { transition: none; }
 }
 
 /* Dự phòng xác thực khi thiết bị không có WebCrypto */

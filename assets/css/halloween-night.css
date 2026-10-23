@@ -118,8 +118,14 @@ body[data-theme="halloween"] .spooky-layer { display: block; }
 @keyframes spark-twinkle { 0%, 100% { opacity: .06; transform: scale(.8); } 50% { opacity: .5; transform: scale(1.15); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .spooky-bat, .spooky-ghost, .spooky-pumpkin, .spooky-spark, .spooky-fog, .spooky-moon { animation: none !important; }
-  body[data-theme="halloween"] .brand-mark, body[data-theme="halloween"] .channel-symbol { animation: none !important; }
+  html:not([data-motion="full"]) .spooky-bat,
+  html:not([data-motion="full"]) .spooky-ghost,
+  html:not([data-motion="full"]) .spooky-pumpkin,
+  html:not([data-motion="full"]) .spooky-spark,
+  html:not([data-motion="full"]) .spooky-fog,
+  html:not([data-motion="full"]) .spooky-moon { animation: none !important; }
+  html:not([data-motion="full"]) body[data-theme="halloween"] .brand-mark,
+  html:not([data-motion="full"]) body[data-theme="halloween"] .channel-symbol { animation: none !important; }
 }
 @media (max-width: 760px) {
   .spooky-moon { width: 150px; height: 150px; opacity: .14; }

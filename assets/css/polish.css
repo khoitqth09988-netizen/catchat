@@ -1337,30 +1337,30 @@ body {
 /* ───────────────────────── 14. Tôn trọng tuỳ chọn người dùng ───────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-link.active::before,
-  .admin-tab.active::after,
-  .connection-pill.online .connection-dot::after,
-  .app-view[data-view="chat"] .chat-panel,
-  .app-view[data-view="members"] .directory-panel {
+  html:not([data-motion="full"]) .nav-link.active::before,
+  html:not([data-motion="full"]) .admin-tab.active::after,
+  html:not([data-motion="full"]) .connection-pill.online .connection-dot::after,
+  html:not([data-motion="full"]) .app-view[data-view="chat"] .chat-panel,
+  html:not([data-motion="full"]) .app-view[data-view="members"] .directory-panel {
     animation: none !important;
   }
 
-  .workspace-switch:hover,
-  .channel-link:hover,
-  .topbar-button:hover,
-  .icon-button:hover,
-  .member-row:hover,
-  .sticker-button:hover,
-  .reaction-button:hover,
-  .dialog-button:hover,
-  .admin-quick:hover,
-  .theme-option:hover,
-  .cursor-option:hover,
-  .message-image-link:hover,
-  .saved-card:hover,
-  .admin-overview-card:hover,
-  .admin-member-row:hover,
-  .auth-submit:hover:not(:disabled) {
+  html:not([data-motion="full"]) .workspace-switch:hover,
+  html:not([data-motion="full"]) .channel-link:hover,
+  html:not([data-motion="full"]) .topbar-button:hover,
+  html:not([data-motion="full"]) .icon-button:hover,
+  html:not([data-motion="full"]) .member-row:hover,
+  html:not([data-motion="full"]) .sticker-button:hover,
+  html:not([data-motion="full"]) .reaction-button:hover,
+  html:not([data-motion="full"]) .dialog-button:hover,
+  html:not([data-motion="full"]) .admin-quick:hover,
+  html:not([data-motion="full"]) .theme-option:hover,
+  html:not([data-motion="full"]) .cursor-option:hover,
+  html:not([data-motion="full"]) .message-image-link:hover,
+  html:not([data-motion="full"]) .saved-card:hover,
+  html:not([data-motion="full"]) .admin-overview-card:hover,
+  html:not([data-motion="full"]) .admin-member-row:hover,
+  html:not([data-motion="full"]) .auth-submit:hover:not(:disabled) {
     transform: none !important;
   }
 }
@@ -1563,7 +1563,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .toast::after { animation: none; opacity: .35; }
+  html:not([data-motion="full"]) .toast::after { animation: none; opacity: .35; }
 }
 
 /* ───────────────────── 17. Khôi phục bố cục di động ─────────────────────

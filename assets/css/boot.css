@@ -432,33 +432,33 @@ body.booted .auth-screen {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .boot-glow span,
-  .boot-mark::before,
-  .boot-ring,
-  .boot-orbit,
-  .boot-face,
-  .boot-paws span,
-  .boot-progress-fill::after {
+  html:not([data-motion="full"]) .boot-glow span,
+  html:not([data-motion="full"]) .boot-mark::before,
+  html:not([data-motion="full"]) .boot-ring,
+  html:not([data-motion="full"]) .boot-orbit,
+  html:not([data-motion="full"]) .boot-face,
+  html:not([data-motion="full"]) .boot-paws span,
+  html:not([data-motion="full"]) .boot-progress-fill::after {
     animation: none !important;
   }
 
-  .boot-title,
-  .boot-tagline,
-  .boot-progress,
-  .boot-step,
-  .boot-error {
+  html:not([data-motion="full"]) .boot-title,
+  html:not([data-motion="full"]) .boot-tagline,
+  html:not([data-motion="full"]) .boot-progress,
+  html:not([data-motion="full"]) .boot-step,
+  html:not([data-motion="full"]) .boot-error {
     animation: none !important;
   }
 
-  .boot-screen,
-  .boot-progress-fill,
-  .boot-step {
+  html:not([data-motion="full"]) .boot-screen,
+  html:not([data-motion="full"]) .boot-progress-fill,
+  html:not([data-motion="full"]) .boot-step {
     transition-duration: .01ms !important;
   }
 
-  body.booted .auth-card,
-  body.booted .app-shell,
-  body.booted .auth-screen {
+  html:not([data-motion="full"]) body.booted .auth-card,
+  html:not([data-motion="full"]) body.booted .app-shell,
+  html:not([data-motion="full"]) body.booted .auth-screen {
     animation: none !important;
   }
 }

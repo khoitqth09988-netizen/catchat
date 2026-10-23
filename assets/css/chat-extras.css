@@ -36,8 +36,14 @@
   .emoji-popover { width: calc(100vw - 24px); left: -6px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .directory-panel, .directory-card, .profile-dialog, .emoji-popover, .admin-welcome-card, .admin-welcome-crown { animation: none !important; }
-  .app-view .role-pill.is-admin, .app-view .nav-link.admin-hint { animation: none !important; }
+  html:not([data-motion="full"]) .directory-panel,
+  html:not([data-motion="full"]) .directory-card,
+  html:not([data-motion="full"]) .profile-dialog,
+  html:not([data-motion="full"]) .emoji-popover,
+  html:not([data-motion="full"]) .admin-welcome-card,
+  html:not([data-motion="full"]) .admin-welcome-crown { animation: none !important; }
+  html:not([data-motion="full"]) .app-view .role-pill.is-admin,
+  html:not([data-motion="full"]) .app-view .nav-link.admin-hint { animation: none !important; }
 }
 
 /* ───────── Phòng thông báo (chế độ xem thông báo) ───────── */

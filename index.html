@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-motion="auto">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,6 +39,7 @@
   <link rel="stylesheet" href="assets/css/cursor-fx.css">
   <link rel="stylesheet" href="assets/css/polish.css">
   <link rel="stylesheet" href="assets/css/halloween-night.css">
+  <link rel="stylesheet" href="assets/css/motion.css">
 </head>
 <body>
   <a class="ds-skip-link" href="#messageInput">Bỏ qua điều hướng, tới ô soạn tin</a>
@@ -637,6 +638,8 @@
 
   <!-- Hệ thống tính năng: lõi registry rồi tới từng tính năng độc lập -->
   <script defer src="assets/js/app/features-core.js"></script>
+  <!-- Tuỳ chọn chuyển động phải nạp trước mọi script đọc prefers-reduced-motion. -->
+  <script defer src="assets/js/features/motion.js"></script>
   <script defer src="assets/js/features/boot-screen.js"></script>
   <script defer src="assets/js/features/slash-commands.js"></script>
   <script defer src="assets/js/features/rich-text.js"></script>

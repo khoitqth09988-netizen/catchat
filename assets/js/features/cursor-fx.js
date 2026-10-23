@@ -36,7 +36,11 @@
   let attached = false;
   const scrollPositions = new WeakMap();
 
+  // Đọc tuỳ chọn chuyển động dùng chung: người dùng chọn “Đầy đủ” thì hiệu ứng
+  // con trỏ vẫn chạy dù Windows/macOS đang bật chế độ giảm chuyển động.
   const reducedMotion = () => {
+    const preference = window.CatChat?.motion;
+    if (preference && typeof preference.isReduced === 'function') return preference.isReduced();
     try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
     catch (_) { return false; }
   };
@@ -286,6 +290,8 @@
       if (typeof query.addEventListener === 'function') query.addEventListener('change', onChange);
       else if (typeof query.addListener === 'function') query.addListener(onChange);
     } catch (_) { /* trình duyệt cũ */ }
+    // Đổi tuỳ chọn trong hộp thoại giao diện cũng phải bật/tắt hiệu ứng ngay.
+    document.addEventListener('catchat:motion-change', () => applyMode());
   }
 
   function applyMode() {

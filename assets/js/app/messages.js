@@ -192,7 +192,10 @@ function jumpToLatestMessages(smooth = true) {
   lastReadTimestamp = Date.now();
   syncUnreadPill();
   if (!els.chatMessages) return;
-  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const preference = window.CatChat?.motion;
+  const reduceMotion = preference && typeof preference.isReduced === 'function'
+    ? preference.isReduced()
+    : Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   els.chatMessages.scrollTo({ top: els.chatMessages.scrollHeight, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
 }
 

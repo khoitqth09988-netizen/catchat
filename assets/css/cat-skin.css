@@ -353,7 +353,9 @@ body[data-theme="ocean"] {
   .saved-drawer { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .miu-face, .miu-bubble, .saved-drawer { animation: none !important; }
+  html:not([data-motion="full"]) .miu-face,
+  html:not([data-motion="full"]) .miu-bubble,
+  html:not([data-motion="full"]) .saved-drawer { animation: none !important; }
 }
 
 /* Chuột mèo: biến thể chọn trong Cài đặt, mặc định là mèo cam */
