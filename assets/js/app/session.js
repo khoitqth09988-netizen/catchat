@@ -128,17 +128,24 @@ function handleAuthState(user) {
     els.sidebarAvatar.textContent = '?';
     els.chatMessages.replaceChildren(els.chatEmptyState);
     els.announcementBanner.hidden = true;
+    unreadMessageCount = 0;
+    lastReadTimestamp = 0;
     if (signedOutNotice) {
       setAuthNotice(signedOutNotice, 'error');
       signedOutNotice = '';
     }
+    CatChat.bootScreen?.step('Sẵn sàng đăng nhập', 100);
+    CatChat.bootScreen?.finish();
     return;
   }
   setAuthNotice('');
   setAuthError('');
+  CatChat.bootScreen?.step('Đang xác thực phiên đăng nhập…', 72);
   void enterWorkspace(user, generation).catch((error) => {
     console.error('Không thể khởi tạo phiên trò chuyện:', error);
     toast('Không thể mở không gian trò chuyện. Hãy tải lại trang và thử lại.', 'error');
+    // Không để người dùng kẹt ở màn hình chờ nếu một bước khởi tạo thất bại.
+    CatChat.bootScreen?.finish();
   });
 }
 

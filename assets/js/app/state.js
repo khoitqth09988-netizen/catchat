@@ -24,6 +24,7 @@ const els = {
   adminAnnouncementsTab: $('#adminAnnouncementsTab'), adminMemberSearch: $('#adminMemberSearch'),
   announcementInput: $('#announcementInput'), publishAnnouncementButton: $('#publishAnnouncementButton'),
   adminAnnouncementList: $('#adminAnnouncementList'), chatMessages: $('#chatMessages'), chatEmptyState: $('#chatEmptyState'),
+  loadOlderButton: $('#loadOlderButton'),
   messageSearchBar: $('#messageSearchBar'), messageSearchInput: $('#messageSearchInput'), messageSearchCount: $('#messageSearchCount'),
   messageInput: $('#messageInput'), sendButton: $('#sendButton'), messageCharCount: $('#messageCharCount'),
   chatImageInput: $('#chatImageInput'), pendingImagePreview: $('#pendingImagePreview'), pendingImageThumb: $('#pendingImageThumb'),
@@ -50,6 +51,7 @@ let adminLogRef = null;
 let pinsRef = null;
 let locksRef = null;
 let deletedUsersRef = null;
+let typingRef = null;
 let messageReactionsRef = null;
 let storage = null;
 let firebaseReady = false;
@@ -97,3 +99,9 @@ let connectionIsOnline = false;
 let announcementDismissedId = null;
 let confirmResolver = null;
 let lastDatabaseErrorAt = 0;
+/* Trạng thái đọc tin nhắn: mốc thời gian lần cuối người dùng ở gần cuối danh sách
+   và số tin mới đang chờ (dùng cho dải “Tin nhắn mới” + nút nổi). */
+let lastReadTimestamp = 0;
+let unreadMessageCount = 0;
+let hasOlderMessages = false;
+let isLoadingOlderMessages = false;

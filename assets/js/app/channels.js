@@ -183,6 +183,8 @@ async function switchChannel(channelId, { skipConfirm = false, force = false } =
   activeChannelId = channelId;
   messagesRef = ref;
   messages.clear();
+  hasOlderMessages = false;
+  isLoadingOlderMessages = false;
   messageReactions = {};
   clearReplyTarget();
   clearPendingImage();
@@ -207,12 +209,15 @@ async function switchChannel(channelId, { skipConfirm = false, force = false } =
 async function startChannelMessageListeners(user, generation, channelId, channelRun, channelRef) {
   const messageQuery = channelRef.orderByChild('timestamp').limitToLast(100);
   const isCurrent = () => generation === authGeneration && channelRun === channelGeneration && activeChannelId === channelId && currentUser?.uid === user.uid;
-  els.chatMessages.replaceChildren(els.chatEmptyState);
+  renderMessageSkeleton();
+  CatChat.bootScreen?.step(`Đang tải tin nhắn #${channelNameFor(channelId)}…`, 90);
   try {
     const snapshot = await messageQuery.once('value');
     if (!isCurrent()) return;
     messages.clear();
     snapshot.forEach((child) => messages.set(child.key, child.val() || {}));
+    // Đầy 100 tin nghĩa là có thể còn lịch sử cũ hơn để lật thêm.
+    hasOlderMessages = snapshot.numChildren() >= 100;
     renderAllMessages(true);
     updateAnnouncementBanner();
     renderAdminPanel();
@@ -312,9 +317,12 @@ async function enterWorkspace(user, generation) {
   if (generation !== authGeneration) return;
   els.authView.hidden = true;
   els.appView.hidden = false;
+  CatChat.bootScreen?.step('Đang mở tổ mèo của bạn…', 84);
   try { await syncMemberProfile(user); }
   catch (error) { showDatabaseError(error, 'Không thể lưu hồ sơ thành viên. Hãy kiểm tra Security Rules.'); }
   if (generation !== authGeneration) return;
   startRealtimeListeners(user, generation);
   setupPresence(user, generation);
+  CatChat.bootScreen?.step('Sẵn sàng trò chuyện', 100);
+  CatChat.bootScreen?.finish();
 }

@@ -195,7 +195,13 @@ function attachEvents() {
       els.messageSearchInput.focus();
     } else setMessageSearchOpen(false);
   });
-  $('#jumpLatestButton').addEventListener('click', () => els.chatMessages.scrollTo({ top: els.chatMessages.scrollHeight, behavior: 'smooth' }));
+  $('#jumpLatestButton').addEventListener('click', () => jumpToLatestMessages(true));
+  $('#newMessagePill')?.addEventListener('click', () => {
+    jumpToLatestMessages(true);
+    els.messageInput.focus({ preventScroll: true });
+  });
+  els.chatMessages.addEventListener('scroll', markFeedRead, { passive: true });
+  $('#loadOlderButton')?.addEventListener('click', () => { void loadOlderMessages(); });
   $('#channelLockButton').addEventListener('click', () => { void toggleChannelLock(); });
   $('#unpinButton').addEventListener('click', () => {
     if (pins[activeChannelId]?.messageId) void togglePinMessage(pins[activeChannelId].messageId);
@@ -365,6 +371,7 @@ function attachEvents() {
 }
 
 async function initializeFirebase() {
+  CatChat.bootScreen?.step('Đang xác thực thiết bị…', 44);
   // App Check (nếu được cấu hình) phải xong trước khi mở kết nối tới Firebase.
   try {
     await window.appCheckReady;
@@ -374,6 +381,7 @@ async function initializeFirebase() {
   if (!window.firebase || !window.firebase.auth || !window.firebase.database) {
     setAuthNotice('Không tải được Firebase SDK. Hãy kiểm tra kết nối Internet rồi tải lại trang.', 'error');
     els.authSubmit.disabled = true;
+    CatChat.bootScreen?.fail('Không tải được Firebase SDK. Hãy kiểm tra kết nối Internet rồi thử lại.');
     return;
   }
   try {
@@ -393,9 +401,11 @@ async function initializeFirebase() {
     pinsRef = database.ref('pins');
     locksRef = database.ref('locks');
     deletedUsersRef = database.ref('deletedUsers');
+    typingRef = database.ref('typing');
     messageReactionsRef = database.ref('messageReactions');
     storage = firebase.storage ? firebase.storage() : null;
     firebaseReady = true;
+    CatChat.bootScreen?.step('Đã kết nối · đang kiểm tra phiên…', 60);
     auth.onAuthStateChanged(handleAuthState, (error) => {
       setAuthError(friendlyAuthError(error));
     });
@@ -403,5 +413,6 @@ async function initializeFirebase() {
     console.error('Firebase init error:', error);
     setAuthNotice('Không thể khởi tạo Firebase. Hãy kiểm tra cấu hình trong index.html.', 'error');
     els.authSubmit.disabled = true;
+    CatChat.bootScreen?.fail('Không thể khởi tạo Firebase. Hãy kiểm tra cấu hình rồi thử lại.');
   }
 }

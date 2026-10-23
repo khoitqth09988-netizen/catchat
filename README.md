@@ -9,6 +9,7 @@ dễ mở rộng và có thể thêm tính năng mới mà không phải sửa c
 ```
 index.html                     Khung HTML + sprite icon + thứ tự nạp CSS/JS
 assets/css/                    Giao diện, tách theo khu vực
+  boot.css                     Màn hình chờ (splash) + chuyển cảnh khi mở app
   base.css                     Reset, biến màu, màn hình đăng nhập, khung chat
   workspace.css                Bố cục kiểu Discord: sidebar, kênh, hàng tin nhắn
   themes.css                   5 theme: light, dark, lavender, ocean, halloween
@@ -19,6 +20,7 @@ assets/css/                    Giao diện, tách theo khu vực
   admin.css                    Admin nâng cao: tổng quan, cấm chat, nhật ký
   moderation.css               Sửa/ghim tin nhắn, khoá kênh
   features.css                 Giao diện của các tính năng mở rộng
+  chat-pro.css                 Nhịp tin nhắn, gộp tin, “Tin nhắn mới”, skeleton, đang nhập…
   halloween-night.css          Halloween ma mị (nạp cuối để ghi đè theme Halloween)
 assets/js/app/                 Lõi ứng dụng, nạp theo thứ tự bằng <script defer>
   config.js                    Hằng số, cấu hình Firebase, helper $ / $$
@@ -32,7 +34,8 @@ assets/js/app/                 Lõi ứng dụng, nạp theo thứ tự bằng <
   channels.js                  Danh sách kênh, chuyển/tạo kênh, listener tin nhắn
   session.js                   setAdminState, phiên đăng nhập, presence, avatar
   message-format.js            Định dạng thời gian, nhãn ngày, nút trả lời
-  messages.js                  Reaction, render tin nhắn, tìm kiếm, ghim hiển thị
+  messages.js                  Reaction, render tin nhắn (gộp tin, mốc “Tin nhắn mới”),
+                               tải thêm lịch sử, tìm kiếm, ghim hiển thị
   composer.js                  Khung soạn tin, gửi tin, gửi thông báo
   message-actions.js           Xoá tin nhắn, dọn kênh
   members.js                   Tab thành viên, danh bạ, hồ sơ, emoji picker
@@ -57,6 +60,8 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   anti-flood.js                Giới hạn tần suất gửi tin, chống trùng, chống spam reaction
   login-guard.js               Chặn dò mật khẩu: 5 lần/phút rồi khoá tăng dần
   account-deletion.js          Admin xoá tài khoản thành viên khỏi hệ thống
+  boot-screen.js               Tiến trình khởi động thật cho splash (step/finish/fail)
+  typing-indicator.js          Chỉ báo “ai đang nhập…” qua node /typing
 functions/                     Cloud Function tuỳ chọn: xoá tài khoản Firebase Auth
 SECURITY.md                    Checklist bảo mật: App Check, Rules, quota, CSP
 ```
@@ -105,6 +110,37 @@ trong `index.html` — muốn đổi thứ tự thì sửa ở đó, không ph�
 3. Nếu cần style riêng, thêm vào `assets/css/features.css`.
 
 Tính năng lỗi được cô lập: `CatChat.features.failures()` ghi lại lỗi và phần còn lại của app vẫn chạy.
+
+## Trải nghiệm chat
+
+- **Màn hình chờ có tiến trình thật**: `boot-screen.js` cập nhật từng bước (chuẩn bị giao diện →
+  xác thực thiết bị → kết nối Firebase → kiểm tra phiên → tải tin nhắn). Nếu Firefox/Chrome chặn
+  hoặc mạng hỏng, splash hiện lỗi kèm nút **Thử lại** thay vì quay vô hạn. Toàn bộ chuyển động
+  tôn trọng `prefers-reduced-motion`.
+- **Skeleton thay màn hình trống**: trong lúc chờ 100 tin gần nhất, danh sách hiện khung xương
+  nhấp nháy (`aria-busy="true"`) rồi mới vẽ nội dung thật.
+- **Gộp tin cùng người gửi**: các tin liên tiếp trong 5 phút của cùng một người được gộp (ẩn avatar
+  và tên, hiện giờ khi rê chuột) — giống Discord/Slack.
+- **Mốc “Tin nhắn mới” + nút nổi**: khi đang xem lại tin cũ, tin mới không kéo bạn xuống đáy;
+  một dải “Tin nhắn mới” đánh dấu chỗ bắt đầu và nút `N tin nhắn mới` đưa bạn về cuối.
+- **Tải thêm lịch sử**: kênh chỉ nghe 100 tin gần nhất; nút “Tin nhắn cũ hơn” lật thêm 50 tin mỗi lần
+  và giữ nguyên vị trí đang đọc.
+- **“Đang nhập…”**: ghi trạng thái gõ vào `/typing/<channelId>/<uid>` (tự hết hạn sau 7 giây,
+  `onDisconnect` dọn khi đóng tab). Tính năng tự tắt nếu Rules chưa có node `/typing`.
+
+### Rules cho tính năng “đang nhập…”
+
+```json
+"typing": {
+  ".read": "auth != null",
+  "$channelId": {
+    "$uid": {
+      ".write": "auth != null && !root.child('bans').child(auth.uid).exists() && auth.uid === $uid",
+      ".validate": "!newData.exists() || (newData.hasChildren(['name','at']) && newData.child('name').isString() && newData.child('name').val().length <= 60 && newData.child('at').isNumber())"
+    }
+  }
+}
+```
 
 ## Bảo mật
 

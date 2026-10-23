@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- CSS: nạp theo thứ tự, halloween-night.css luôn cuối để ghi đè theme Halloween -->
+  <link rel="stylesheet" href="assets/css/boot.css">
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/workspace.css">
   <link rel="stylesheet" href="assets/css/themes.css">
@@ -24,6 +25,7 @@
   <link rel="stylesheet" href="assets/css/admin.css">
   <link rel="stylesheet" href="assets/css/moderation.css">
   <link rel="stylesheet" href="assets/css/features.css">
+  <link rel="stylesheet" href="assets/css/chat-pro.css">
   <link rel="stylesheet" href="assets/css/halloween-night.css">
 </head>
 <body>
@@ -71,6 +73,33 @@
     <symbol id="i-sparkle-star" viewBox="0 0 24 24"><path d="m12 3 2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2L12 3Z" fill="currentColor"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </svg>
+
+  <!-- Màn hình chờ: hiện ngay khi HTML được dựng, JS cập nhật tiến trình thật rồi tự đóng. -->
+  <div class="boot-screen" id="bootScreen" role="status" aria-live="polite" aria-label="Đang tải CatChat">
+    <div class="boot-glow" aria-hidden="true"><span></span><span></span></div>
+    <div class="boot-inner">
+      <div class="boot-mark" aria-hidden="true">
+        <span class="boot-ring"></span>
+        <span class="boot-ring ring-b"></span>
+        <span class="boot-orbit"><i>🐾</i></span>
+        <span class="boot-orbit orbit-b"><i>✨</i></span>
+        <span class="boot-face"><svg class="icon"><use href="#i-cat"></use></svg></span>
+      </div>
+      <p class="boot-title">CatChat</p>
+      <p class="boot-tagline">A LITTLE HOME FOR EVERY CAT</p>
+      <div class="boot-progress" id="bootProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="6" aria-label="Tiến trình tải">
+        <span class="boot-progress-fill" id="bootProgressFill"></span>
+      </div>
+      <p class="boot-step" id="bootStep">Đang đánh thức tổ mèo…</p>
+      <div class="boot-error" id="bootError" hidden>
+        <p id="bootErrorText">Không kết nối được Firebase.</p>
+        <button class="boot-retry" id="bootRetry" type="button">Thử lại</button>
+      </div>
+    </div>
+    <div class="boot-paws" aria-hidden="true"><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span></div>
+    <p class="boot-foot">Kết nối an toàn · Firebase</p>
+  </div>
+  <noscript><style>.boot-screen { display: none !important; }</style></noscript>
 
   <main class="auth-screen" id="authView">
     <section class="auth-card" aria-label="Đăng nhập CatChat">
@@ -287,13 +316,25 @@
               <button class="banner-close" id="closeAnnouncementBanner" type="button" title="Ẩn thông báo" aria-label="Ẩn thông báo"><svg class="icon"><use href="#i-close"></use></svg></button>
             </div>
             <div class="messages-area" id="chatMessages" role="log" aria-label="Tin nhắn trong phòng" aria-live="polite" aria-relevant="additions text">
+              <button class="load-older-button" id="loadOlderButton" type="button" hidden>
+                <span class="load-older-spinner" aria-hidden="true"></span>
+                <span id="loadOlderLabel">Tin nhắn cũ hơn</span>
+              </button>
               <div class="chat-empty" id="chatEmptyState">
                 <div class="empty-illustration"><svg class="icon"><use href="#i-chat"></use></svg></div>
                 <h3>Một chiếc ghế trống đang chờ bạn</h3>
                 <p>Gửi một tiếng “meo” chào cả nhà — ai trong tổ mèo cũng có thể trả lời bạn.</p>
               </div>
             </div>
+            <button class="new-message-pill" id="newMessagePill" type="button" hidden>
+              <svg class="icon"><use href="#i-arrow"></use></svg>
+              <span id="newMessagePillText">Tin nhắn mới</span>
+            </button>
             <div class="composer-wrap">
+              <div class="typing-indicator" id="typingIndicator" role="status" aria-live="polite" hidden>
+                <span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="typing-text" id="typingText"></span>
+              </div>
               <div class="sticker-bar" id="stickerBar" aria-label="Sticker mèo nhanh">
                 <span class="sticker-label"><svg class="icon"><use href="#i-paw"></use></svg>Miu gửi</span>
                 <button class="sticker-button" type="button" data-sticker="🐱" aria-label="Thêm mèo con">🐱</button>
@@ -583,6 +624,7 @@
 
   <!-- Hệ thống tính năng: lõi registry rồi tới từng tính năng độc lập -->
   <script defer src="assets/js/app/features-core.js"></script>
+  <script defer src="assets/js/features/boot-screen.js"></script>
   <script defer src="assets/js/features/slash-commands.js"></script>
   <script defer src="assets/js/features/rich-text.js"></script>
   <script defer src="assets/js/features/mentions.js"></script>
@@ -594,6 +636,7 @@
   <script defer src="assets/js/features/anti-flood.js"></script>
   <script defer src="assets/js/features/login-guard.js"></script>
   <script defer src="assets/js/features/account-deletion.js"></script>
+  <script defer src="assets/js/features/typing-indicator.js"></script>
 
   <!-- Khởi động app (luôn cuối cùng) -->
   <script defer src="assets/js/app/boot.js"></script>
