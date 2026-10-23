@@ -240,7 +240,8 @@ async function purgeUserMessages(uid) {
 const ADMIN_LOG_ICONS = {
   ban: 'ban', unban: 'unban', mute: 'mute', unmute: 'smile',
   delete: 'trash', clear: 'trash', announcement: 'megaphone', export: 'download', channel: 'hash',
-  edit: 'edit', pin: 'pin', unpin: 'pin', lock: 'lock', unlock: 'unlock', purge: 'trash'
+  edit: 'edit', pin: 'pin', unpin: 'pin', lock: 'lock', unlock: 'unlock', purge: 'trash',
+  deleteAccount: 'user-x'
 };
 
 function renderMuteBanner() {

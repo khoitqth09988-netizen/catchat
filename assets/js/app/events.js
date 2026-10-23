@@ -234,6 +234,7 @@ function attachEvents() {
     const action = button.dataset.memberAction;
     if (action === 'mute') void manageMute(button.dataset.uid, true);
     else if (action === 'unmute') void manageMute(button.dataset.uid, false);
+    else if (action === 'delete-account') void CatChat.accountDeletion?.deleteMember(button.dataset.uid);
     else void manageBan(button.dataset.uid, action === 'ban');
   });
   $('#adminOverviewTabButton').addEventListener('click', () => switchAdminTab('overview'));
@@ -391,6 +392,7 @@ async function initializeFirebase() {
     adminLogRef = database.ref('adminLog');
     pinsRef = database.ref('pins');
     locksRef = database.ref('locks');
+    deletedUsersRef = database.ref('deletedUsers');
     messageReactionsRef = database.ref('messageReactions');
     storage = firebase.storage ? firebase.storage() : null;
     firebaseReady = true;

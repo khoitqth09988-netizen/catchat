@@ -45,6 +45,22 @@ function makeMemberRow(uid, member, adminRow = false) {
       button.setAttribute('aria-label', button.title);
       button.appendChild(icon(isBanned ? 'unban' : 'ban'));
       actions.appendChild(button);
+      if (bans[uid]?.deleted) {
+        const removedTag = textElement('span', 'tag-deleted');
+        removedTag.appendChild(icon('user-x'));
+        removedTag.append(document.createTextNode('Đã xoá'));
+        actions.appendChild(removedTag);
+      } else {
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'admin-action danger';
+        deleteButton.dataset.memberAction = 'delete-account';
+        deleteButton.dataset.uid = uid;
+        deleteButton.title = `Xoá tài khoản của ${name} khỏi hệ thống`;
+        deleteButton.setAttribute('aria-label', deleteButton.title);
+        deleteButton.appendChild(icon('user-x'));
+        actions.appendChild(deleteButton);
+      }
     }
     row.appendChild(actions);
     return row;

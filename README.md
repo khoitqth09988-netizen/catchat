@@ -56,6 +56,8 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   appearance-extras.js         Màu nhấn, cỡ chữ, mật độ tin nhắn trong hộp thoại giao diện
   anti-flood.js                Giới hạn tần suất gửi tin, chống trùng, chống spam reaction
   login-guard.js               Chặn dò mật khẩu: 5 lần/phút rồi khoá tăng dần
+  account-deletion.js          Admin xoá tài khoản thành viên khỏi hệ thống
+functions/                     Cloud Function tuỳ chọn: xoá tài khoản Firebase Auth
 SECURITY.md                    Checklist bảo mật: App Check, Rules, quota, CSP
 ```
 
@@ -115,6 +117,26 @@ Xem [SECURITY.md](SECURITY.md) để biết chi tiết. Tóm tắt những gì �
 
 > Chống DDoS thật phải nằm ở hạ tầng (App Check + Rules + quota/budget alert). Lớp phía trình duyệt
 > chỉ giảm lạm dụng và bảo vệ trải nghiệm, không thay thế được máy chủ.
+
+## Xoá tài khoản thành viên (admin)
+
+Vào **hồ sơ thành viên** hoặc **Quản trị → Thành viên** → nút `⛔` (user-x), hoặc bảng lệnh `Alt+K`
+→ “Xoá tài khoản thành viên”.
+
+Một lần xoá gồm các bước:
+
+1. Ghi `/deletedUsers/<uid>` — lưu ai xoá ai, lúc nào (chỉ admin đọc được).
+2. Ghi `/bans/<uid>` với `deleted: true` — người bị xoá bị **đăng xuất ngay** và không đăng nhập lại được.
+3. Xoá `/members/<uid>`, `/memberEmails/<uid>`, `/mutes/<uid>`, reaction của họ trong các tin đang hiển thị;
+   tuỳ chọn xoá luôn tin nhắn của họ trong kênh đang mở.
+4. Ghi `/adminLog` type `deleteAccount`.
+5. (Tuỳ chọn) gọi Cloud Function `deleteUserAccount` để xoá luôn bản ghi **Firebase Authentication**.
+
+> Trình duyệt không thể xoá tài khoản Auth của người khác — cần Admin SDK. Deploy thư mục `functions/`
+> rồi đặt `enableAccountDeletionFunction: true` trong `assets/js/app/config.js`, hoặc xoá tay trong
+> Firebase Console → Authentication. Xem [functions/README.md](functions/README.md).
+
+Admin không xoá được: chính mình, hoặc một tài khoản đang là admin (phải hạ quyền trước).
 
 ## Firebase
 
