@@ -363,7 +363,13 @@ function attachEvents() {
   });
 }
 
-function initializeFirebase() {
+async function initializeFirebase() {
+  // App Check (nếu được cấu hình) phải xong trước khi mở kết nối tới Firebase.
+  try {
+    await window.appCheckReady;
+  } catch (error) {
+    console.warn('App Check chưa sẵn sàng, tiếp tục không có lớp xác thực thiết bị:', error);
+  }
   if (!window.firebase || !window.firebase.auth || !window.firebase.database) {
     setAuthNotice('Không tải được Firebase SDK. Hãy kiểm tra kết nối Internet rồi tải lại trang.', 'error');
     els.authSubmit.disabled = true;

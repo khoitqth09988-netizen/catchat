@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#fff7f1">
   <meta name="description" content="CatChat — ngôi nhà nhỏ để trò chuyện, kết nối và chia sẻ cùng nhau.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <!-- CSP: chỉ cho phép script từ chính app và gstatic. App không dùng script/event handler nội tuyến.
+       connect-src mở cho https/wss để Firebase Realtime Database, Auth và Storage hoạt động. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://www.google.com https://www.recaptcha.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: wss:; frame-src https://www.google.com https://recaptcha.google.com https://www.recaptcha.net https://*.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'">
   <title>CatChat — Ngôi nhà của những cuộc trò chuyện</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -554,28 +558,30 @@
   <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
-  <!-- CatChat core: nạp theo thứ tự, defer giữ đúng thứ tự thực thi -->
-  <script defer src="assets/js/app/01-config.js"></script>
-  <script defer src="assets/js/app/02-state.js"></script>
-  <script defer src="assets/js/app/03-ui-helpers.js"></script>
-  <script defer src="assets/js/app/04-theme.js"></script>
-  <script defer src="assets/js/app/05-auth.js"></script>
-  <script defer src="assets/js/app/06-database.js"></script>
-  <script defer src="assets/js/app/07-channels.js"></script>
-  <script defer src="assets/js/app/08-session.js"></script>
-  <script defer src="assets/js/app/09-message-format.js"></script>
-  <script defer src="assets/js/app/10-messages.js"></script>
-  <script defer src="assets/js/app/11-composer.js"></script>
-  <script defer src="assets/js/app/12-message-actions.js"></script>
-  <script defer src="assets/js/app/13-members.js"></script>
-  <script defer src="assets/js/app/14-extras.js"></script>
-  <script defer src="assets/js/app/15-admin.js"></script>
-  <script defer src="assets/js/app/16-admin-tools.js"></script>
-  <script defer src="assets/js/app/17-moderation.js"></script>
-  <script defer src="assets/js/app/18-events.js"></script>
+  <!-- CatChat core: defer giữ đúng thứ tự khai báo (không dùng số trong tên file) -->
+  <script defer src="assets/js/app/config.js"></script>
+  <script defer src="assets/js/app/state.js"></script>
+  <script defer src="assets/js/app/ui-helpers.js"></script>
+  <script defer src="assets/js/app/security.js"></script>
+  <script defer src="assets/js/app/appcheck.js"></script>
+  <script defer src="assets/js/app/theme.js"></script>
+  <script defer src="assets/js/app/auth.js"></script>
+  <script defer src="assets/js/app/database.js"></script>
+  <script defer src="assets/js/app/channels.js"></script>
+  <script defer src="assets/js/app/session.js"></script>
+  <script defer src="assets/js/app/message-format.js"></script>
+  <script defer src="assets/js/app/messages.js"></script>
+  <script defer src="assets/js/app/composer.js"></script>
+  <script defer src="assets/js/app/message-actions.js"></script>
+  <script defer src="assets/js/app/members.js"></script>
+  <script defer src="assets/js/app/extras.js"></script>
+  <script defer src="assets/js/app/admin.js"></script>
+  <script defer src="assets/js/app/admin-tools.js"></script>
+  <script defer src="assets/js/app/moderation.js"></script>
+  <script defer src="assets/js/app/events.js"></script>
 
   <!-- Hệ thống tính năng: lõi registry rồi tới từng tính năng độc lập -->
-  <script defer src="assets/js/app/20-features-core.js"></script>
+  <script defer src="assets/js/app/features-core.js"></script>
   <script defer src="assets/js/features/slash-commands.js"></script>
   <script defer src="assets/js/features/rich-text.js"></script>
   <script defer src="assets/js/features/mentions.js"></script>
@@ -584,8 +590,10 @@
   <script defer src="assets/js/features/shortcuts.js"></script>
   <script defer src="assets/js/features/command-palette.js"></script>
   <script defer src="assets/js/features/appearance-extras.js"></script>
+  <script defer src="assets/js/features/anti-flood.js"></script>
+  <script defer src="assets/js/features/login-guard.js"></script>
 
   <!-- Khởi động app (luôn cuối cùng) -->
-  <script defer src="assets/js/app/24-boot.js"></script>
+  <script defer src="assets/js/app/boot.js"></script>
 </body>
 </html>
