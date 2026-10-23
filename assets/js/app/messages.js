@@ -152,14 +152,145 @@ function makeEditControls(id, data) {
   return wrap;
 }
 
-function buildMessageNode(id, data) {
+/* ── Trạng thái đọc & nhịp danh sách tin nhắn ────────────────────────────
+   Gộp tin liên tiếp của cùng một người, đánh dấu mốc “Tin nhắn mới” và
+   hiện nút nổi khi người dùng đang xem lại tin cũ. */
+const MESSAGE_GROUP_WINDOW = 5 * 60 * 1000;
+
+function sameMessageGroup(previous, current) {
+  if (!previous || !current) return false;
+  if (previous.kind === 'announcement' || current.kind === 'announcement') return false;
+  if (previous.uid !== current.uid) return false;
+  // Tin trả lời luôn mở nhóm mới để phần trích dẫn không bị dính vào tin trước.
+  if (previous.replyTo) return false;
+  const previousAt = timestampOf(previous);
+  const currentAt = timestampOf(current);
+  if (dateGroupKey(previousAt) !== dateGroupKey(currentAt)) return false;
+  const delta = currentAt - previousAt;
+  return delta >= 0 && delta < MESSAGE_GROUP_WINDOW;
+}
+
+function messagesNearBottom(slack = 120) {
+  const area = els.chatMessages;
+  if (!area) return true;
+  return area.scrollHeight - area.scrollTop - area.clientHeight <= slack;
+}
+
+function syncUnreadPill() {
+  const pill = $('#newMessagePill');
+  if (!pill) return;
+  const show = unreadMessageCount > 0 && Boolean(currentUser) && !announcementMode && !messagesNearBottom();
+  pill.hidden = !show;
+  if (!show) return;
+  const label = $('#newMessagePillText');
+  if (label) label.textContent = unreadMessageCount === 1 ? '1 tin nhắn mới' : `${unreadMessageCount} tin nhắn mới`;
+}
+
+/** Đưa người dùng về cuối danh sách và đánh dấu đã đọc. */
+function jumpToLatestMessages(smooth = true) {
+  unreadMessageCount = 0;
+  lastReadTimestamp = Date.now();
+  syncUnreadPill();
+  if (!els.chatMessages) return;
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  els.chatMessages.scrollTo({ top: els.chatMessages.scrollHeight, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
+}
+
+/** Gọi khi người dùng cuộn: ở gần cuối thì coi như đã đọc hết. */
+function markFeedRead() {
+  if (!messagesNearBottom()) {
+    syncUnreadPill();
+    return;
+  }
+  unreadMessageCount = 0;
+  lastReadTimestamp = Date.now();
+  syncUnreadPill();
+}
+
+function buildSkeletonRow(index = 0) {
+  const row = textElement('div', 'message-skeleton');
+  row.setAttribute('aria-hidden', 'true');
+  const body = textElement('div', 'sk-body');
+  body.append(
+    textElement('span', 'sk-line sk-name'),
+    textElement('span', 'sk-line'),
+    textElement('span', 'sk-line')
+  );
+  row.append(textElement('span', 'sk-avatar'), body);
+  row.style.animationDelay = `${Math.min(index * 55, 330)}ms`;
+  return row;
+}
+
+/** Khung xương trong lúc chờ 100 tin gần nhất thay cho màn hình trống. */
+function renderMessageSkeleton(rows = 6) {
+  const fragment = document.createDocumentFragment();
+  for (let index = 0; index < rows; index += 1) fragment.appendChild(buildSkeletonRow(index));
+  els.chatMessages.replaceChildren(fragment);
+  els.chatMessages.setAttribute('aria-busy', 'true');
+}
+
+/* ── Tải thêm lịch sử ─────────────────────────────────────────────────
+   Kênh chỉ nghe 100 tin gần nhất; người dùng có thể lật thêm từng đợt 50 tin
+   cũ hơn mà vẫn giữ nguyên vị trí đang đọc. */
+function oldestLoadedTimestamp() {
+  let oldest = Number.POSITIVE_INFINITY;
+  messages.forEach((data) => {
+    const at = timestampOf(data || {});
+    if (at < oldest) oldest = at;
+  });
+  return Number.isFinite(oldest) ? oldest : 0;
+}
+
+function syncOlderButton() {
+  const button = els.loadOlderButton;
+  if (!button) return;
+  const browsing = !messageSearchQuery.trim() && !announcementMode;
+  const show = hasOlderMessages && browsing && Boolean(currentUser);
+  button.hidden = !show;
+  button.disabled = isLoadingOlderMessages;
+  button.classList.toggle('is-loading', isLoadingOlderMessages);
+  const label = $('#loadOlderLabel');
+  if (label) label.textContent = isLoadingOlderMessages ? 'Đang tải tin cũ…' : 'Tin nhắn cũ hơn';
+}
+
+async function loadOlderMessages() {
+  if (isLoadingOlderMessages || !hasOlderMessages || !messagesRef || !currentUser) return;
+  const oldest = oldestLoadedTimestamp();
+  if (!oldest) return;
+  isLoadingOlderMessages = true;
+  syncOlderButton();
+  const area = els.chatMessages;
+  const previousHeight = area.scrollHeight;
+  const previousTop = area.scrollTop;
+  try {
+    const snapshot = await messagesRef.orderByChild('timestamp').endAt(oldest - 1).limitToLast(50).once('value');
+    let added = 0;
+    snapshot.forEach((child) => {
+      if (messages.has(child.key)) return;
+      messages.set(child.key, child.val() || {});
+      added += 1;
+    });
+    if (added < 50) hasOlderMessages = false;
+    renderAllMessages(false);
+    requestAnimationFrame(() => {
+      area.scrollTop = area.scrollHeight - previousHeight + previousTop;
+    });
+  } catch (error) {
+    showDatabaseError(error, 'Không tải được tin nhắn cũ hơn.');
+  } finally {
+    isLoadingOlderMessages = false;
+    syncOlderButton();
+  }
+}
+
+function buildMessageNode(id, data, grouped = false) {
   const isAnnouncement = data.kind === 'announcement';
   const isMine = data.uid === currentUser?.uid;
   const name = data.name || 'Thành viên';
   const time = timestampOf(data);
   const isPinned = Boolean(pins[activeChannelId] && pins[activeChannelId].messageId === id);
   const editing = editingMessageId === id;
-  const row = textElement('article', `message-row${isMine ? ' mine' : ''}${isAnnouncement ? ' announcement-row' : ''}${isPinned ? ' is-pinned' : ''}`);
+  const row = textElement('article', `message-row${isMine ? ' mine' : ''}${isAnnouncement ? ' announcement-row' : ''}${isPinned ? ' is-pinned' : ''}${grouped ? ' is-grouped' : ''}`);
   row.dataset.messageId = id;
   row.dataset.timestamp = String(time);
   row.setAttribute('aria-label', isAnnouncement ? 'Thông báo toàn máy chủ' : `Tin nhắn từ ${name}`);
@@ -257,7 +388,18 @@ function renderAllMessages(scrollToEnd = false, newArrival = false) {
     ? `${visibleMessages.length} kết quả`
     : announcementMode ? `${allMessages.length} thông báo` : `${allMessages.length} tin nhắn`;
   const fragment = document.createDocumentFragment();
+  if (els.loadOlderButton && !query && !announcementMode) {
+    fragment.appendChild(els.loadOlderButton);
+    syncOlderButton();
+  }
   let previousDate = '';
+  let previousData = null;
+  let unreadDividerPlaced = false;
+  const treatAsRead = wasNearBottom || !currentUser;
+  if (treatAsRead && !query) {
+    unreadMessageCount = 0;
+    lastReadTimestamp = Date.now();
+  }
   for (const [id, data] of visibleMessages) {
     const timestamp = timestampOf(data || {});
     const groupKey = dateGroupKey(timestamp);
@@ -266,9 +408,19 @@ function renderAllMessages(scrollToEnd = false, newArrival = false) {
       divider.appendChild(textElement('span', '', dateGroupLabel(timestamp)));
       fragment.appendChild(divider);
       previousDate = groupKey;
+      previousData = null;
     }
-    fragment.appendChild(buildMessageNode(id, data || {}));
+    if (!unreadDividerPlaced && !treatAsRead && !query && !announcementMode && lastReadTimestamp && timestamp > lastReadTimestamp) {
+      const unreadDivider = textElement('div', 'new-messages-divider');
+      unreadDivider.appendChild(textElement('span', '', 'Tin nhắn mới'));
+      fragment.appendChild(unreadDivider);
+      unreadDividerPlaced = true;
+    }
+    const grouped = sameMessageGroup(previousData, data || {});
+    fragment.appendChild(buildMessageNode(id, data || {}, grouped));
+    previousData = data || {};
   }
+  if (newArrival && !wasNearBottom && !query && !announcementMode && currentUser) unreadMessageCount += 1;
   if (!visibleMessages.length && !query && announcementMode) {
     const empty = textElement('div', 'chat-empty');
     const illustration = textElement('div', 'empty-illustration');
@@ -291,8 +443,16 @@ function renderAllMessages(scrollToEnd = false, newArrival = false) {
     fragment.appendChild(empty);
   }
   els.chatMessages.replaceChildren(fragment);
+  els.chatMessages.setAttribute('aria-busy', 'false');
+  syncOlderButton();
+  syncUnreadPill();
   if (scrollToEnd || (newArrival && wasNearBottom)) requestAnimationFrame(() => {
     els.chatMessages.scrollTop = query ? 0 : els.chatMessages.scrollHeight;
+    if (!query) {
+      unreadMessageCount = 0;
+      lastReadTimestamp = Date.now();
+      syncUnreadPill();
+    }
   });
 }
 

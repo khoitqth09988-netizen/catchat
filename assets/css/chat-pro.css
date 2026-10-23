@@ -1,0 +1,435 @@
+/* CatChat · Lớp hoàn thiện trải nghiệm chat (nạp sau cat-skin.css).
+   Gồm: nhịp tin nhắn & gộp tin cùng người gửi, dải “Tin nhắn mới”,
+   nút nhảy tới tin mới nhất, chỉ báo “đang nhập…”, skeleton khi tải,
+   và các chi tiết tương tác của khung soạn tin. */
+
+/* ── Nhịp điệu danh sách tin nhắn ─────────────────────────── */
+.app-view .messages-area {
+  scrollbar-gutter: stable;
+  scroll-behavior: auto;
+}
+
+.app-view .messages-area .message-row {
+  padding: 6px 10px;
+  transition: background .16s ease;
+}
+
+.app-view .messages-area .message-row:not(.is-grouped) {
+  margin-top: 7px;
+}
+
+/* Tin liên tiếp của cùng một người trong 5 phút: ẩn avatar + tên,
+   giữ nguyên khoảng trống để nội dung vẫn thẳng hàng. */
+.app-view .message-row.is-grouped {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.app-view .message-row.is-grouped .message-avatar {
+  visibility: hidden;
+}
+
+.app-view .message-row.is-grouped .message-name {
+  display: none;
+}
+
+.app-view .message-row.is-grouped .message-meta {
+  margin-bottom: 1px;
+}
+
+.app-view .message-row.is-grouped .message-time {
+  opacity: 0;
+  transition: opacity .16s ease;
+}
+
+.app-view .message-row.is-grouped:hover .message-time,
+.app-view .message-row.is-grouped:focus-within .message-time {
+  opacity: 1;
+}
+
+.app-view .message-row:hover {
+  background: var(--theme-row-hover, rgba(79, 84, 92, .075));
+}
+
+.app-view .message-row.mine:hover {
+  background: color-mix(in srgb, var(--theme-accent) 7%, transparent);
+}
+
+.app-view .message-bubble {
+  font-size: 13.5px;
+  line-height: 1.6;
+  letter-spacing: .002em;
+}
+
+.app-view .message-name {
+  font-size: 12.5px;
+  letter-spacing: -.005em;
+}
+
+.app-view .message-time {
+  font-size: 10px;
+  letter-spacing: .01em;
+}
+
+.app-view .date-divider {
+  margin: 14px 0 2px;
+  color: var(--theme-subtle);
+  font-size: 9.5px;
+  font-weight: 850;
+  letter-spacing: .1em;
+}
+
+.app-view .date-divider::before,
+.app-view .date-divider::after {
+  background: var(--theme-line);
+}
+
+.app-view .chat-empty h3 {
+  font-size: 15px;
+}
+
+.app-view .chat-empty p {
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+/* ── Dải “Tin nhắn mới” ───────────────────────────────────── */
+.new-messages-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 2px;
+  color: color-mix(in srgb, var(--theme-accent) 78%, var(--theme-text));
+  font-size: 9.5px;
+  font-weight: 850;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  animation: new-divider-in .32s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.new-messages-divider::before,
+.new-messages-divider::after {
+  height: 1px;
+  flex: 1;
+  content: "";
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--theme-accent) 52%, transparent));
+}
+
+.new-messages-divider::after {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--theme-accent) 52%, transparent), transparent);
+}
+
+.new-messages-divider span {
+  padding: 0 2px;
+  white-space: nowrap;
+}
+
+/* ── Nút “N tin nhắn mới” nổi trên khung soạn tin ─────────── */
+.app-view .chat-panel {
+  position: relative;
+}
+
+.new-message-pill {
+  position: absolute;
+  z-index: 6;
+  right: 24px;
+  bottom: 118px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px 7px 12px;
+  border: 1px solid color-mix(in srgb, var(--theme-accent) 34%, transparent);
+  border-radius: 999px;
+  background: var(--theme-panel);
+  color: var(--theme-text);
+  box-shadow: 0 14px 32px rgba(24, 16, 34, .22), 0 0 0 4px color-mix(in srgb, var(--theme-accent) 9%, transparent);
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: -.005em;
+  animation: new-pill-in .26s cubic-bezier(.2, .8, .2, 1) both;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.new-message-pill .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--theme-accent);
+  transform: rotate(90deg);
+}
+
+.new-message-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(24, 16, 34, .26), 0 0 0 4px color-mix(in srgb, var(--theme-accent) 14%, transparent);
+}
+
+.new-message-pill:active {
+  transform: translateY(0) scale(.98);
+}
+
+/* ── “Đang nhập…” ─────────────────────────────────────────── */
+.typing-indicator {
+  display: flex;
+  min-height: 18px;
+  align-items: center;
+  gap: 8px;
+  margin: 0 2px 6px;
+  color: var(--theme-muted);
+  font-size: 11.5px;
+  font-weight: 650;
+  animation: typing-in .2s ease both;
+}
+
+.typing-indicator[hidden] {
+  display: none !important;
+}
+
+.typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 7px;
+  border: 1px solid var(--theme-line);
+  border-radius: 999px;
+  background: var(--theme-panel-alt);
+}
+
+.typing-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--theme-accent);
+  animation: typing-dot 1.15s ease-in-out infinite;
+}
+
+.typing-dots i:nth-child(2) { animation-delay: .16s; }
+.typing-dots i:nth-child(3) { animation-delay: .32s; }
+
+.typing-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Skeleton khi tải tin nhắn ────────────────────────────── */
+.message-skeleton {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 10px;
+  animation: skeleton-in .3s ease both;
+}
+
+.message-skeleton .sk-avatar {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.message-skeleton .sk-body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 3px;
+}
+
+.message-skeleton .sk-line {
+  height: 9px;
+  border-radius: 99px;
+}
+
+.message-skeleton .sk-name {
+  width: 96px;
+  height: 8px;
+}
+
+.message-skeleton .sk-line:nth-child(2) { width: min(320px, 62%); }
+.message-skeleton .sk-line:nth-child(3) { width: min(210px, 40%); }
+
+.message-skeleton .sk-avatar,
+.message-skeleton .sk-line {
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--theme-text) 7%, transparent) 22%,
+    color-mix(in srgb, var(--theme-text) 14%, transparent) 42%,
+    color-mix(in srgb, var(--theme-text) 7%, transparent) 62%
+  );
+  background-size: 260% 100%;
+  animation: skeleton-wave 1.5s ease-in-out infinite;
+}
+
+.messages-area[aria-busy="true"] {
+  pointer-events: none;
+}
+
+/* ── Khung soạn tin ───────────────────────────────────────── */
+.app-view .composer-box {
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.app-view .composer-box:focus-within {
+  border-color: color-mix(in srgb, var(--theme-accent) 42%, var(--theme-line-strong));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent) 12%, transparent), 0 12px 28px rgba(40, 24, 12, .09);
+}
+
+.app-view .composer-box textarea {
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.app-view .send-button {
+  transition: transform .16s cubic-bezier(.2, .8, .2, 1), box-shadow .16s ease, background .16s ease;
+}
+
+.app-view .send-button:not(:disabled):hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.app-view .send-button:not(:disabled):active {
+  transform: scale(.93);
+}
+
+.app-view .composer-hint {
+  font-size: 9.5px;
+  letter-spacing: .01em;
+}
+
+/* ── Chi tiết nhỏ cho cảm giác “app thật” ─────────────────── */
+.app-view .channel-toolbar {
+  backdrop-filter: saturate(120%);
+}
+
+.app-view .message-avatar {
+  box-shadow: 0 2px 8px rgba(30, 18, 10, .12);
+}
+
+.app-view .message-row.is-pinned .message-bubble {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--theme-accent) 22%, transparent);
+  border-radius: 8px;
+  padding: 4px 9px;
+}
+
+@keyframes new-divider-in {
+  from { opacity: 0; transform: scaleX(.92); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes new-pill-in {
+  from { opacity: 0; transform: translateY(8px) scale(.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes typing-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typing-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: .45; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+
+@keyframes skeleton-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes skeleton-wave {
+  from { background-position: 130% 0; }
+  to { background-position: -40% 0; }
+}
+
+@media (max-width: 720px) {
+  .new-message-pill {
+    right: 14px;
+    bottom: 108px;
+  }
+
+  .app-view .messages-area .message-row {
+    padding: 5px 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .new-messages-divider,
+  .new-message-pill,
+  .typing-indicator,
+  .message-skeleton,
+  .typing-dots i,
+  .message-skeleton .sk-avatar,
+  .message-skeleton .sk-line {
+    animation: none !important;
+  }
+
+  .app-view .send-button,
+  .new-message-pill {
+    transition: none !important;
+  }
+}
+
+/* ── Nút lật thêm lịch sử ─────────────────────────────────── */
+.load-older-button {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  gap: 8px;
+  margin: 2px auto 10px;
+  padding: 6px 15px;
+  border: 1px solid var(--theme-line-strong);
+  border-radius: 999px;
+  background: var(--theme-panel);
+  color: var(--theme-muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -.003em;
+  box-shadow: 0 2px 10px rgba(30, 18, 10, .05);
+  transition: color .16s ease, border-color .16s ease, transform .16s ease, background .16s ease;
+}
+
+.load-older-button:hover {
+  border-color: color-mix(in srgb, var(--theme-accent) 40%, var(--theme-line-strong));
+  background: var(--theme-panel-alt);
+  color: var(--theme-text);
+  transform: translateY(-1px);
+}
+
+.load-older-button.is-loading {
+  cursor: progress;
+  color: var(--theme-subtle);
+}
+
+.load-older-button.is-loading:hover {
+  transform: none;
+}
+
+.load-older-spinner {
+  display: none;
+  width: 11px;
+  height: 11px;
+  border: 2px solid color-mix(in srgb, var(--theme-accent) 26%, transparent);
+  border-top-color: var(--theme-accent);
+  border-radius: 50%;
+  animation: load-older-spin .7s linear infinite;
+}
+
+.load-older-button.is-loading .load-older-spinner {
+  display: inline-block;
+}
+
+@keyframes load-older-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .load-older-button {
+    transition: none !important;
+  }
+
+  .load-older-spinner {
+    animation-duration: 1.6s;
+  }
+}

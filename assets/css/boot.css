@@ -1,0 +1,447 @@
+/* CatChat · Màn hình chờ khi tải app (splash) + chuyển cảnh vào ứng dụng.
+   Nạp sớm (ngay sau base.css) để khung chờ có style trước khi JS chạy.
+   Toàn bộ chuyển động đều tôn trọng prefers-reduced-motion. */
+
+.boot-screen {
+  --boot-bg-1: #211a2b;
+  --boot-bg-2: #100d15;
+  --boot-ink: #f8f2ff;
+  --boot-muted: #a99fb6;
+  --boot-line: rgba(255, 255, 255, .09);
+  --boot-accent: #ffb46b;
+  --boot-accent-2: #ff8fa8;
+  --boot-accent-3: #b9a5ff;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  place-items: center;
+  padding: 32px 24px 26px;
+  overflow: hidden;
+  background:
+    radial-gradient(58% 46% at 50% 34%, color-mix(in srgb, var(--boot-accent-3) 20%, transparent), transparent 72%),
+    radial-gradient(44% 38% at 82% 78%, color-mix(in srgb, var(--boot-accent) 14%, transparent), transparent 74%),
+    radial-gradient(40% 34% at 12% 18%, color-mix(in srgb, var(--boot-accent-2) 12%, transparent), transparent 72%),
+    linear-gradient(168deg, var(--boot-bg-1), var(--boot-bg-2) 68%);
+  color: var(--boot-ink);
+  font-family: Nunito, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  transition: opacity .52s cubic-bezier(.4, 0, .2, 1), transform .52s cubic-bezier(.4, 0, .2, 1), filter .52s;
+}
+
+/* Bảng màu sáng cho các theme sáng để splash không bị “nháy tối”. */
+body[data-theme="light"] .boot-screen,
+body[data-theme="lavender"] .boot-screen,
+body[data-theme="ocean"] .boot-screen {
+  --boot-bg-1: #fffaf4;
+  --boot-bg-2: #f3ede7;
+  --boot-ink: #33291f;
+  --boot-muted: #8d8378;
+  --boot-line: rgba(51, 41, 31, .1);
+}
+
+.boot-screen.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.035);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+/* Nền chuyển động nhẹ */
+.boot-glow {
+  position: absolute;
+  inset: -12%;
+  pointer-events: none;
+}
+
+.boot-glow span {
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: .38;
+  animation: boot-drift 16s ease-in-out infinite alternate;
+}
+
+.boot-glow span:first-child {
+  top: -18%;
+  left: -8%;
+  background: color-mix(in srgb, var(--boot-accent-3) 55%, transparent);
+}
+
+.boot-glow span:last-child {
+  right: -10%;
+  bottom: -22%;
+  background: color-mix(in srgb, var(--boot-accent) 45%, transparent);
+  animation-duration: 19s;
+  animation-direction: alternate-reverse;
+}
+
+/* ── Khối giữa ─────────────────────────────────────────────── */
+.boot-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-self: center;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.boot-mark {
+  position: relative;
+  display: grid;
+  width: 118px;
+  height: 118px;
+  place-items: center;
+  margin-bottom: 26px;
+}
+
+.boot-mark::before {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--boot-accent) 42%, transparent), transparent 68%);
+  content: "";
+  animation: boot-halo 3.4s ease-in-out infinite;
+}
+
+.boot-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed color-mix(in srgb, var(--boot-ink) 26%, transparent);
+  border-radius: 50%;
+  animation: boot-spin 11s linear infinite;
+}
+
+.boot-ring.ring-b {
+  inset: 15px;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--boot-accent-3) 32%, transparent);
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  animation-duration: 6.5s;
+  animation-direction: reverse;
+}
+
+.boot-orbit {
+  position: absolute;
+  inset: 0;
+  animation: boot-spin 7.5s linear infinite;
+}
+
+.boot-orbit.orbit-b {
+  animation-duration: 12s;
+  animation-direction: reverse;
+  inset: 12px;
+}
+
+.boot-orbit i {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid var(--boot-line);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--boot-ink) 9%, transparent);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .18);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(4px);
+}
+
+.boot-orbit.orbit-b i {
+  top: auto;
+  bottom: 0;
+  font-size: 10px;
+  transform: translate(-50%, 50%);
+}
+
+.boot-face {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 68px;
+  height: 68px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--boot-ink) 16%, transparent);
+  border-radius: 23px;
+  background: linear-gradient(148deg, var(--boot-accent), var(--boot-accent-2) 58%, var(--boot-accent-3));
+  color: #fff;
+  box-shadow:
+    0 18px 44px color-mix(in srgb, var(--boot-accent) 32%, transparent),
+    inset 0 1px rgba(255, 255, 255, .55);
+  animation: boot-breathe 3.2s ease-in-out infinite;
+}
+
+.boot-face .icon {
+  width: 38px;
+  height: 38px;
+  filter: drop-shadow(0 2px 4px rgba(80, 30, 10, .25));
+}
+
+.boot-title {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  line-height: 1.1;
+  animation: boot-title-in .9s cubic-bezier(.2, .8, .2, 1) both;
+  background: linear-gradient(100deg, var(--boot-ink), color-mix(in srgb, var(--boot-accent) 70%, var(--boot-ink)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.boot-tagline {
+  margin: 9px 0 0;
+  color: var(--boot-muted);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  animation: boot-rise .8s .12s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+/* ── Thanh tiến trình ─────────────────────────────────────── */
+.boot-progress {
+  position: relative;
+  width: 228px;
+  height: 5px;
+  margin-top: 30px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--boot-ink) 12%, transparent);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .22);
+  animation: boot-rise .8s .2s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.boot-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--boot-accent), var(--boot-accent-2) 55%, var(--boot-accent-3));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--boot-accent) 55%, transparent);
+  transition: width .55s cubic-bezier(.2, .8, .2, 1);
+}
+
+.boot-progress-fill::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 54px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .75), transparent);
+  content: "";
+  animation: boot-sheen 1.6s ease-in-out infinite;
+}
+
+.boot-step {
+  min-height: 17px;
+  margin: 13px 0 0;
+  color: var(--boot-muted);
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: .015em;
+  transition: opacity .22s ease, transform .22s ease;
+  animation: boot-rise .8s .28s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.boot-step.is-swapping {
+  opacity: 0;
+  transform: translateY(3px);
+}
+
+.boot-screen.is-failed .boot-progress {
+  opacity: .32;
+}
+
+.boot-screen.is-failed .boot-step {
+  color: color-mix(in srgb, #ff8f8f 82%, var(--boot-ink));
+}
+
+/* ── Trạng thái lỗi ──────────────────────────────────────── */
+.boot-error {
+  display: flex;
+  max-width: 330px;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, #ff8f8f 34%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, #ff8f8f 10%, transparent);
+  color: var(--boot-ink);
+  font-size: 11.5px;
+  line-height: 1.55;
+  animation: boot-rise .35s ease both;
+}
+
+.boot-error p {
+  margin: 0;
+}
+
+.boot-retry {
+  min-height: 34px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 99px;
+  background: linear-gradient(120deg, var(--boot-accent), var(--boot-accent-2));
+  color: #2a1114;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 850;
+  letter-spacing: .02em;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--boot-accent) 30%, transparent);
+  transition: transform .16s, box-shadow .16s;
+}
+
+.boot-retry:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--boot-accent) 38%, transparent);
+}
+
+.boot-retry:active {
+  transform: translateY(0) scale(.97);
+}
+
+/* ── Bàn chân dạo bước + dòng chân trang ──────────────────── */
+.boot-paws {
+  display: flex;
+  align-items: center;
+  align-self: end;
+  gap: 16px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  line-height: 1;
+  opacity: .85;
+}
+
+.boot-paws span {
+  animation: boot-paw 2.2s ease-in-out infinite;
+}
+
+.boot-paws span:nth-child(2) { animation-delay: .18s; }
+.boot-paws span:nth-child(3) { animation-delay: .36s; }
+.boot-paws span:nth-child(4) { animation-delay: .54s; }
+
+.boot-foot {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: color-mix(in srgb, var(--boot-muted) 82%, transparent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* ── Chuyển cảnh khi splash biến mất ─────────────────────── */
+body.booted .auth-card,
+body.booted .app-shell {
+  animation: boot-shell-in .6s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+body.booted .auth-screen {
+  animation: boot-fade .45s ease both;
+}
+
+@keyframes boot-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(4%, -3%, 0) scale(1.12); }
+}
+
+@keyframes boot-halo {
+  0%, 100% { opacity: .45; transform: scale(.92); }
+  50% { opacity: .82; transform: scale(1.1); }
+}
+
+@keyframes boot-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes boot-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.035); }
+}
+
+@keyframes boot-title-in {
+  from { opacity: 0; letter-spacing: .32em; transform: translateY(6px); }
+  to { opacity: 1; letter-spacing: .06em; transform: translateY(0); }
+}
+
+@keyframes boot-rise {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes boot-sheen {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(320%); }
+}
+
+@keyframes boot-paw {
+  0%, 100% { opacity: .16; transform: translateY(0) rotate(-6deg); }
+  50% { opacity: .72; transform: translateY(-6px) rotate(4deg); }
+}
+
+@keyframes boot-shell-in {
+  from { opacity: 0; transform: translateY(10px) scale(.994); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes boot-fade {
+  from { opacity: .6; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 520px) {
+  .boot-mark { width: 100px; height: 100px; margin-bottom: 22px; }
+  .boot-face { width: 58px; height: 58px; border-radius: 20px; }
+  .boot-face .icon { width: 32px; height: 32px; }
+  .boot-orbit i { width: 22px; height: 22px; font-size: 10px; }
+  .boot-title { font-size: 24px; }
+  .boot-progress { width: min(228px, 72vw); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-glow span,
+  .boot-mark::before,
+  .boot-ring,
+  .boot-orbit,
+  .boot-face,
+  .boot-paws span,
+  .boot-progress-fill::after {
+    animation: none !important;
+  }
+
+  .boot-title,
+  .boot-tagline,
+  .boot-progress,
+  .boot-step,
+  .boot-error {
+    animation: none !important;
+  }
+
+  .boot-screen,
+  .boot-progress-fill,
+  .boot-step {
+    transition-duration: .01ms !important;
+  }
+
+  body.booted .auth-card,
+  body.booted .app-shell,
+  body.booted .auth-screen {
+    animation: none !important;
+  }
+}

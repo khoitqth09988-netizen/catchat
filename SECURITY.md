@@ -69,6 +69,14 @@ hình thức — App Check + Rules + budget alert là bộ ba cần thiết.
 - Giới hạn được chọn để không ảnh hưởng người dùng bình thường; nếu cộng đồng đông hơn, tăng
   `MESSAGE_BUCKET` trong `anti-flood.js`.
 
-## 6. Báo cáo lỗi bảo mật
+## 6. Node `/typing` (chỉ báo đang gõ)
+
+- Mỗi người chỉ ghi được vào `/typing/<channelId>/<uid>` với `$uid === auth.uid`, tài khoản đang bị cấm
+  (`/bans/<uid>`) bị chặn hoàn toàn.
+- `validate` chỉ cho phép `{ name: string ≤ 60, at: number }` nên không thể nhét dữ liệu lạ vào node này.
+- Client tự xoá sau 4,2 giây ngừng gõ, tự hết hạn sau 7 giây, và `onDisconnect().remove()` dọn khi đóng tab.
+- Nếu chưa dán node `/typing`, app không lỗi: tính năng tự tắt và chỉ ghi một cảnh báo trong console.
+
+## 7. Báo cáo lỗi bảo mật
 
 Nếu phát hiện lỗ hổng, đừng tạo issue công khai. Gửi email cho quản trị viên kèm mô tả và bước tái hiện.
