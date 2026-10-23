@@ -1,0 +1,148 @@
+/* CatChat · Design tokens dùng chung.
+   Nạp ngay sau boot.css, trước base.css: chỉ khai báo biến + primitive nhỏ,
+   không đụng tới bố cục. Mọi bảng màu (light/dark/lavender/ocean/halloween)
+   đều dùng được vì token ở đây chỉ định nghĩa nhịp điệu (spacing, radius,
+   elevation, motion, typography), màu thì lấy từ biến --theme-* của từng theme.
+   Quy ước tên: --ds-* (design system). */
+
+:root {
+  /* ── Nhịp khoảng cách (8pt, có nấc 4px cho chi tiết nhỏ) ── */
+  --ds-space-1: 4px;
+  --ds-space-2: 6px;
+  --ds-space-3: 8px;
+  --ds-space-4: 12px;
+  --ds-space-5: 16px;
+  --ds-space-6: 20px;
+  --ds-space-7: 24px;
+  --ds-space-8: 32px;
+  --ds-space-9: 44px;
+
+  /* ── Bo góc: 4 nấc, dùng nhất quán cho mọi bề mặt ── */
+  --ds-radius-xs: 8px;
+  --ds-radius-sm: 11px;
+  --ds-radius-md: 15px;
+  --ds-radius-lg: 20px;
+  --ds-radius-xl: 26px;
+  --ds-radius-pill: 999px;
+
+  /* ── Chữ: thang cỡ và độ đậm ── */
+  --ds-font: Nunito, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ds-text-2xs: 9.5px;
+  --ds-text-xs: 10.5px;
+  --ds-text-sm: 11.5px;
+  --ds-text-base: 13.5px;
+  --ds-text-md: 15px;
+  --ds-text-lg: 18px;
+  --ds-text-xl: 23px;
+  --ds-text-2xl: 31px;
+  --ds-weight-regular: 500;
+  --ds-weight-medium: 650;
+  --ds-weight-bold: 750;
+  --ds-weight-black: 850;
+  --ds-tracking-tight: -.022em;
+  --ds-tracking-wide: .12em;
+
+  /* ── Chuyển động: một “giọng” duy nhất cho toàn app ── */
+  --ds-ease-out: cubic-bezier(.22, .8, .28, 1);
+  --ds-ease-spring: cubic-bezier(.2, 1.12, .34, 1);
+  --ds-ease-in-out: cubic-bezier(.4, 0, .2, 1);
+  --ds-dur-fast: .14s;
+  --ds-dur-base: .22s;
+  --ds-dur-slow: .38s;
+
+  /* ── Màu ngữ nghĩa (dùng cho toast, trạng thái, cảnh báo) ── */
+  --ds-success: #2fa36b;
+  --ds-danger: #e05663;
+  --ds-warning: #e0a23c;
+  --ds-info: #4b93e8;
+
+  /* ── Độ nổi: 3 nấc, cộng thêm viền sáng bên trong để bề mặt “dày” hơn ── */
+  --ds-elev-1: 0 1px 2px rgba(24, 16, 8, .05), 0 3px 10px rgba(24, 16, 8, .05);
+  --ds-elev-2: 0 4px 14px rgba(24, 16, 8, .08), 0 12px 30px rgba(24, 16, 8, .07);
+  --ds-elev-3: 0 10px 28px rgba(24, 16, 8, .12), 0 28px 64px rgba(24, 16, 8, .14);
+  --ds-inner-light: inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+
+/* Token phụ thuộc màu theme phải khai báo trên <body>: theme đặt biến --theme-*
+   cũng trên body, nên var() được thay giá trị đúng ở đó (không bị “invalid” như khi
+   khai báo ở :root rồi mới có --theme-* ở body). */
+body {
+  --ds-success-soft: color-mix(in srgb, var(--ds-success) 14%, transparent);
+  --ds-danger-soft: color-mix(in srgb, var(--ds-danger) 14%, transparent);
+  --ds-warning-soft: color-mix(in srgb, var(--ds-warning) 16%, transparent);
+  --ds-info-soft: color-mix(in srgb, var(--ds-info) 14%, transparent);
+  --ds-ring: 0 0 0 1px color-mix(in srgb, var(--theme-line-strong, rgba(0, 0, 0, .12)) 90%, transparent);
+  --ds-focus-color: color-mix(in srgb, var(--theme-accent, #5865f2) 72%, transparent);
+  --ds-focus: 0 0 0 2px var(--theme-panel, #fff), 0 0 0 4.5px var(--ds-focus-color);
+}
+
+/* Theme tối: viền sáng trong mờ hơn, đổ bóng sâu hơn để không bị “bẹt”. */
+body[data-theme="dark"] {
+  --ds-inner-light: inset 0 1px 0 rgba(255, 255, 255, .06);
+  --ds-elev-1: 0 1px 2px rgba(0, 0, 0, .3);
+  --ds-elev-2: 0 6px 18px rgba(0, 0, 0, .34);
+  --ds-elev-3: 0 16px 40px rgba(0, 0, 0, .46);
+  --ds-success: #3fbe83;
+  --ds-danger: #f4787f;
+  --ds-warning: #f0b455;
+  --ds-info: #6aa9f2;
+}
+
+body[data-theme="halloween"] {
+  --ds-inner-light: inset 0 1px 0 rgba(255, 200, 140, .07);
+  --ds-elev-1: 0 1px 2px rgba(0, 0, 0, .34);
+  --ds-elev-2: 0 6px 20px rgba(0, 0, 0, .4);
+  --ds-elev-3: 0 18px 48px rgba(0, 0, 0, .54);
+  --ds-success: #57c98d;
+  --ds-danger: #ff7d6b;
+  --ds-warning: #ffab4d;
+  --ds-info: #8f7bff;
+}
+
+/* ── Primitive dùng lại ─────────────────────────────────────── */
+
+/* Chỉ hiện với trình đọc màn hình */
+.ds-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+  margin: -1px;
+  white-space: nowrap;
+}
+
+/* Liên kết “bỏ qua điều hướng”: chỉ hiện khi focus bằng bàn phím */
+.ds-skip-link {
+  position: fixed;
+  z-index: 10000;
+  top: 10px;
+  left: 50%;
+  padding: 10px 18px;
+  border-radius: var(--ds-radius-pill);
+  background: var(--theme-accent, #5865f2);
+  color: var(--theme-accent-contrast, #fff);
+  font-size: var(--ds-text-sm);
+  font-weight: var(--ds-weight-bold);
+  text-decoration: none;
+  transform: translate(-50%, -180%);
+  transition: transform var(--ds-dur-base) var(--ds-ease-out);
+}
+
+.ds-skip-link:focus-visible {
+  transform: translate(-50%, 0);
+  outline: none;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .24);
+}
+
+/* Người dùng muốn giảm chuyển động: mọi thứ gần như tức thời */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ds-dur-fast: .01ms;
+    --ds-dur-base: .01ms;
+    --ds-dur-slow: .01ms;
+  }
+}

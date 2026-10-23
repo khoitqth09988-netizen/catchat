@@ -10,6 +10,7 @@ dễ mở rộng và có thể thêm tính năng mới mà không phải sửa c
 index.html                     Khung HTML + sprite icon + thứ tự nạp CSS/JS
 assets/css/                    Giao diện, tách theo khu vực
   boot.css                     Màn hình chờ (splash) + chuyển cảnh khi mở app
+  design-system.css            Design token: spacing, bo góc, chữ, elevation, motion, màu ngữ nghĩa
   base.css                     Reset, biến màu, màn hình đăng nhập, khung chat
   workspace.css                Bố cục kiểu Discord: sidebar, kênh, hàng tin nhắn
   themes.css                   5 theme: light, dark, lavender, ocean, halloween
@@ -22,6 +23,7 @@ assets/css/                    Giao diện, tách theo khu vực
   features.css                 Giao diện của các tính năng mở rộng
   chat-pro.css                 Nhịp tin nhắn, gộp tin, “Tin nhắn mới”, skeleton, đang nhập…
   cursor-fx.css                Hiệu ứng con trỏ: vệt sáng, sóng khi bấm, dấu chân khi cuộn
+  polish.css                   Lớp hoàn thiện thiết kế cho toàn bộ bề mặt (nạp trước halloween-night)
   halloween-night.css          Halloween ma mị (nạp cuối để ghi đè theme Halloween)
 assets/js/app/                 Lõi ứng dụng, nạp theo thứ tự bằng <script defer>
   config.js                    Hằng số, cấu hình Firebase, helper $ / $$
@@ -143,6 +145,36 @@ Tính năng lỗi được cô lập: `CatChat.features.failures()` ghi lại l�
   }
 }
 ```
+
+## Hệ thống thiết kế
+
+Toàn bộ giao diện dùng chung một bộ token trong `assets/css/design-system.css`:
+
+| Nhóm | Token | Ghi chú |
+|---|---|---|
+| Khoảng cách | `--ds-space-1..9` | nấc 4/6/8/12/16/20/24/32/44px |
+| Bo góc | `--ds-radius-xs..xl`, `--ds-radius-pill` | 8 → 26px |
+| Chữ | `--ds-text-2xs..2xl`, `--ds-weight-*` | thang cỡ + độ đậm thống nhất |
+| Chuyển động | `--ds-ease-*`, `--ds-dur-*` | 3 nhịp: 140 / 220 / 380ms |
+| Độ nổi | `--ds-elev-1..3`, `--ds-inner-light` | có biến thể riêng cho theme tối & Halloween |
+| Màu ngữ nghĩa | `--ds-success/-danger/-warning/-info` (+ bản `-soft`) | dùng cho toast, trạng thái, cảnh báo |
+| Focus | `--ds-focus` | vòng focus 2 lớp, chỉ hiện với bàn phím |
+
+`assets/css/polish.css` áp token lên **mọi bề mặt**: màn hình đăng nhập, sidebar, topbar, thanh kênh,
+danh sách tin nhắn, khung soạn tin, cột thành viên, hộp thoại, hồ sơ, bảng quản trị, tin đã lưu, bảng
+lệnh, bảng phím tắt, toast… vì tất cả màu đều lấy từ `--theme-*` nên **5 bảng màu đều đúng**.
+
+Chi tiết đáng chú ý:
+
+- **Sidebar**: vạch nhấn chuyển động ở mục đang chọn, kênh trượt nhẹ khi hover, thẻ hồ sơ có viền riêng.
+- **Topbar & thanh kênh**: nền kính mờ (`backdrop-filter`), pill đồng bộ, chấm online có nhịp lan.
+- **Tin nhắn**: nhóm nút trả lời/lưu/sao chép/sửa xuất hiện theo cụm khi hover, dải ngày **dính đỉnh**
+  khi cuộn, bong bóng có vạch nhấn theo màu theme, reaction nhún khi bấm.
+- **Toast**: vạch màu theo loại (thành công/lỗi/thông tin) + thanh đếm ngược 4,8 giây khớp với thời gian
+  tự đóng trong `toast()`.
+- **Bảng quản trị**: tab có gạch chân trượt, thẻ số liệu nổi nhẹ, nút nguy hiểm đổi sang đỏ khi hover.
+- **Khả năng truy cập**: liên kết “Bỏ qua điều hướng” (`ds-skip-link`) đưa focus tới ô soạn tin hoặc ô email,
+  vòng focus thống nhất, `prefers-reduced-motion` và `prefers-contrast: more` đều được xử lý.
 
 ## Mượt mà & hiệu ứng
 
