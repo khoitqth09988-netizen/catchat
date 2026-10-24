@@ -181,9 +181,10 @@ Mỗi tin nhắn có **một** nút `⋯` nằm ngay sau tên và giờ gửi. B
 | Xoá tin nhắn | chủ tin nhắn (hoặc admin) |
 
 Hàng meta vì thế chỉ còn **tên → giờ → ⋯**: tên luôn sát avatar, không còn icon rời.
-Menu đóng khi chọn một mục, bấm ra ngoài, nhấn `Esc`, cuộn danh sách hoặc xoay/đổi kích thước cửa sổ;
-tự lật sang trái/lên khi sát mép màn hình. Trên cảm ứng (≤ 760px) nút `⋯` luôn hiện và mục cao 38px
-cho dễ bấm. Các nút bên trong vẫn giữ `data-*` cũ nên handler uỷ quyền trong `events.js` không đổi —
+Menu mở **ngay cạnh tin nhắn**: bên phải hàng tin nếu còn chỗ, hết chỗ thì sang bên trái,
+màn hình hẹp mới rơi xuống dưới nút (và lật lên trên nếu sát đáy). Toạ độ luôn được kẹp trong khung nhìn.
+Menu đóng khi chọn một mục, bấm ra ngoài, nhấn `Esc`, cuộn danh sách hoặc xoay/đổi kích thước cửa sổ.
+Trên cảm ứng (≤ 760px) nút `⋯` luôn hiện và mục cao 38px cho dễ bấm. Các nút bên trong vẫn giữ `data-*` cũ nên handler uỷ quyền trong `events.js` không đổi —
 feature thêm nút mới chỉ cần mount vào container `context.container` như trước.
 
 ## Hệ thống thiết kế
