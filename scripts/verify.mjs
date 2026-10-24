@@ -92,6 +92,30 @@ const rules = JSON.parse(read('database.rules.json')).rules;
 if (rules['.read'] !== false || rules['.write'] !== false) fail('database.rules.json: gốc .read/.write phải là false');
 if (/numChildren/.test(read('database.rules.json'))) fail('database.rules.json: không dùng numChildren()');
 
+/* 7. Tối ưu mobile: những luật dễ bị vô tình xoá khi sửa CSS */
+const mobileCss = read('assets/css/mobile.css');
+if (!/@media\s*\(hover:\s*none\)[\s\S]{0,400}?\.message-more\s*\{/.test(mobileCss)) {
+  fail('mobile.css: thiếu luật hiện nút ⋯ trên thiết bị cảm ứng (iPad sẽ có nút vô hình)');
+}
+if (!/\.app-view \.main-layout\s*\{[^}]*padding-top:\s*var\(--safe-top\)/.test(mobileCss)) {
+  fail('mobile.css: .main-layout chưa cộng --safe-top ⇒ PWA trên iPhone bị tai thỏ/thanh trạng thái đè');
+}
+if (!/\.message-menu-item[^{]*\{[^}]*min-height:\s*(?:4[4-9]|[5-9]\d)px/.test(mobileCss)) {
+  fail('mobile.css: mục menu hành động cần min-height ≥ 44px trên thiết bị cảm ứng');
+}
+if (!/\.message-row \.message-bubble\s*\{[^}]*font-size:\s*(?:1[5-9]|[2-9]\d)(?:\.\d+)?px/.test(mobileCss)) {
+  fail('mobile.css: cỡ chữ tin nhắn trên điện thoại phải ≥ 15px');
+}
+const messageInputTag = (html.match(/<textarea[^>]*id="messageInput"[^>]*>/) || [''])[0];
+if (!/enterkeyhint="send"/.test(messageInputTag)) {
+  fail('index.html: #messageInput thiếu enterkeyhint="send" (bàn phím mobile không có nút Gửi)');
+}
+for (const id of ['messageSearchInput', 'directorySearchInput', 'adminMemberSearch', 'adminMessageSearch']) {
+  const tag = (html.match(new RegExp(`<input[^>]*id="${id}"[^>]*>`)) || [''])[0];
+  if (!/enterkeyhint="search"/.test(tag)) fail(`index.html: #${id} thiếu enterkeyhint="search"`);
+}
+note('đã kiểm các luật tối ưu mobile (⋯ trên cảm ứng, chiều cao an toàn, vùng chạm, cỡ chữ)');
+
 for (const message of notes) console.log(`· ${message}`);
 if (failures.length) {
   console.error(`\n✗ ${failures.length} lỗi:`);

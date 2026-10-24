@@ -253,8 +253,10 @@ Chi tiết đáng chú ý:
 `assets/css/mobile.css` (nạp cuối cùng) + `assets/js/features/viewport.js` lo riêng phần này, không đụng
 vào 17 file CSS cũ.
 
-- **Vùng an toàn**: tai thỏ / vạch home của iPhone được cộng vào thanh điều hướng dưới đáy, khung soạn
-  tin, toast và ngăn kéo thành viên (`env(safe-area-inset-*)` ⇒ biến `--safe-*`).
+- **Vùng an toàn**: tai thỏ (cả phía trên) và vạch home của iPhone được cộng vào thanh trên, thanh điều
+  hướng dưới đáy, khung soạn tin, toast và ngăn kéo (`env(safe-area-inset-*)` ⇒ biến `--safe-*`).
+  Cần thiết vì `index.html` dùng `viewport-fit=cover` + status bar `black-translucent`: khi cài PWA,
+  nội dung sẽ chạm mép trên nếu không cộng `--safe-top`.
 - **Bàn phím ảo**: `visualViewport` được theo dõi liên tục; `--app-vh` luôn là chiều cao còn thấy được.
   Khi bàn phím mở, thanh điều hướng lùi lại (`html.is-keyboard-open`) để ô soạn tin nằm
   ngay trên bàn phím — trước đây trên iOS ô soạn tin bị bàn phím che.
@@ -266,9 +268,15 @@ vào 17 file CSS cũ.
 - **Nội dung dài**: bong bóng tin nhắn, banner, hồ sơ đều `overflow-wrap: anywhere`; ảnh không tràn ngang.
 - **Hộp thoại cuộn được**: hồ sơ, giao diện, xác nhận, cấm chat đều có `max-height: calc(var(--app-vh) - 24px)`
   nên phần thông tin và nút hành động không bị cắt mất trên màn hình nhỏ.
-- **Chạm**: `touch-action: manipulation` (bỏ trễ 300ms), nút ≥ 38–42px, không còn flash xám khi bấm.
-- **iOS**: chặn tự phóng to khi chạm ô nhập (font 16px, chỉ trong `@supports (-webkit-touch-callout: none)`),
-  khoá cuộn trang khi đã vào app để tránh hai thanh cuộn lồng nhau.
+- **Chạm**: `touch-action: manipulation` (bỏ trễ 300ms), không còn flash xám khi bấm. Trên mọi thiết bị
+  không có chuột (`hover: none` / `pointer: coarse`): nút `⋯` **luôn hiện** (kể cả iPad 768–1080px,
+  trước đây bị vô hình), mục menu hành động cao **44px**, nút gửi 44px, nút đính kèm/emote 42px;
+  vùng bấm của `⋯` được nới bằng pseudo-element nên không làm xê dịch hàng tên.
+- **Cỡ chữ**: ≤760px, nội dung tin nhắn 15px (thay vì 13,5px), tên 13,5px, giờ gửi 11,5px,
+  gợi ý soạn tin 10,5px, ô soạn tin 16px. Tuỳ chọn Giao diện → Cỡ chữ vẫn ghi đè được.
+- **Bàn phím mobile**: ô soạn tin có `enterkeyhint="send"` + `autocapitalize="sentences"`, các ô tìm kiếm
+  có `enterkeyhint="search"`; iOS không còn tự phóng to khi chạm ô nhập (font 16px trong
+  `@supports (-webkit-touch-callout: none)`, áp cho cả màn hình ≤760px kể cả iPhone nằm ngang).
 - Máy yếu vẫn nhẹ: ở ≤640px mọi `backdrop-filter` đã bị bỏ từ trước, file này không thêm animation mới.
 
 ## Trạng thái trực tuyến & hồ sơ thành viên
@@ -460,7 +468,10 @@ cd tests && npm install && npm test   # thêm smoke test giao diện bằng jsdo
 - `tests/smoke.test.mjs` dựng lại `index.html` trong bộ nhớ (CSS/JS thật + Firebase giả **không có
   Storage**) để kiểm menu `⋯`, phân quyền admin/thường, thông báo toàn máy chủ, chế độ dán ảnh
   bằng liên kết, gửi tin kèm `imageURL`, và bắt lỗi runtime.
-- Cả hai chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
+- `tests/mobile.test.mjs` tự đánh giá `@media` + specificity trên 19 tệp CSS ở 3 khổ màn hình
+  (390px cảm ứng, 820px iPad, 1280px chuột) để chắc rằng rule mobile **thực sự thắng**:
+  chữ tin nhắn 15px, ô soạn tin 16px, mục menu 44px, nút `⋯` hiện trên iPad, desktop không đổi.
+- Cả ba chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
   chạy `verify` + `rules`, job **Smoke test giao diện** cài jsdom rồi chạy `smoke`.
 
 ### Firebase Emulator (chạy full stack ở máy)

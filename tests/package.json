@@ -2,11 +2,12 @@
   "name": "catchat-tests",
   "private": true,
   "type": "module",
-  "description": "Kiểm thử tự động cho CatChat: mô phỏng Rules Realtime Database + smoke test giao diện bằng jsdom",
+  "description": "Kiểm thử tự động cho CatChat: mô phỏng Rules, cascade CSS mobile và smoke test giao diện bằng jsdom",
   "scripts": {
     "rules": "node rules.test.mjs",
+    "mobile": "node mobile.test.mjs",
     "smoke": "node smoke.test.mjs",
-    "test": "node rules.test.mjs && node smoke.test.mjs"
+    "test": "node rules.test.mjs && node mobile.test.mjs && node smoke.test.mjs"
   },
   "devDependencies": {
     "jsdom": "^30.1.3"
