@@ -270,7 +270,7 @@ html.is-keyboard-open .toast-region { bottom: calc(12px + var(--safe-bottom)); }
    Safari trên iPhone tự zoom khi font-size của input < 16px, và nó không tự
    thu nhỏ lại sau khi gõ → giao diện bị “phóng” lệch. Chỉ áp dụng cho iOS. */
 @supports (-webkit-touch-callout: none) {
-  @media (max-width: 560px) {
+  @media (max-width: 760px) {
     #messageInput,
     #messageSearchInput,
     #directorySearchInput,
@@ -292,4 +292,60 @@ html.is-keyboard-open .toast-region { bottom: calc(12px + var(--safe-bottom)); }
    Class chuyển tiếp của thanh điều hướng khi bàn phím mở cũng phải tắt. */
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion="full"]) .sidebar { transition: none; }
+}
+
+/* ─────────────── 12. Vùng an toàn phía trên (tai thỏ / thanh trạng thái) ───
+   index.html bật viewport-fit=cover và status bar black-translucent, nên khi cài
+   PWA trên iPhone/iPad nội dung sẽ chạm mép trên và bị đồng hồ/pin đè lên.
+   --safe-top = 0px ở trình duyệt thường (có thanh địa chỉ) nên không đổi gì. */
+.app-view .main-layout { padding-top: var(--safe-top); }
+
+/* ─────────────── 13. Cảm ứng: nút ⋯ luôn hiện + vùng chạm đủ lớn ───────────
+   Trước đây ⋯ chỉ hiện khi hover hoặc khi ≤760px ⇒ iPad (768–1080px, hover: none)
+   có nút nhưng vô hình. Ở đây hiện nó trên MỌI thiết bị không có chuột và mở
+   rộng vùng bấm bằng pseudo-element (không làm thay đổi bố cục hàng meta). */
+@media (hover: none), (pointer: coarse) {
+  .app-view .message-more {
+    position: relative;
+    width: 34px;
+    height: 30px;
+    opacity: 1;
+  }
+
+  .app-view .message-more::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+
+  .app-view .message-more .icon { width: 17px; height: 17px; }
+
+  /* Mục menu: 44px theo khuyến nghị của Apple HIG */
+  .app-view .message-menu-item { min-height: 44px; padding: 0 12px; font-size: 13px; }
+  .message-menu { min-width: 216px; }
+
+  .app-view .attach-button,
+  .app-view .composer-emoji-button { width: 42px; height: 42px; }
+  .app-view .send-button { width: 44px; height: 44px; border-radius: 13px; }
+}
+
+/* ─────────────── 14. Cỡ chữ đọc trên điện thoại ───────────────────────────
+   13.5px hơi nhỏ khi cầm máy một tay; nâng nội dung chính lên 15px, nhãn phụ
+   10.5–13.5px. Ai thích nhỏ/to vẫn đổi được ở Giao diện → Cỡ chữ: các rule
+   body[data-text-scale=…] có độ ưu tiên cao hơn nên vẫn thắng. */
+@media (max-width: 760px) {
+  .app-view .message-row .message-bubble { font-size: 15px; line-height: 1.55; }
+  .app-view .message-name { font-size: 13.5px; }
+  .app-view .message-time { font-size: 11.5px; }
+  .app-view .message-meta { gap: 9px; }
+  .app-view .server-announcement p { font-size: 14.5px; line-height: 1.6; }
+
+  .message-quote-copy strong { font-size: 11px; }
+  .message-quote-copy span { font-size: 11.5px; }
+  .date-divider span { font-size: 10.5px; }
+  .composer-hint { font-size: 10.5px; }
+  .channel-title-copy p { font-size: 10.5px; }
+
+  /* 16px: vừa dễ đọc vừa không kích hoạt auto-zoom của Safari */
+  .app-view .composer-box textarea { font-size: 16px; }
 }

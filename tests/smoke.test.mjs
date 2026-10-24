@@ -293,6 +293,14 @@ check('chủ tin không có mục Xoá', ownLabels.some((label) => label.startsW
 check('người khác thấy mục Sửa', !otherLabels.includes('Sửa tin nhắn'), otherLabels.join(' | '));
 check('người khác thấy mục Xoá', !otherLabels.some((label) => label.startsWith('Xoá')), otherLabels.join(' | '));
 
+/* ── 6b. Thuộc tính bàn phím mobile ─────────────────────────── */
+const composerInput = doc.querySelector('#messageInput');
+check('ô soạn tin thiếu enterkeyhint="send"', composerInput.getAttribute('enterkeyhint') === 'send', String(composerInput.getAttribute('enterkeyhint')));
+check('ô soạn tin thiếu autocapitalize', composerInput.getAttribute('autocapitalize') === 'sentences');
+for (const id of ['messageSearchInput', 'directorySearchInput', 'adminMemberSearch', 'adminMessageSearch']) {
+  check(`#${id} thiếu enterkeyhint="search"`, doc.getElementById(id)?.getAttribute('enterkeyhint') === 'search');
+}
+
 /* ── 7. Không lỗi runtime ───────────────────────────────────── */
 check('lỗi runtime trong app', (window.__errors || []).length === 0, JSON.stringify((window.__errors || []).slice(0, 2)));
 check('lỗi jsdom', errors.length === 0, errors.slice(0, 2).join(' | '));

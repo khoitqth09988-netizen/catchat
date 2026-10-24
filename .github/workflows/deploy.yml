@@ -38,7 +38,7 @@ jobs:
           "
 
   tests:
-    name: Smoke test giao diện (jsdom)
+    name: Kiểm thử giao diện (jsdom)
     needs: verify
     runs-on: ubuntu-latest
     steps:
@@ -51,9 +51,9 @@ jobs:
       - name: Cài jsdom
         working-directory: tests
         run: npm ci
-      - name: Dựng index.html + chạy smoke test
+      - name: Mô phỏng Rules + cascade CSS mobile + smoke test jsdom
         working-directory: tests
-        run: npm run smoke
+        run: npm test
 
   deploy-hosting:
     name: Deploy Firebase Hosting (tuỳ chọn)

@@ -336,7 +336,7 @@
             </div>
             <div class="message-search-bar" id="messageSearchBar" hidden>
               <svg class="icon"><use href="#i-search"></use></svg>
-              <input id="messageSearchInput" type="search" maxlength="120" placeholder="Tìm trong 100 tin nhắn gần nhất..." aria-label="Tìm trong tin nhắn">
+              <input id="messageSearchInput" type="search" maxlength="120" placeholder="Tìm trong 100 tin nhắn gần nhất..." aria-label="Tìm trong tin nhắn" enterkeyhint="search">
               <span class="message-search-count" id="messageSearchCount">0 tin nhắn</span>
               <button class="icon-button" id="clearMessageSearchButton" type="button" title="Xóa tìm kiếm" aria-label="Xóa tìm kiếm"><svg class="icon"><use href="#i-close"></use></svg></button>
             </div>
@@ -384,7 +384,7 @@
                     <div class="emoji-groups" id="emojiGroups"></div>
                   </div>
                   <input id="chatImageInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
-                  <textarea id="messageInput" rows="1" maxlength="800" placeholder="Viết tin nhắn cho mọi người..." aria-label="Nội dung tin nhắn"></textarea>
+                  <textarea id="messageInput" rows="1" maxlength="800" placeholder="Viết tin nhắn cho mọi người..." aria-label="Nội dung tin nhắn" enterkeyhint="send" autocapitalize="sentences" spellcheck="true"></textarea>
                   <button class="send-button" id="sendButton" type="submit" aria-label="Gửi tin nhắn" disabled><svg class="icon"><use href="#i-send"></use></svg></button>
                 </div>
                 <div class="composer-hint"><span><strong>Enter</strong> để gửi · <strong>Shift + Enter</strong> để xuống dòng</span><span class="char-count" id="messageCharCount">0 / 800</span></div>
@@ -402,7 +402,7 @@
               </div>
               <label class="directory-search">
                 <svg class="icon"><use href="#i-search"></use></svg>
-                <input id="directorySearchInput" type="search" placeholder="Tìm theo tên hoặc email..." autocomplete="off" aria-label="Tìm thành viên">
+                <input id="directorySearchInput" type="search" placeholder="Tìm theo tên hoặc email..." autocomplete="off" aria-label="Tìm thành viên" enterkeyhint="search">
               </label>
             </div>
             <div class="directory-filters" id="directoryFilters" role="group" aria-label="Lọc thành viên">
@@ -507,7 +507,7 @@
           <div class="admin-stat-card"><span>Đang trực tuyến</span><strong id="adminOnlineCount">0</strong></div>
           <div class="admin-stat-card banned"><span>Đang bị cấm</span><strong id="adminBannedCount">0</strong></div>
         </div>
-        <label class="admin-search"><svg class="icon"><use href="#i-search"></use></svg><input id="adminMemberSearch" type="search" placeholder="Tìm theo tên hoặc email..." autocomplete="off" aria-label="Tìm thành viên"></label>
+        <label class="admin-search"><svg class="icon"><use href="#i-search"></use></svg><input id="adminMemberSearch" type="search" placeholder="Tìm theo tên hoặc email..." autocomplete="off" aria-label="Tìm thành viên" enterkeyhint="search"></label>
         <div class="admin-list" id="adminMemberList"><div class="admin-empty">Đang tải thành viên...</div></div>
         <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Lệnh cấm được lưu ở máy chủ và người bị cấm sẽ bị đăng xuất khỏi ứng dụng. Hãy cấu hình Firebase Security Rules để chỉ quản trị viên được phép ban hoặc bỏ ban.</span></p>
       </div>
@@ -516,7 +516,7 @@
           <div><h3>Kiểm duyệt tin nhắn</h3><p id="adminMessageChannel">Kênh hiện tại: #phòng-chung</p></div>
           <span class="admin-power-pill"><svg class="icon"><use href="#i-shield"></use></svg>Toàn quyền</span>
         </div>
-        <label class="admin-search"><svg class="icon"><use href="#i-search"></use></svg><input id="adminMessageSearch" type="search" placeholder="Tìm nội dung hoặc người gửi..." autocomplete="off" aria-label="Tìm tin nhắn"></label>
+        <label class="admin-search"><svg class="icon"><use href="#i-search"></use></svg><input id="adminMessageSearch" type="search" placeholder="Tìm nội dung hoặc người gửi..." autocomplete="off" aria-label="Tìm tin nhắn" enterkeyhint="search"></label>
         <div class="admin-list admin-message-list" id="adminMessageList"><div class="admin-empty">Đang tải tin nhắn...</div></div>
         <div class="admin-message-actions">
           <button class="admin-danger-button" id="adminClearChannelButton" type="button"><svg class="icon"><use href="#i-trash"></use></svg>Xoá toàn bộ tin nhắn trong kênh</button>
