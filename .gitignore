@@ -1,4 +1,6 @@
 node_modules/
-package.json
-package-lock.json
+# Chỉ bỏ qua manifest npm ở gốc repo (sinh ra khi cài jsdom để test cục bộ).
+# functions/package.json PHẢI được commit — Cloud Functions cần nó để deploy.
+/package.json
+/package-lock.json
 .DS_Store
