@@ -583,6 +583,17 @@
   box-shadow: 0 18px 44px rgba(0, 0, 0, .45);
 }
 
+/* Lớp chứa menu khi mở: nằm trực tiếp trong <body>, không bị hàng tin nhắn
+   (có transform do animation) biến thành containing block. */
+.message-menu-layer {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  pointer-events: none;
+}
+
+.message-menu-layer > .message-menu { pointer-events: auto; }
+
 .message-menu[hidden] { display: none; }
 
 .message-menu-item {

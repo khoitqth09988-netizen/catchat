@@ -4,19 +4,40 @@
 
 /* ── Menu hành động của tin nhắn (nút ⋯) ───────────────────────
    Một nút duy nhất chứa: Trả lời / Lưu / Sao chép / Sửa / Ghim / Xoá.
-   Menu đóng khi chọn một mục, bấm ra ngoài, nhấn Esc hoặc cuộn danh sách. */
-function closeMessageMenus(except = null) {
-  document.querySelectorAll('.message-menu').forEach((menu) => {
-    if (menu === except || menu.hidden) return;
-    menu.hidden = true;
-    menu.style.removeProperty('top');
-    menu.style.removeProperty('left');
-    const toggle = menu.parentElement?.querySelector('.message-more');
-    if (toggle) {
-      toggle.setAttribute('aria-expanded', 'false');
-      toggle.classList.remove('is-open');
-    }
-  });
+   Menu đóng khi chọn một mục, bấm ra ngoài, nhấn Esc hoặc cuộn danh sách.
+
+   Vì sao phải "portal" menu ra body: `.message-row` có `animation ... both`, nên sau khi
+   chạy xong nó vẫn giữ `transform` ⇒ trở thành containing block của mọi phần tử
+   `position: fixed` bên trong. Khi đó toạ độ theo khung nhìn bị cộng thêm vị trí hàng tin
+   và menu nhảy ra góc phải trang. Đưa menu vào một lớp cố định ở body thì toạ độ luôn đúng. */
+let openMessageMenuState = null;
+
+function messageMenuLayer() {
+  let layer = document.getElementById('messageMenuLayer');
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.id = 'messageMenuLayer';
+    layer.className = 'message-menu-layer';
+    document.body.appendChild(layer);
+  }
+  return layer;
+}
+
+function closeMessageMenus() {
+  const state = openMessageMenuState;
+  if (!state) return;
+  openMessageMenuState = null;
+  const { menu, home, toggle } = state;
+  menu.hidden = true;
+  menu.style.removeProperty('top');
+  menu.style.removeProperty('left');
+  // Trả menu về đúng hàng tin nhắn để lần render sau không bị mồ côi.
+  if (home && home.isConnected) home.appendChild(menu);
+  else menu.remove();
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.classList.remove('is-open');
+  }
 }
 
 /** Đặt menu (position: fixed) ngay dưới nút ⋯ và luôn nằm trong khung nhìn:
@@ -37,14 +58,20 @@ function placeMessageMenu(menu, toggle) {
 }
 
 function openMessageMenu(toggle) {
-  const menu = toggle.parentElement?.querySelector('.message-menu');
+  const home = toggle.parentElement;
+  const menu = home?.querySelector('.message-menu');
   if (!menu) return;
-  const willOpen = menu.hidden;
-  closeMessageMenus(willOpen ? menu : null);
-  menu.hidden = !willOpen;
-  toggle.setAttribute('aria-expanded', String(willOpen));
-  toggle.classList.toggle('is-open', willOpen);
-  if (!willOpen) return;
+  // Bấm lại đúng nút đang mở ⇒ đóng.
+  if (openMessageMenuState?.menu === menu) {
+    closeMessageMenus();
+    return;
+  }
+  closeMessageMenus();
+  menu.hidden = false;
+  messageMenuLayer().appendChild(menu);
+  openMessageMenuState = { menu, home, toggle };
+  toggle.setAttribute('aria-expanded', 'true');
+  toggle.classList.add('is-open');
   placeMessageMenu(menu, toggle);
   menu.querySelector('.message-menu-item')?.focus({ preventScroll: true });
 }
