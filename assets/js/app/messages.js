@@ -446,6 +446,7 @@ function makeMessageActions(id, { data = {}, isAnnouncement = false, isPinned = 
 }
 
 function renderAllMessages(scrollToEnd = false, newArrival = false) {
+  if (typeof closeMessageMenus === 'function') closeMessageMenus();
   if (editingMessageId && !messageDataById(editingMessageId)) {
     editingMessageId = null;
     editingDraft = '';

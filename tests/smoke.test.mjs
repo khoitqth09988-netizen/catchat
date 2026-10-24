@@ -182,11 +182,23 @@ const menu = meta.querySelector('.message-menu');
 toggle.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 check('bấm ⋯ không mở menu', menu.hidden === false && toggle.getAttribute('aria-expanded') === 'true');
 check('menu chưa được đặt toạ độ', /px$/.test(menu.style.top) && /px$/.test(menu.style.left), `${menu.style.top}/${menu.style.left}`);
+check('menu không được portal ra body', menu.parentElement?.id === 'messageMenuLayer', menu.parentElement?.className);
+check('lớp portal không nằm trong body', doc.getElementById('messageMenuLayer')?.parentElement?.tagName === 'BODY');
+check('menu phải position: fixed', window.getComputedStyle(menu).position === 'fixed', window.getComputedStyle(menu).position);
+check('lớp portal phải position: fixed', window.getComputedStyle(doc.getElementById('messageMenuLayer')).position === 'fixed');
 menu.querySelector('[data-reply-message]').dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 check('chọn mục xong menu chưa đóng', menu.hidden === true);
+check('đóng menu chưa trả về hàng tin nhắn', menu.parentElement?.classList.contains('message-actions'), menu.parentElement?.className);
 toggle.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 check('Esc không đóng menu', menu.hidden === true);
+
+/* ── 2b. Render lại khi menu đang mở: không để menu mồ côi ──── */
+toggle.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+check('không mở lại được menu để test render', menu.hidden === false);
+window.eval('renderAllMessages(false)');
+check('menu cũ còn sót trong lớp portal', doc.querySelector('#messageMenuLayer .message-menu') === null);
+check('menu sót lại vẫn đang mở', [...doc.querySelectorAll('.message-menu')].every((el) => el.hidden === true));
 
 /* ── 3. Thông báo toàn máy chủ ──────────────────────────────── */
 const announcementMeta = doc.querySelector('.announcement-row .server-announcement-meta');
