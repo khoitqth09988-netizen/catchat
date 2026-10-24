@@ -25,9 +25,12 @@ assets/css/                    Giao diện, tách theo khu vực
   cursor-fx.css                Hiệu ứng con trỏ: vệt sáng, sóng khi bấm, dấu chân khi cuộn
   polish.css                   Lớp hoàn thiện thiết kế cho toàn bộ bề mặt (nạp trước halloween-night)
   halloween-night.css          Halloween ma mị (nạp cuối để ghi đè theme Halloween)
+  motion.css                   Tuỳ chọn chuyển động (Theo máy / Đầy đủ / Giảm) + guard prefers-reduced-motion
+  mobile.css                   Điện thoại, vùng an toàn, bàn phím ảo, màn hình thấp (nạp cuối cùng)
 assets/js/app/                 Lõi ứng dụng, nạp theo thứ tự bằng <script defer>
   config.js                    Hằng số, cấu hình Firebase, helper $ / $$
   state.js                     Tham chiếu DOM, tham chiếu Firebase, state dùng chung
+  presence.js                  Nguồn duy nhất cho “ai đang trực tuyến”: TTL, nhịp tim, đếm online
   ui-helpers.js                Icon, textElement, avatar, helper quyền/mute
   security.js                  CatChatGuard: rate limit, phạt tăng dần, proof-of-work
   appcheck.js                  Firebase App Check (tuỳ chọn) — chặn bot/script lạ
@@ -65,6 +68,8 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   account-deletion.js          Admin xoá tài khoản thành viên khỏi hệ thống
   boot-screen.js               Tiến trình khởi động thật cho splash (step/finish/fail)
   typing-indicator.js          Chỉ báo “ai đang nhập…” qua node /typing
+  motion.js                    Tuỳ chọn chuyển động dùng chung cho CSS + JS
+  viewport.js                  Bàn phím ảo, vùng an toàn, đổi kích thước / xoay ngang
   cursor-fx.js                 Hiệu ứng con trỏ: di chuyển, bấm, cuộn (có công tắc Tắt/Nhẹ/Đầy đủ)
 functions/                     Cloud Function tuỳ chọn: xoá tài khoản Firebase Auth
 SECURITY.md                    Checklist bảo mật: App Check, Rules, quota, CSP
@@ -206,6 +211,45 @@ Chi tiết đáng chú ý:
   `html:not([data-motion="full"])`, nên chọn “Đầy đủ” là mọi animation chạy lại ngay, không cần đổi cài đặt Windows.
 - Đổi trong **Giao diện → Chuyển động** hoặc bảng lệnh `Alt+K` → “Đổi mức chuyển động”; lựa chọn lưu ở
   `localStorage` (`catchat-motion-v1`). Hiệu ứng con trỏ dùng chung lựa chọn này.
+
+## Điện thoại & khi thu nhỏ cửa sổ
+
+`assets/css/mobile.css` (nạp cuối cùng) + `assets/js/features/viewport.js` lo riêng phần này, không đụng
+vào 17 file CSS cũ.
+
+- **Vùng an toàn**: tai thỏ / vạch home của iPhone được cộng vào thanh điều hướng dưới đáy, khung soạn
+  tin, toast và ngăn kéo thành viên (`env(safe-area-inset-*)` ⇒ biến `--safe-*`).
+- **Bàn phím ảo**: `visualViewport` được theo dõi liên tục; `--app-vh` luôn là chiều cao còn thấy được.
+  Khi bàn phím mở, thanh điều hướng + dải sticker lùi lại (`html.is-keyboard-open`) để ô soạn tin nằm
+  ngay trên bàn phím — trước đây trên iOS ô soạn tin bị bàn phím che.
+- **Thu nhỏ / phóng to cửa sổ, xoay ngang**: đổi mức (`phone` / `tablet` / `desktop`) sẽ đóng ngăn kéo
+  thành viên và bảng emote đang mở, đưa khung tin nhắn về cuối nếu bạn đang ở gần cuối, và phát sự kiện
+  `catchat:viewport-change`. Không còn cảnh ngăn kéo “treo” lại sau khi đổi kích thước.
+- **Màn hình thấp** (`max-height: 520px`, điện thoại nằm ngang): thu gọn topbar, thanh kênh và khung soạn
+  tin, ẩn dải sticker / gợi ý bàn phím.
+- **Nội dung dài**: bong bóng tin nhắn, banner, hồ sơ đều `overflow-wrap: anywhere`; ảnh không tràn ngang.
+- **Hộp thoại cuộn được**: hồ sơ, giao diện, xác nhận, cấm chat đều có `max-height: calc(var(--app-vh) - 24px)`
+  nên phần thông tin và nút hành động không bị cắt mất trên màn hình nhỏ.
+- **Chạm**: `touch-action: manipulation` (bỏ trễ 300ms), nút ≥ 38–42px, không còn flash xám khi bấm.
+- **iOS**: chặn tự phóng to khi chạm ô nhập (font 16px, chỉ trong `@supports (-webkit-touch-callout: none)`),
+  khoá cuộn trang khi đã vào app để tránh hai thanh cuộn lồng nhau.
+- Máy yếu vẫn nhẹ: ở ≤640px mọi `backdrop-filter` đã bị bỏ từ trước, file này không thêm animation mới.
+
+## Trạng thái trực tuyến & hồ sơ thành viên
+
+- `assets/js/app/presence.js` là nguồn duy nhất trả lời “ai đang online” (`isUserOnline`, `onlineMemberCount`).
+  Mọi chỗ trước đây đọc thẳng `presence[uid]` (member list, danh bạ, bảng quản trị, command palette) đều
+  chuyển sang dùng hàm này.
+- `/presence/<uid> = { state: 'online', lastChanged }`; node quá **3 phút** không có nhịp tim bị coi là ngoại
+  tuyến, nên đóng tab / mất mạng đột ngột không còn hiện “trực tuyến mãi”. Nhịp tim 60 giây giữ node luôn mới
+  (kể cả tab nền bị trình duyệt bóp timer), quét lại mỗi 30 giây để danh sách tự cập nhật khi ai đó hết hạn.
+- Chính mình được xác định theo `.info/connected`, nên lần đầu mở app hồ sơ của bạn không còn hiện “Ngoại tuyến”.
+- Số “đang trực tuyến” chỉ đếm uid còn trong `/members` ⇒ khớp với danh sách, không còn cộng nhầm tài khoản đã xoá.
+- `lastSeen` được ghi khi kết nối, khi rời trang (`pagehide`), khi quay lại tab và tối đa 4 phút một lần.
+- Hồ sơ thành viên **vẽ lại được**: mở khi dữ liệu chưa tải xong sẽ hiện “Đang tải hồ sơ…”, rồi tự cập nhật
+  ngay khi `/members`, `presence` hoặc email về (trước đây phải đóng rồi mở lại). Nhãn “Hoạt động gần nhất”
+  đổi sang dạng tương đối: *Vừa xong · 5 phút trước · 3 giờ trước*, và là “Đang trực tuyến” khi người đó online.
+- Không thêm node mới ⇒ **Rules Realtime Database không cần thay đổi**.
 
 ## Bảo mật
 

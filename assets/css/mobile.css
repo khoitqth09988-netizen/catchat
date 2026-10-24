@@ -1,0 +1,308 @@
+/* CatChat · Tối ưu riêng cho điện thoại, máy tính bảng và lúc thu nhỏ cửa sổ.
+   Nạp CUỐI CÙNG trong index.html (sau mobile/motion) để có thể chỉnh lại mọi
+   quy tắc responsive đã có ở base.css, chat-extras.css, polish.css…
+
+   Vì sao cần file riêng thay vì sửa từng file cũ:
+     • base.css được tách ra từ index.html từ rất sớm, mỗi lần thêm breakpoint lại
+       phải sửa 5–6 file và rất dễ xung đột thứ tự.
+     • Ở đây mọi thứ được nhóm theo thiết bị: khung nhìn, vùng an toàn (tai thỏ),
+       bàn phím ảo, màn hình thấp (điện thoại nằm ngang), hộp thoại cuộn được.
+
+   Ghi chú: file này không thêm animation mới, không dùng ảnh/CDN ngoài. */
+
+/* ─────────────── 1. Biến khung nhìn & vùng an toàn ───────────────
+   --app-vh do assets/js/features/viewport.js cập nhật theo visualViewport,
+   nên khi bàn phím ảo mở, chiều cao app co lại đúng bằng phần còn thấy được.
+   Không có JS thì 100dvh vẫn là phương án dự phòng tốt. */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --app-vh: 100dvh;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+#appView { height: var(--app-vh, 100dvh); }
+.auth-screen { min-height: var(--app-vh, 100dvh); }
+
+/* Thanh cuộn mảnh, không chiếm chỗ trên thiết bị cảm ứng */
+@media (hover: none) {
+  * { scrollbar-width: none; }
+  .messages-area::-webkit-scrollbar,
+  .member-list::-webkit-scrollbar,
+  .saved-body::-webkit-scrollbar { width: 0; height: 0; }
+}
+
+/* ─────────────── 2. Chạm: bỏ trễ 300ms, bỏ flash xám ─────────────── */
+@media (max-width: 1080px) {
+  button,
+  .nav-link,
+  .channel-link,
+  .icon-button,
+  .directory-card,
+  .message-reply,
+  .message-tool,
+  .theme-option,
+  .sticker-button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ─────────────── 3. Nội dung dài không được đẩy vỡ bố cục ───────────────
+   Link dài, UID, emoji chuỗi liền, ảnh lớn là ba thứ hay làm tràn ngang trên
+   điện thoại (khi đó cả trang bị kéo ngang và thanh dưới đáy trôi đi). */
+.message-bubble,
+.server-announcement p,
+.message-text,
+.reply-preview-copy span,
+.composer-box textarea {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.message-bubble img,
+.message-image img,
+.pending-image-preview img,
+.directory-avatar img,
+.profile-avatar-slot img {
+  max-width: 100%;
+  height: auto;
+}
+
+.chat-panel,
+.content-grid,
+.main-layout,
+.messages-area,
+.message-row,
+.message-meta {
+  min-width: 0;
+}
+
+/* ─────────────── 4. Máy tính bảng (≤1080px): bảng thành viên dạng ngăn kéo ─────────────── */
+@media (max-width: 1080px) {
+  .right-panel {
+    max-height: calc(var(--app-vh, 100dvh) - 106px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: calc(16px + var(--safe-bottom));
+  }
+
+  .right-panel.open { animation: none; }
+}
+
+/* ─────────────── 5. Điện thoại (≤560px) ─────────────── */
+@media (max-width: 560px) {
+  /* Thanh điều hướng dưới đáy nhường chỗ cho vạch home của iPhone */
+  .sidebar {
+    bottom: calc(9px + var(--safe-bottom));
+    left: calc(10px + var(--safe-left));
+    right: calc(10px + var(--safe-right));
+  }
+
+  /* Chừa đúng 72px cho thanh dưới đáy + vùng an toàn, nếu không khung chat
+     sẽ bị thanh điều hướng che mất phần soạn tin. */
+  .app-shell { height: calc(100% - 72px - var(--safe-bottom)); }
+
+  .toast-region { bottom: calc(82px + var(--safe-bottom)); }
+  .right-panel.open { bottom: calc(81px + var(--safe-bottom)); }
+
+  /* Cuộn trong khung tin nhắn không kéo theo cả trang (pull-to-refresh) */
+  .messages-area {
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-bottom: 10px;
+  }
+
+  /* Nút đủ lớn để bấm bằng ngón tay (tối thiểu ~40px) */
+  .icon-button,
+  .banner-close,
+  .profile-close,
+  .admin-close { min-width: 38px; min-height: 38px; }
+
+  .attach-button { width: 38px; height: 40px; }
+  .send-button { width: 42px; height: 42px; border-radius: 13px; }
+  .composer-box { gap: 6px; padding: 7px 7px 7px 10px; }
+  .composer-box textarea { max-height: min(132px, 28vh); }
+
+  .profile-actions button,
+  .dialog-button,
+  .theme-option { min-height: 42px; }
+
+  /* Dải sticker cuộn ngang thay vì bóp nhỏ từng nút */
+  .sticker-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-padding: 12px;
+  }
+  .sticker-bar::-webkit-scrollbar { height: 0; }
+  .sticker-label { position: sticky; left: 0; z-index: 1; }
+
+  /* Tiêu đề kênh co lại bằng dấu “…” thay vì đẩy các nút công cụ ra ngoài */
+  .channel-title-copy { min-width: 0; }
+  .channel-title-copy h2,
+  .channel-title-copy p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .channel-toolbar { gap: 8px; }
+  .channel-tools { gap: 4px; }
+
+  /* Hộp thoại luôn cuộn được: hồ sơ dài (email, UID, ngày tham gia, lý do cấm)
+     trước đây bị cắt mất phần dưới vì dialog không có max-height. */
+  .confirm-dialog,
+  .profile-dialog,
+  .account-delete-dialog,
+  .theme-dialog,
+  .mute-dialog {
+    max-height: calc(var(--app-vh, 100dvh) - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .confirm-layer { padding: 12px; }
+  .profile-layer { padding: 12px; }
+
+  /* Hồ sơ: hero gọn lại để phần thông tin và nút hành động hiện sớm hơn */
+  .profile-hero { padding: 26px 18px 16px; }
+  .profile-avatar-slot .avatar { width: 68px; height: 68px; border-radius: 22px; font-size: 22px; }
+  .profile-hero h2 { margin-top: 11px; font-size: 17px; }
+  .profile-facts { padding: 2px 16px 10px; }
+  .profile-fact { gap: 10px; padding: 9px 2px; }
+  .profile-fact dd { white-space: normal; text-align: right; }
+  .profile-actions { gap: 7px; padding: 4px 16px 18px; }
+  .profile-actions button { flex: 1 1 calc(50% - 4px); }
+
+  /* Ngăn kéo đã lưu / quản trị: chừa vùng an toàn ở đáy */
+  .saved-body,
+  .admin-body { padding-bottom: calc(22px + var(--safe-bottom)); }
+  .saved-head,
+  .admin-header { padding-top: calc(18px + var(--safe-top)); }
+  .admin-tabs { overflow-x: auto; scrollbar-width: none; }
+  .admin-tabs::-webkit-scrollbar { height: 0; }
+  .admin-tab { flex: 0 0 auto; }
+
+  /* Bảng emote không vượt khỏi màn hình */
+  .emoji-popover {
+    width: min(320px, calc(100vw - 24px));
+    max-height: min(46vh, 300px);
+  }
+
+  /* Miu nổi sẽ che nút gửi trên điện thoại — đã có nút “Miu” ở thanh trên */
+  .miu-companion { display: none; }
+
+  /* Danh bạ thành viên: một cột, thẻ cao hơn để dễ chạm */
+  .directory-grid { grid-template-columns: minmax(0, 1fr); }
+  .directory-card { min-height: 58px; }
+
+  /* Banner ghim / thông báo không được chiếm quá nửa màn hình chat */
+  .pinned-copy p,
+  .announcement-copy p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .pinned-banner,
+  .announcement-banner { margin: 8px 10px 0; }
+
+  /* Nút “tin nhắn mới” nằm trên khung soạn tin, không đè lên nút gửi */
+  .new-message-pill { right: 12px; bottom: calc(96px + var(--safe-bottom)); }
+}
+
+/* ─────────────── 6. Điện thoại nhỏ (≤390px) ─────────────── */
+@media (max-width: 390px) {
+  .messages-area { padding: 12px 9px 10px; }
+  .composer-wrap { padding: 8px 9px calc(10px + var(--safe-bottom)); }
+  .composer-hint span:first-child { display: none; }
+  .topbar { gap: 6px; }
+  .topbar-heading h1 { font-size: 13px; }
+  .channel-tools .icon-button { min-width: 34px; min-height: 34px; }
+  .profile-actions button { flex: 1 1 100%; }
+}
+
+/* ─────────────── 7. Bàn phím ảo đang mở ───────────────
+   viewport.js gắn class .is-keyboard-open. Khi đó thanh điều hướng dưới đáy và
+   dải sticker lùi lại để ô soạn tin nằm ngay trên bàn phím. */
+html.is-keyboard-open .sidebar {
+  transform: translateY(calc(100% + 24px));
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .18s var(--ds-ease-out, ease), opacity .18s ease;
+}
+
+html.is-keyboard-open .app-shell { height: 100%; }
+html.is-keyboard-open .sticker-bar,
+html.is-keyboard-open .composer-hint,
+html.is-keyboard-open .typing-indicator { display: none; }
+html.is-keyboard-open .composer-wrap { padding-bottom: calc(8px + var(--safe-bottom)); }
+html.is-keyboard-open .toast-region { bottom: calc(12px + var(--safe-bottom)); }
+
+/* ─────────────── 8. Màn hình thấp (điện thoại nằm ngang) ─────────────── */
+@media (max-height: 520px) {
+  .topbar { min-height: 52px; }
+  .main-layout { grid-template-rows: 52px minmax(0, 1fr); }
+  .channel-toolbar { min-height: 48px; padding-top: 6px; padding-bottom: 6px; }
+  .messages-area { padding-top: 10px; padding-bottom: 8px; gap: 8px; }
+  .composer-wrap { padding-top: 6px; padding-bottom: 6px; }
+  .sticker-bar,
+  .composer-hint,
+  .sidebar-tip,
+  .channel-title-copy p { display: none; }
+  .auth-screen { padding: 12px; }
+  .auth-panel { padding: 20px 22px; }
+  .profile-hero { padding: 16px 18px 12px; }
+  .profile-avatar-slot .avatar { width: 54px; height: 54px; }
+  .boot-mark { width: 82px; height: 82px; }
+  .saved-head { padding: 12px 16px 10px; }
+  .admin-header { padding: 12px 16px 10px; }
+}
+
+/* ─────────────── 9. Khoá cuộn trang khi đang ở trong app ───────────────
+   Từ ≤760px base.css cho body cuộn tự do (cần cho màn hình đăng nhập).
+   Khi đã vào app thì chỉ khung tin nhắn được cuộn, nếu không sẽ có hai thanh
+   cuộn lồng nhau và hiện tượng kéo-là-tải-lại trang. :has() không hỗ trợ thì
+   quy tắc này bị bỏ qua, bố cục cũ vẫn chạy. */
+@media (max-width: 760px) {
+  body:has(#appView:not([hidden])) {
+    height: var(--app-vh, 100dvh);
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
+
+/* ─────────────── 10. iOS: chặn tự phóng to khi chạm ô nhập ───────────────
+   Safari trên iPhone tự zoom khi font-size của input < 16px, và nó không tự
+   thu nhỏ lại sau khi gõ → giao diện bị “phóng” lệch. Chỉ áp dụng cho iOS. */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 560px) {
+    #messageInput,
+    #messageSearchInput,
+    #directorySearchInput,
+    #adminMemberSearch,
+    #announcementInput,
+    .auth-field input,
+    .confirm-reason textarea,
+    #muteReason,
+    #channelNameInput,
+    select {
+      font-size: 16px;
+    }
+
+    .composer-box textarea { line-height: 1.45; }
+  }
+}
+
+/* ─────────────── 11. Tôn trọng tuỳ chọn chuyển động ───────────────
+   Class chuyển tiếp của thanh điều hướng khi bàn phím mở cũng phải tắt. */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .sidebar { transition: none; }
+}

@@ -2,7 +2,7 @@
 <html lang="vi" data-motion="auto">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fff7f1">
   <meta name="color-scheme" content="light dark">
   <meta name="description" content="CatChat — ngôi nhà nhỏ để trò chuyện, kết nối và chia sẻ cùng nhau.">
@@ -40,6 +40,8 @@
   <link rel="stylesheet" href="assets/css/polish.css">
   <link rel="stylesheet" href="assets/css/halloween-night.css">
   <link rel="stylesheet" href="assets/css/motion.css">
+  <!-- Tối ưu điện thoại / thu nhỏ cửa sổ: nạp cuối để phủ mọi breakpoint cũ -->
+  <link rel="stylesheet" href="assets/css/mobile.css">
 </head>
 <body>
   <a class="ds-skip-link" href="#messageInput">Bỏ qua điều hướng, tới ô soạn tin</a>
@@ -617,6 +619,7 @@
   <!-- CatChat core: defer giữ đúng thứ tự khai báo (không dùng số trong tên file) -->
   <script defer src="assets/js/app/config.js"></script>
   <script defer src="assets/js/app/state.js"></script>
+  <script defer src="assets/js/app/presence.js"></script>
   <script defer src="assets/js/app/ui-helpers.js"></script>
   <script defer src="assets/js/app/security.js"></script>
   <script defer src="assets/js/app/appcheck.js"></script>
@@ -640,6 +643,7 @@
   <script defer src="assets/js/app/features-core.js"></script>
   <!-- Tuỳ chọn chuyển động phải nạp trước mọi script đọc prefers-reduced-motion. -->
   <script defer src="assets/js/features/motion.js"></script>
+  <script defer src="assets/js/features/viewport.js"></script>
   <script defer src="assets/js/features/boot-screen.js"></script>
   <script defer src="assets/js/features/slash-commands.js"></script>
   <script defer src="assets/js/features/rich-text.js"></script>

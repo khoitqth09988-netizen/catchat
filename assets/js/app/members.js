@@ -5,7 +5,7 @@
 function makeMemberRow(uid, member, adminRow = false) {
   const safeMember = member || {};
   const name = safeMember.name || safeMember.displayName || safeMember.email?.split('@')[0] || 'Thành viên';
-  const isOnline = Boolean(presence[uid]);
+  const isOnline = isUserOnline(uid);
   const isBanned = Boolean(bans[uid]);
   if (adminRow) {
     const row = textElement('div', 'admin-member-row');
@@ -98,7 +98,7 @@ function makeMemberRow(uid, member, adminRow = false) {
 
 function memberEntries() {
   return Object.entries(members).map(([uid, member]) => [uid, member || {}]).sort((a, b) => {
-    const onlineDiff = Number(Boolean(presence[b[0]])) - Number(Boolean(presence[a[0]]));
+    const onlineDiff = Number(isUserOnline(b[0])) - Number(isUserOnline(a[0]));
     if (onlineDiff) return onlineDiff;
     return String(a[1].name || a[1].email || '').localeCompare(String(b[1].name || b[1].email || ''), 'vi');
   });
@@ -106,7 +106,7 @@ function memberEntries() {
 
 function renderMembers() {
   const entries = memberEntries();
-  const onlineCount = Object.keys(presence).length;
+  const onlineCount = onlineMemberCount();
   $('#totalMemberCount').textContent = String(entries.length);
   $('#onlineMemberCount').textContent = String(onlineCount);
   $('#memberPanelCount').textContent = `${entries.length} người`;
@@ -123,7 +123,7 @@ function renderMembers() {
   els.memberList.replaceChildren(memberFragment);
   els.memberList.setAttribute('aria-busy', 'false');
   const avatarFragment = document.createDocumentFragment();
-  entries.filter(([uid]) => presence[uid]).slice(0, 3).forEach(([uid, member]) => {
+  entries.filter(([uid]) => isUserOnline(uid)).slice(0, 3).forEach(([uid, member]) => {
     const name = member.name || member.email?.split('@')[0] || 'Thành viên';
     avatarFragment.appendChild(makeAvatar(name, uid, 'avatar', member.photoURL || ''));
   });
@@ -131,12 +131,13 @@ function renderMembers() {
   $('#headerAvatars').replaceChildren(avatarFragment);
   if (workspaceView === 'members') renderDirectory();
   renderAdminPanel();
+  refreshMemberProfile();
 }
 
 function renderAdminPanel() {
   if (!isAdmin) return;
   const entries = memberEntries();
-  const onlineCount = Object.keys(presence).length;
+  const onlineCount = onlineMemberCount();
   const bannedCount = Object.keys(bans).length;
   $('#adminTotalCount').textContent = String(entries.length);
   $('#adminOnlineCount').textContent = String(onlineCount);
@@ -209,7 +210,7 @@ function renderDirectory() {
   const grid = $('#directoryGrid');
   if (!grid) return;
   const entries = memberEntries();
-  const onlineCount = entries.filter(([uid]) => presence[uid]).length;
+  const onlineCount = entries.filter(([uid]) => isUserOnline(uid)).length;
   const bannedCount = entries.filter(([uid]) => bans[uid]).length;
   $('#directorySummary').textContent = `${entries.length} thành viên · ${onlineCount} đang trực tuyến`;
   $('#directoryAllCount').textContent = String(entries.length);
@@ -222,7 +223,7 @@ function renderDirectory() {
   });
   const query = directoryQuery.trim().toLocaleLowerCase('vi');
   const filtered = entries.filter(([uid, member]) => {
-    if (directoryFilter === 'online' && !presence[uid]) return false;
+    if (directoryFilter === 'online' && !isUserOnline(uid)) return false;
     if (directoryFilter === 'banned' && !bans[uid]) return false;
     if (!query) return true;
     const haystack = `${memberDisplayName(uid, member)} ${memberEmails[uid]?.email || member.email || ''} ${uid}`.toLocaleLowerCase('vi');
@@ -239,7 +240,7 @@ function renderDirectory() {
   const fragment = document.createDocumentFragment();
   filtered.forEach(([uid, member], index) => {
     const name = memberDisplayName(uid, member);
-    const online = Boolean(presence[uid]);
+    const online = isUserOnline(uid);
     const banned = Boolean(bans[uid]);
     const card = document.createElement('button');
     card.type = 'button';
@@ -277,18 +278,121 @@ function renderDirectory() {
   grid.replaceChildren(fragment);
 }
 
+/* Hồ sơ thành viên: vẽ lại được nhiều lần.
+   Trước đây nội dung chỉ được dựng đúng một lần lúc mở hộp thoại. Nếu người dùng
+   bấm vào thành viên khi /members chưa tải xong (lần truy cập đầu) hoặc trạng thái
+   trực tuyến vừa đổi, hồ sơ hiện “Thành viên / Ngoại tuyến” sai cho tới khi đóng và
+   mở lại. Nay: nhớ uid đang xem, vẽ lại mỗi khi dữ liệu thành viên/presence đổi,
+   và có trạng thái “đang tải” rõ ràng thay vì đoán sai. */
+let activeProfileUid = '';
+let profileRefreshTimer = 0;
+let profileRenderSignature = '';
+let profileRefreshAttempts = 0;
+let profileLoadTimedOut = false;
+
+function profileTimestamp(value) {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
+}
+
+/** “Vừa xong · 5 phút trước · 3 giờ trước · 2 ngày trước · 14:30 21/10”. */
+function lastSeenLabel(value) {
+  const at = profileTimestamp(value);
+  if (!at) return '';
+  const diff = Date.now() - at;
+  if (diff < 0 || diff < 60000) return 'Vừa xong';
+  const minutes = Math.round(diff / 60000);
+  if (minutes < 60) return `${minutes} phút trước`;
+  const hours = Math.round(diff / 3600000);
+  if (hours < 24) return `${hours} giờ trước`;
+  const days = Math.round(diff / 86400000);
+  if (days < 7) return `${days} ngày trước`;
+  return formatDateTime(at);
+}
+
 function openMemberProfile(uid) {
-  const member = members[uid] || {};
-  const name = memberDisplayName(uid, member);
-  const online = Boolean(presence[uid]);
-  const banned = Boolean(bans[uid]);
-  const isSelf = uid === currentUser?.uid;
+  if (!uid) return;
   const layer = $('#memberProfileLayer');
   if (!layer) return;
+  activeProfileUid = uid;
+  profileRenderSignature = '';
+  profileRefreshAttempts = 0;
+  profileLoadTimedOut = false;
+  renderMemberProfile();
+  layer.hidden = false;
+  document.body.classList.add('body-locked');
+  window.setTimeout(() => $('#closeMemberProfile')?.focus(), 40);
+  scheduleProfileRefresh();
+}
+
+/** Vẽ lại hồ sơ đang mở (không làm gì nếu hộp thoại đang đóng). */
+function refreshMemberProfile() {
+  const layer = $('#memberProfileLayer');
+  if (!layer || layer.hidden || !activeProfileUid) return;
+  renderMemberProfile();
+}
+
+/** Dữ liệu thành viên có thể tới muộn vài trăm ms sau khi mở hồ sơ — thử lại vài nhịp. */
+function scheduleProfileRefresh() {
+  window.clearTimeout(profileRefreshTimer);
+  if (!activeProfileUid || members[activeProfileUid] || activeProfileUid === currentUser?.uid) return;
+  // Tối đa 6 lần (~7 giây) rồi thôi — tránh vòng lặp hẹn giờ chạy mãi khi hồ sơ
+  // thật sự không tồn tại (tài khoản đã bị xoá).
+  if (profileRefreshAttempts >= 6) {
+    if (!profileLoadTimedOut) {
+      profileLoadTimedOut = true;
+      refreshMemberProfile();
+    }
+    return;
+  }
+  profileRefreshTimer = window.setTimeout(() => {
+    if (!activeProfileUid) return;
+    profileRefreshAttempts += 1;
+    refreshMemberProfile();
+    scheduleProfileRefresh();
+  }, 1200);
+}
+
+function renderMemberProfile() {
+  const uid = activeProfileUid;
+  if (!uid) return;
+  const member = members[uid] || {};
+  const hasMemberData = Boolean(members[uid]) || uid === currentUser?.uid;
+  const isSelf = uid === currentUser?.uid;
+  const selfName = isSelf && typeof displayNameFor === 'function' ? displayNameFor(currentUser || {}) : '';
+  const memberName = memberDisplayName(uid, member);
+  // Chính mình: ưu tiên tên thật của phiên đăng nhập nếu /members chưa kịp có.
+  const name = !hasMemberData
+    ? (profileLoadTimedOut ? 'Không tìm thấy hồ sơ' : 'Đang tải hồ sơ…')
+    : (isSelf && (memberName === 'Thành viên' || !memberName)) && selfName ? selfName : memberName;
+  const online = isUserOnline(uid);
+  const banned = Boolean(bans[uid]);
+  const layer = $('#memberProfileLayer');
+  if (!layer) return;
+  const photoUrl = member.photoURL || (isSelf ? currentUser?.photoURL || '' : '');
+  const email = memberEmails[uid]?.email || (isSelf ? currentUser?.email : '') || member.email || '';
+  // Presence được làm mới mỗi phút; chỉ vẽ lại khi có gì đó thật sự đổi để
+  // hộp thoại không nhấp nháy và không mất focus của nút đang bấm.
+  const renderKey = [
+    uid, name, online, banned, isMuted(uid), isSelf, isAdmin, hasMemberData, profileLoadTimedOut,
+    member.createdAt || 0, member.lastSeen || 0,
+    // nhãn “x phút trước” đổi theo thời gian → thêm mốc phút vào khoá vẽ lại
+    member.lastSeen ? Math.floor((Date.now() - profileTimestamp(member.lastSeen)) / 60000) : 0,
+    photoUrl, email
+  ].join('|');
+  if (renderKey === profileRenderSignature) return;
+  profileRenderSignature = renderKey;
   const slot = $('#profileAvatarSlot');
-  slot.replaceChildren(makeAvatar(name, uid, 'avatar', member.photoURL || ''));
+  slot.replaceChildren(makeAvatar(name, uid, 'avatar', photoUrl));
   $('#profileName').textContent = name;
-  $('#profileStatus').textContent = isSelf ? 'Đây là hồ sơ của bạn' : online ? 'Đang hoạt động trong tổ mèo' : 'Thành viên của tổ mèo';
+  const lastSeenAt = profileTimestamp(member.lastSeen);
+  $('#profileStatus').textContent = isSelf
+    ? 'Đây là hồ sơ của bạn'
+    : !hasMemberData
+      ? (profileLoadTimedOut ? 'Hồ sơ này không còn trong danh sách thành viên' : 'Đang lấy thông tin thành viên…')
+      : online
+        ? 'Đang hoạt động trong tổ mèo'
+        : lastSeenAt ? `Hoạt động ${lastSeenLabel(lastSeenAt)}` : 'Thành viên của tổ mèo';
   const tags = $('#profileTags');
   tags.replaceChildren();
   const addTag = (label, className, iconName) => {
@@ -297,7 +401,8 @@ function openMemberProfile(uid) {
     tag.append(document.createTextNode(label));
     tags.appendChild(tag);
   };
-  addTag(online ? 'Trực tuyến' : 'Ngoại tuyến', online ? 'online' : '', 'wifi');
+  if (!hasMemberData) addTag(profileLoadTimedOut ? 'Không có dữ liệu' : 'Đang tải', '', 'clock');
+  else addTag(online ? 'Trực tuyến' : 'Ngoại tuyến', online ? 'online' : '', 'wifi');
   if (isSelf && isAdmin) addTag('Quản trị viên', 'admin', 'crown');
   if (banned) addTag('Đang bị cấm', 'banned', 'ban');
   if (isMuted(uid)) addTag(`Cấm chat · ${muteRemainingLabel(mutes[uid])}`, 'banned', 'mute');
@@ -317,12 +422,13 @@ function openMemberProfile(uid) {
     row.append(dt, dd);
     facts.appendChild(row);
   };
-  const email = memberEmails[uid]?.email || (isSelf ? currentUser?.email : '') || member.email || '';
-  addFact('Tên hiển thị', name, 'user');
+  if (hasMemberData) addFact('Tên hiển thị', name, 'user');
   if (email) addFact('Email', email, 'mail');
   addFact('UID', uid, 'hash');
-  if (member.createdAt) addFact('Tham gia', formatDateTime(timestampOf(member.createdAt)), 'clock');
-  if (member.lastSeen) addFact('Hoạt động gần nhất', formatDateTime(timestampOf(member.lastSeen)), 'clock');
+  const joinedAt = profileTimestamp(member.createdAt);
+  if (joinedAt) addFact('Tham gia', formatDateTime(joinedAt), 'clock');
+  if (online) addFact('Hoạt động gần nhất', 'Đang trực tuyến', 'clock');
+  else if (lastSeenAt) addFact('Hoạt động gần nhất', lastSeenLabel(lastSeenAt), 'clock');
   if (banned && bans[uid]?.reason) addFact('Lý do cấm', bans[uid].reason, 'info');
   if (isMuted(uid)) {
     addFact('Cấm chat', muteRemainingLabel(mutes[uid]), 'mute');
@@ -374,14 +480,20 @@ function openMemberProfile(uid) {
     });
   }
   CatChat.features.run('memberActions', { uid, name, isSelf, actions, addAction });
-  layer.hidden = false;
-  document.body.classList.add('body-locked');
-  window.setTimeout(() => $('#closeMemberProfile')?.focus(), 40);
 }
 
 function closeMemberProfile() {
   const layer = $('#memberProfileLayer');
-  if (!layer || layer.hidden) return;
+  if (!layer || layer.hidden) {
+    activeProfileUid = '';
+    window.clearTimeout(profileRefreshTimer);
+    return;
+  }
+  activeProfileUid = '';
+  profileRenderSignature = '';
+  profileRefreshAttempts = 0;
+  profileLoadTimedOut = false;
+  window.clearTimeout(profileRefreshTimer);
   layer.hidden = true;
   if (!els.confirmLayer.classList.contains('open') && !els.adminOverlay.classList.contains('open') && els.channelDialog.hidden && els.themeDialog.hidden && $('#savedLayer').hidden) {
     document.body.classList.remove('body-locked');
