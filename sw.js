@@ -3,7 +3,8 @@
    bản mới sau khi deploy. Không cache dữ liệu Firebase — dữ liệu thật do SDK lo.
 
    - Trang (navigation): network-first ⇒ bản mới lên ngay, offline mới dùng cache.
-   - Tệp tĩnh cùng tên miền: stale-while-revalidate.
+   - JS/CSS: network-first (tên tệp không có hash ⇒ phải luôn lấy bản mới), offline dùng cache.
+   - Ảnh/icon/font cùng tên miền: stale-while-revalidate.
    - Mọi tên miền khác (Firebase RTDB/Auth/Storage, Google Fonts): đi thẳng ra mạng.
 
    Khi deploy thay đổi lớn, tăng VERSION để xoá cache cũ. */
@@ -81,6 +82,23 @@ async function networkFirstPage(request) {
   }
 }
 
+function isCodeRequest(url) {
+  return url.pathname.includes('/assets/') && /\.(?:js|css)$/.test(url.pathname);
+}
+
+async function networkFirstAsset(request) {
+  const cache = await caches.open(RUNTIME);
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) cache.put(request, response.clone()).catch(() => {});
+    return response;
+  } catch (_) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw _;
+  }
+}
+
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(RUNTIME);
   const cached = await cache.match(request);
@@ -100,6 +118,10 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(networkFirstPage(request));
+    return;
+  }
+  if (isCodeRequest(url)) {
+    event.respondWith(networkFirstAsset(request));
     return;
   }
   event.respondWith(staleWhileRevalidate(request));

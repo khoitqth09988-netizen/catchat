@@ -10,7 +10,8 @@
       "storage.rules",
       "database.rules.json",
       "node_modules/**",
-      ".github/**"
+      ".github/**",
+      "scripts/**"
     ],
     "rewrites": [
       {

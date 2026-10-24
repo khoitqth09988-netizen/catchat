@@ -465,8 +465,8 @@ Deploy xong thì bật trong `assets/js/app/config.js`:
 
 - `manifest.webmanifest` + `sw.js` đã có sẵn: mở bằng HTTPS (GitHub Pages/Firebase Hosting) là
   cài được lên màn hình chính/desktop.
-- Trang tải **network-first** ⇒ deploy xong là thấy bản mới; tài nguyên tĩnh dùng
-  stale-while-revalidate; **không** cache dữ liệu Firebase.
+- Trang, JS và CSS tải **network-first** ⇒ deploy xong là thấy bản mới ngay (tên tệp không có hash);
+  ảnh/icon dùng stale-while-revalidate; **không** cache dữ liệu Firebase.
 - Khi sửa nhiều tệp tĩnh và muốn xoá cache cũ ngay, tăng `VERSION` trong `sw.js` (`catchat-v1` →
   `catchat-v2`).
 
