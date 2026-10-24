@@ -121,6 +121,10 @@ function attachEvents() {
   });
   els.sidebarAvatar.addEventListener('click', () => {
     if (!currentUser) return;
+    if (!storageReady()) {
+      showStorageHint();
+      return;
+    }
     els.avatarFileInput.click();
   });
   els.avatarFileInput.addEventListener('change', uploadAvatar);
@@ -136,7 +140,7 @@ function attachEvents() {
   });
   $('#mobileLogoutButton').addEventListener('click', () => $('#logoutButton').click());
   $('#messageForm').addEventListener('submit', sendMessage);
-  els.attachImageButton.addEventListener('click', () => els.chatImageInput.click());
+  els.attachImageButton.addEventListener('click', chooseAttachment);
   els.chatImageInput.addEventListener('change', selectChatImage);
   $('#clearPendingImageButton').addEventListener('click', clearPendingImage);
   els.messageInput.addEventListener('input', updateMessageComposer);
@@ -473,6 +477,7 @@ async function initializeFirebase() {
     typingRef = database.ref('typing');
     messageReactionsRef = database.ref('messageReactions');
     storage = firebase.storage ? firebase.storage() : null;
+    refreshMediaUi();
     firebaseReady = true;
     CatChat.bootScreen?.step('Đã kết nối · đang kiểm tra phiên…', 60);
     auth.onAuthStateChanged(handleAuthState, (error) => {

@@ -19,7 +19,7 @@ function updateMessageComposer() {
         ? (isAdmin ? 'Viết thông báo gửi tới toàn bộ tổ mèo...' : 'Chỉ quản trị viên được đăng thông báo')
         : `Nhắn tin trong #${channelNameFor(activeChannelId)}...`;
   const blocked = blockedByPermission || locked;
-  els.sendButton.disabled = isSendingMessage || !currentUser || blocked || muted || (!els.messageInput.value.trim() && !pendingImageFile) || length > limit;
+  els.sendButton.disabled = isSendingMessage || !currentUser || blocked || muted || (!els.messageInput.value.trim() && !pendingImageFile && !pendingImageUrl) || length > limit;
   els.messageInput.disabled = isSendingMessage || blocked;
   els.attachImageButton.disabled = isSendingMessage || (postingAnnouncement && !isAdmin);
   els.chatImageInput.disabled = isSendingMessage;
@@ -29,6 +29,7 @@ function updateMessageComposer() {
 
 function clearPendingImage() {
   pendingImageFile = null;
+  pendingImageUrl = '';
   if (pendingImageObjectUrl) URL.revokeObjectURL(pendingImageObjectUrl);
   pendingImageObjectUrl = null;
   els.pendingImageThumb.removeAttribute('src');
@@ -41,8 +42,8 @@ function selectChatImage(event) {
   const file = event.target.files?.[0];
   event.target.value = '';
   if (!file) return;
-  if (!storage) {
-    toast('Chưa bật Firebase Storage. Hãy cấu hình Storage trước khi gửi ảnh.', 'error');
+  if (!storageReady()) {
+    markStorageUnavailable();
     return;
   }
   const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -64,6 +65,45 @@ function selectChatImage(event) {
   els.messageInput.focus();
 }
 
+/** Chế độ không có Storage: đính kèm ảnh bằng liên kết https:// công khai.
+    Không tải tệp lên đâu cả — chỉ lưu URL vào tin nhắn (Rules cho phép imageURL ≤ 4096 ký tự). */
+function attachImageFromLink() {
+  const input = window.prompt('Dán liên kết ảnh (https://…). Ảnh sẽ hiển thị trực tiếp, không tải lên Firebase Storage.', pendingImageUrl || '');
+  if (input === null) return;
+  const url = String(input).trim();
+  if (!url) {
+    clearPendingImage();
+    return;
+  }
+  if (!/^https:\/\/[^\s]+$/i.test(url)) {
+    toast('Liên kết ảnh phải bắt đầu bằng https:// và không chứa khoảng trắng.', 'error');
+    return;
+  }
+  if (url.length > 2000) {
+    toast('Liên kết ảnh quá dài (tối đa 2000 ký tự).', 'error');
+    return;
+  }
+  if (pendingImageObjectUrl) URL.revokeObjectURL(pendingImageObjectUrl);
+  pendingImageObjectUrl = null;
+  pendingImageFile = null;
+  pendingImageUrl = url;
+  els.pendingImageThumb.src = url;
+  els.pendingImageName.textContent = 'Ảnh từ liên kết';
+  els.pendingImagePreview.hidden = false;
+  updateMessageComposer();
+  els.messageInput.focus();
+}
+
+/** Một cửa duy nhất cho nút đính kèm: có Storage thì chọn tệp, không thì dán liên kết. */
+function chooseAttachment() {
+  if (storageReady()) {
+    els.chatImageInput.click();
+    return;
+  }
+  showStorageHint();
+  attachImageFromLink();
+}
+
 async function sendMessage(event) {
   event?.preventDefault();
   const user = currentUser;
@@ -76,6 +116,7 @@ async function sendMessage(event) {
   }
   let text = els.messageInput.value.trim();
   const imageFile = pendingImageFile;
+  const imageLink = pendingImageUrl;
   // Hook tính năng: lệnh gạch chéo, chuyển hoá nội dung hoặc chặn gửi.
   const outgoing = CatChat.features.run('outgoingText', {
     text,
@@ -107,12 +148,12 @@ async function sendMessage(event) {
       toast('Thông báo tối đa 500 ký tự.', 'error');
       return;
     }
-    if (imageFile) {
+    if (imageFile || imageLink) {
       toast('Thông báo chỉ chứa nội dung chữ, không kèm ảnh.', 'info');
       return;
     }
   } else {
-    if (!text && !imageFile) return;
+    if (!text && !imageFile && !imageLink) return;
     if (text.length > 800) {
       toast('Tin nhắn tối đa 800 ký tự.', 'error');
       return;
@@ -129,10 +170,13 @@ async function sendMessage(event) {
       kind: postingAnnouncement ? 'announcement' : 'message',
       timestamp: currentTimestamp()
     };
-    if (imageFile) {
+    if (imageLink) {
+      message.imageURL = imageLink;
+      message.imageName = 'Ảnh từ liên kết';
+    } else if (imageFile) {
       const extension = imageFile.type === 'image/png' ? 'png' : imageFile.type === 'image/gif' ? 'gif' : imageFile.type === 'image/webp' ? 'webp' : 'jpg';
       const randomSuffix = Math.random().toString(36).slice(2, 8);
-      if (!storage) throw new Error('Firebase Storage chưa sẵn sàng.');
+      if (!storageReady()) throw new Error('Firebase Storage chưa sẵn sàng.');
       uploadedImageRef = storage.ref(`chatImages/${user.uid}/${Date.now()}-${randomSuffix}.${extension}`);
       const uploaded = await uploadedImageRef.put(imageFile, { contentType: imageFile.type });
       message.imageURL = await uploaded.ref.getDownloadURL();
