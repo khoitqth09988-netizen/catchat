@@ -327,8 +327,18 @@ Admin không xoá được: chính mình, hoặc một tài khoản đang là ad
 ## Firebase
 
 - Bật Authentication (Email/Password), Realtime Database và Storage.
-- Dán Security Rules cho **Realtime Database** (xem phần Rules trong PR gần nhất) — đây mới là thứ
-  quyết định quyền ghi thật, UI chỉ ẩn/hiện nút.
+- Dán Security Rules cho **Realtime Database** — đây mới là thứ quyết định quyền ghi thật, UI chỉ ẩn/hiện nút.
+  Có 2 bản trong repo, **chọn đúng 1** rồi dán cả file vào Console → Realtime Database → Rules:
+
+  | File | Dùng khi | Đặc điểm |
+  |---|---|---|
+  | `database.rules.json` | Bản đang chạy của bạn + 6 node định danh mới | Giữ nguyên `".read": "true"` / `".write": "true"` ở gốc như bản hiện tại |
+  | `database.rules.strict.json` | Muốn chặn thật | 23 node, gốc đóng (`false`), mọi quyền đều kiểm tra admin/chủ sở hữu |
+
+> ⚠️ Bản `database.rules.json` giữ `".write": "true"` ở gốc, nghĩa là **mọi tài khoản đã đăng nhập đều ghi
+> được mọi node** — người bị cấm có thể tự xoá `/bans/<uid>`, `/deviceBans/<mã>`, `/identityLocks/<mã>`
+> hoặc thêm mình vào `/admins`. Các tính năng cấm vĩnh viễn chỉ thật sự có hiệu lực khi dán bản
+> `database.rules.strict.json`.
 - Ảnh chat và avatar dùng **Storage Rules** riêng, không nằm trong Rules của Realtime Database.
 - Tài khoản `admin@com.vn` (hoặc UID có `/admins/<uid> = true`) sẽ thấy bảng quản trị.
 
