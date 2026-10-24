@@ -82,6 +82,7 @@ function setAdminState(value) {
     stopAdminEmailListener = subscribe(memberEmailsRef, 'value', (snapshot) => {
       memberEmails = snapshot.val() || {};
       renderAdminPanel();
+      refreshMemberProfile();
     }, (error) => {
       if (hasAdminEmail && !hasAdminMarker && !hasAdminClaim) console.warn('Chưa đọc được /memberEmails (cần thêm email admin vào Rules):', error);
       else showDatabaseError(error, 'Không thể tải email thành viên.');
@@ -238,7 +239,10 @@ function setupPresence(user, generation) {
     if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
     const connected = snapshot.val() === true;
     if (!connected) {
+      // Mất mạng: giữ node nhưng ngừng nhịp tim. Người khác thấy “ngoại tuyến”
+      // sau TTL (3 phút) thay vì thấy online mãi như trước.
       setConnectionState('offline');
+      stopPresenceHeartbeat();
       return;
     }
     setConnectionState('online');
@@ -247,11 +251,17 @@ function setupPresence(user, generation) {
       if (generation !== authGeneration || currentUser?.uid !== user.uid) return;
       return myPresence.set({ state: 'online', lastChanged: currentTimestamp() });
     }).then(() => {
-      if (generation === authGeneration) membersRef.child(user.uid).update({ lastSeen: currentTimestamp() }).catch((error) => console.warn('Presence update:', error));
+      if (generation !== authGeneration) return;
+      // Ghi mốc hoạt động + bật nhịp tim 60 giây: tab nền bị trình duyệt bóp timer
+      // vẫn được coi là đang trực tuyến, còn tab bị đóng đột ngột sẽ hết hạn.
+      recordLastSeen(user.uid, true);
+      startPresenceHeartbeat(user.uid);
+      refreshMemberProfile();
     }).catch((error) => console.warn('Presence setup:', error));
   };
   connectedRef.on('value', handler, (error) => showDatabaseError(error, 'Không thể xác định trạng thái kết nối.'));
   cleanupFns.push(() => connectedRef.off('value', handler));
+  cleanupFns.push(() => stopPresenceHeartbeat());
 }
 
 function updateCurrentUserUI() {

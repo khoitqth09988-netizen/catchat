@@ -196,7 +196,13 @@ function jumpToLatestMessages(smooth = true) {
   const reduceMotion = preference && typeof preference.isReduced === 'function'
     ? preference.isReduced()
     : Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  els.chatMessages.scrollTo({ top: els.chatMessages.scrollHeight, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
+  const area = els.chatMessages;
+  if (typeof area.scrollTo === 'function') {
+    area.scrollTo({ top: area.scrollHeight, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
+  } else {
+    // Trình duyệt cũ (hoặc môi trường không có Element.scrollTo) vẫn cuộn được.
+    area.scrollTop = area.scrollHeight;
+  }
 }
 
 /** Gọi khi người dùng cuộn: ở gần cuối thì coi như đã đọc hết. */

@@ -34,7 +34,7 @@
     return Object.entries(members || {}).map(([uid, member]) => ({
       id: `member:${uid}`,
       label: memberDisplayName(uid, member),
-      hint: presence[uid] ? 'Đang trực tuyến · mở hồ sơ' : 'Mở hồ sơ thành viên',
+      hint: isUserOnline(uid) ? 'Đang trực tuyến · mở hồ sơ' : 'Mở hồ sơ thành viên',
       icon: 'user',
       group: 'Thành viên',
       run() {

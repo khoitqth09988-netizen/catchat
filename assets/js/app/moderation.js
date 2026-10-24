@@ -426,7 +426,7 @@ function renderAdminOverview() {
   const mutedCount = activeMutes().length;
   const setText = (selector, value) => { const node = $(selector); if (node) node.textContent = String(value); };
   setText('#overviewMembers', entries.length);
-  setText('#overviewOnline', Object.keys(presence).length);
+  setText('#overviewOnline', onlineMemberCount());
   setText('#overviewMuted', mutedCount);
   setText('#overviewBanned', Object.keys(bans).length);
   setText('#overviewMessages', messages.size);
