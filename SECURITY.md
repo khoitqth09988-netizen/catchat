@@ -50,10 +50,31 @@ Khi `appCheckSiteKey` để trống, `appcheck.js` không làm gì — app chạ
 - **Realtime Database → Backups**: bật để phục hồi nếu bị xoá dữ liệu.
 - **Usage and billing → Budget alerts**: đặt cảnh báo để phát hiện lưu lượng bất thường (dấu hiệu bị đốt quota).
 - **Firebase Hosting + Cloud Armor** (nếu có domain riêng): bật rate limiting / bot management ở tầng CDN.
-- **Storage Rules**: giới hạn dung lượng và loại file ảnh, chỉ chủ tài khoản ghi vào thư mục của mình.
+- **Storage Rules**: dán `storage.rules` của repo (Storage → Rules → Publish). Chỉ chủ tài khoản ghi
+  được vào `chatImages/<uid>/…` (ảnh ≤ 5 MB) và `avatars/<uid>/…` (≤ 8 MB), chỉ `image/*`;
+  mọi đường dẫn khác bị từ chối. Đây là **Storage Rules**, khác hoàn toàn Rules của Realtime Database.
+- **`/adminLog` append-only**: Rules mới chỉ cho `push` mục mới (`!data.exists()`), admin cũng **không**
+  xoá hay sửa được. Muốn “dọn” thì app ghi thêm một dấu `log-purge`; bảng điều khiển ẩn mục cũ nhưng
+  dữ liệu gốc còn nguyên để kiểm toán.
 
 Firebase đã có hạ tầng chống DDoS ở tầng Google, nhưng **quota vẫn có thể bị đốt** bởi request hợp lệ về
 hình thức — App Check + Rules + budget alert là bộ ba cần thiết.
+
+## 3b. Rules đã siết gì ở đợt 19
+
+| Trước | Sau |
+|---|---|
+| `messages.name` chỉ kiểm `isString()` + độ dài | phải **bằng** `/members/<uid>/name` (admin được miễn) ⇒ hết giả danh `admin` |
+| `messages.uid` do client tự khai | phải `=== auth.uid` (trừ admin) ⇒ không ghi tin dưới tên người khác |
+| `timestamp` chỉ kiểm `isNumber()` | phải trong khoảng `now - 5 phút … now`, hoặc giữ nguyên giá trị cũ khi sửa ⇒ hết đẩy tin lên đầu |
+| `/adminLog` cho admin `.write` cả node | `$entryId` chỉ `write` khi `!data.exists()` ⇒ append-only |
+| Không có Storage Rules trong repo | `storage.rules` giới hạn thư mục theo uid, ≤ 5/8 MB, chỉ ảnh |
+
+Đổi lại, app phải gửi đúng tên trong `/members/<uid>/name` khi tạo tin — việc này do
+`authorNameFor()` trong `assets/js/app/database.js` lo (đồng bộ hồ sơ trước khi gửi).
+
+> Vì Rules là thứ quyết định quyền ghi thật, hãy dán **toàn bộ** `database.rules.json` mới vào Console
+> Realtime Database → Rules. Không tự deploy bằng CI (xem `.github/workflows/deploy.yml`).
 
 ## 4. Xoá tài khoản thành viên
 

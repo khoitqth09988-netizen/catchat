@@ -124,7 +124,7 @@ async function sendMessage(event) {
   try {
     const message = {
       uid: user.uid,
-      name: displayNameFor(user).slice(0, 32),
+      name: await authorNameFor(user),
       text,
       kind: postingAnnouncement ? 'announcement' : 'message',
       timestamp: currentTimestamp()
@@ -191,7 +191,7 @@ async function sendAnnouncement() {
   try {
     await generalMessagesRef.push({
       uid: currentUser.uid,
-      name: displayNameFor(currentUser).slice(0, 32),
+      name: await authorNameFor(currentUser),
       text,
       kind: 'announcement',
       timestamp: currentTimestamp()

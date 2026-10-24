@@ -328,11 +328,7 @@ function buildMessageNode(id, data, grouped = false) {
     stamp.append(textElement('time', '', formatDateTime(time)));
     if (editedLabel) stamp.appendChild(textElement('span', 'message-edited', ` · ${editedLabel}`));
     meta.appendChild(stamp);
-    meta.appendChild(makeReplyButton(id));
-    meta.appendChild(makeSaveButton(id));
-    CatChat.features.run('messageTools', meta, { id, data });
-    if (canEditNow) meta.appendChild(makeMessageTool('edit', 'Sửa thông báo', { editMessage: id }));
-    if (isAdmin) meta.appendChild(makeMessageTool('pin', isPinned ? 'Bỏ ghim thông báo' : 'Ghim thông báo', { pinMessage: id }));
+    meta.appendChild(makeMessageActions(id, { data, isAnnouncement: true, isPinned, canEditNow, canDeleteNow }));
     announcement.append(head, meta, makeReactionStrip(id));
     row.appendChild(announcement);
   } else {
@@ -343,11 +339,7 @@ function buildMessageNode(id, data, grouped = false) {
     meta.append(textElement('time', 'message-time', formatTime(time)));
     if (editedLabel) meta.appendChild(textElement('span', 'message-edited', editedLabel));
     if (isPinned) meta.appendChild(textElement('span', 'message-edited', '· đã ghim'));
-    meta.appendChild(makeReplyButton(id));
-    meta.appendChild(makeSaveButton(id));
-    CatChat.features.run('messageTools', meta, { id, data });
-    if (canEditNow) meta.appendChild(makeMessageTool('edit', 'Sửa tin nhắn', { editMessage: id }));
-    if (isAdmin) meta.appendChild(makeMessageTool('pin', isPinned ? 'Bỏ ghim tin nhắn' : 'Ghim tin nhắn', { pinMessage: id }));
+    meta.appendChild(makeMessageActions(id, { data, isPinned, canEditNow, canDeleteNow }));
     // Tên luôn nằm sát avatar ở dòng đầu; trích dẫn trả lời đặt DƯỚI tên
     // (nếu đặt trên, tên bị đẩy xuống và trông rời khỏi avatar).
     content.appendChild(meta);
@@ -382,10 +374,75 @@ function buildMessageNode(id, data, grouped = false) {
     content.appendChild(makeReactionStrip(id));
     row.append(avatar, content);
   }
-  if (canDeleteNow) {
-    row.appendChild(makeDeleteButton(id, isAnnouncement ? 'Xoá thông báo' : isMine && !isAdmin ? 'Xoá tin nhắn của bạn' : 'Xoá tin nhắn'));
-  }
+  // Nút xoá đã nằm trong menu ⋯ (không còn nút nổi bên ngoài hàng tin nhắn).
   return row;
+}
+
+/**
+ * Gom toàn bộ hành động của một tin nhắn vào menu ⋯ (sau tên + avatar).
+ * Các nút vẫn giữ `data-*` cũ nên handler uỷ quyền trong events.js không đổi.
+ */
+function menuItemFrom(button, label, { danger = false } = {}) {
+  if (!button) return null;
+  const wasSaved = button.classList.contains('is-saved');
+  const pressed = button.getAttribute('aria-pressed');
+  button.className = `message-menu-item${danger ? ' is-danger' : ''}${wasSaved ? ' is-saved' : ''}`;
+  button.setAttribute('role', 'menuitem');
+  button.removeAttribute('title');
+  button.setAttribute('aria-label', label);
+  if (pressed !== null) button.setAttribute('aria-pressed', pressed);
+  button.appendChild(textElement('span', 'message-menu-label', label));
+  return button;
+}
+
+function makeMessageActions(id, { data = {}, isAnnouncement = false, isPinned = false, canEditNow = false, canDeleteNow = false } = {}) {
+  const wrap = textElement('div', 'message-actions');
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'message-more';
+  toggle.dataset.messageMenu = id;
+  toggle.title = 'Thêm hành động';
+  toggle.setAttribute('aria-label', 'Thêm hành động cho tin nhắn');
+  toggle.setAttribute('aria-haspopup', 'menu');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.appendChild(icon('more'));
+
+  const menu = textElement('div', 'message-menu');
+  menu.hidden = true;
+  menu.setAttribute('role', 'menu');
+  menu.setAttribute('aria-label', 'Hành động cho tin nhắn');
+
+  const saved = isMessageSaved(id);
+  menu.appendChild(menuItemFrom(makeReplyButton(id), 'Trả lời'));
+  menu.appendChild(menuItemFrom(makeSaveButton(id), saved ? 'Bỏ lưu tin nhắn' : 'Lưu tin nhắn'));
+  // Feature "sao chép" tự thêm nút của nó vào container — cho vào đúng menu này.
+  const tools = textElement('div', 'message-menu-extra');
+  CatChat.features.run('messageTools', tools, { id, data });
+  Array.from(tools.children).forEach((button) => {
+    menu.appendChild(menuItemFrom(button, 'Sao chép nội dung'));
+  });
+  if (canEditNow) {
+    menu.appendChild(menuItemFrom(
+      makeMessageTool('edit', 'Sửa tin nhắn', { editMessage: id }),
+      isAnnouncement ? 'Sửa thông báo' : 'Sửa tin nhắn'
+    ));
+  }
+  if (isAdmin) {
+    menu.appendChild(menuItemFrom(
+      makeMessageTool('pin', isPinned ? 'Bỏ ghim tin nhắn' : 'Ghim tin nhắn', { pinMessage: id }),
+      isPinned ? 'Bỏ ghim' : 'Ghim tin nhắn'
+    ));
+  }
+  if (canDeleteNow) {
+    menu.appendChild(menuItemFrom(
+      makeDeleteButton(id, isAnnouncement ? 'Xoá thông báo' : 'Xoá tin nhắn'),
+      isAnnouncement ? 'Xoá thông báo' : 'Xoá tin nhắn',
+      { danger: true }
+    ));
+  }
+
+  wrap.append(toggle, menu);
+  return wrap;
 }
 
 function renderAllMessages(scrollToEnd = false, newArrival = false) {

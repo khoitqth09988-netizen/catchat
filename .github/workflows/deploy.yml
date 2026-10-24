@@ -1,0 +1,66 @@
+name: Kiểm tra & triển khai
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Kiểm tra tĩnh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Cú pháp JS, CSS, JSON, tham chiếu tài nguyên, PWA
+        run: node scripts/verify.mjs
+      - name: Rules không dùng numChildren và gốc vẫn đóng
+        run: |
+          node -e "
+          const r = require('./database.rules.json').rules;
+          if (r['.read'] !== false || r['.write'] !== false) { console.error('Gốc Rules phải là false'); process.exit(1); }
+          const fs = require('fs');
+          if (fs.readFileSync('database.rules.json', 'utf8').includes('numChildren')) { console.error('Rules không được dùng numChildren()'); process.exit(1); }
+          console.log('Rules hợp lệ ở mức tĩnh.');
+          "
+
+  deploy-hosting:
+    name: Deploy Firebase Hosting (tuỳ chọn)
+    needs: verify
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Có secret FIREBASE_SERVICE_ACCOUNT?
+        id: gate
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$SERVICE_ACCOUNT" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Chưa có secret FIREBASE_SERVICE_ACCOUNT — bỏ qua deploy Firebase Hosting. GitHub Pages vẫn tự phục vụ nhánh main."
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Deploy hosting
+        if: steps.gate.outputs.enabled == 'true'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: chat-e58b5
+          channelId: live
+      # Rules (Realtime Database + Storage) KHÔNG tự deploy ở đây:
+      # chủ dự án dán tay trong Firebase Console để kiểm soát từng thay đổi.
+      # Cloud Functions cũng deploy tay: cd functions && npm install && firebase deploy --only functions

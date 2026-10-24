@@ -4,6 +4,21 @@
 > trên Firebase Hosting, không build step; dữ liệu ở Realtime Database; Auth Email/Password; ảnh ở
 > Storage; 4 Cloud Function tuỳ chọn.
 
+## 0. Trạng thái sau đợt 19 — phần nào đã xong
+
+| Hạng mục | Trạng thái | Ở đâu |
+|---|---|---|
+| `functions/package.json` (Node 22, firebase-admin, firebase-functions), `functions/.gitignore` | ✅ xong | `functions/` |
+| Emulator (auth 9099, database 9000, storage 9199, functions 5001, hosting 5000, UI 4000) | ✅ xong | `firebase.json → emulators` |
+| `storage.rules` + khai báo `storage` trong `firebase.json` | ✅ xong (cần dán vào Console) | `storage.rules` |
+| CI kiểm tra tĩnh + deploy hosting tuỳ chọn | ✅ xong | `.github/workflows/deploy.yml`, `scripts/verify.mjs` |
+| Bịt lỗ hổng `name` / `timestamp` / `adminLog` trong Rules | ✅ xong (JSON mới ở chat) | `database.rules.json` |
+| PWA: manifest, icon, Service Worker network-first, cache-bust theo `VERSION` | ✅ xong | `manifest.webmanifest`, `sw.js`, `assets/js/features/pwa.js` |
+| Menu ⋯ gộp Trả lời / Lưu / Sao chép / Sửa / Ghim / Xoá | ✅ xong | `assets/js/app/messages.js`, `chat-pro.css` |
+| App Check **enforce** cho RTDB + Storage | ⏳ việc trong Console (xem `SECURITY.md` §2) |
+| Rate limit thật ở Functions, chuyển ghi tin nhắn sang Function | ⏳ P1 |
+| Tìm kiếm lịch sử, phân trang, push notification, DM, vai trò | ⏳ P1 |
+
 ## 1. Đang có gì (không cần làm lại)
 
 | Lớp | Hiện trạng |
@@ -84,10 +99,11 @@ sang Cloud Functions (callable + trigger), client chỉ gửi ý định.
 
 ## 5. Thứ tự làm đề xuất
 
-1. `functions/package.json` + emulator + CI (nửa ngày) — không có cái này thì mọi thứ sau đều tay chân.
-2. `storage.rules` + enforce App Check (1 ngày).
-3. Bịt 3 lỗ hổng Rules ở §2.1 + chuyển ghi tin nhắn sang Function (2–3 ngày).
-4. Push notification + PWA (2 ngày) — đòn bẩy trải nghiệm lớn nhất.
+1. ~~`functions/package.json` + emulator + CI~~ — **đã xong (đợt 19)**.
+2. ~~`storage.rules`~~ — **đã xong**; còn **enforce App Check** trong Console (bước tay, 15 phút).
+3. ~~Bịt 3 lỗ hổng Rules ở §2.1~~ — **đã xong ở mức Rules** (tên/timestamp/adminLog append-only);
+   bước còn lại là chuyển ghi tin nhắn sang Function để chống spam ở phía server (2–3 ngày).
+4. Push notification (PWA đã xong phần cài đặt + cache; còn FCM) (1 ngày).
 5. Tìm kiếm + phân trang lịch sử (BigQuery sync) (2–3 ngày).
 6. DM + tệp đính kèm + vai trò chi tiết (1 tuần).
 

@@ -2,6 +2,53 @@
    Tách từ index.html — nạp bằng <script defer> theo đúng thứ tự trong index.html. */
 'use strict';
 
+/* ── Menu hành động của tin nhắn (nút ⋯) ───────────────────────
+   Một nút duy nhất chứa: Trả lời / Lưu / Sao chép / Sửa / Ghim / Xoá.
+   Menu đóng khi chọn một mục, bấm ra ngoài, nhấn Esc hoặc cuộn danh sách. */
+function closeMessageMenus(except = null) {
+  document.querySelectorAll('.message-menu').forEach((menu) => {
+    if (menu === except || menu.hidden) return;
+    menu.hidden = true;
+    menu.style.removeProperty('top');
+    menu.style.removeProperty('left');
+    const toggle = menu.parentElement?.querySelector('.message-more');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.classList.remove('is-open');
+    }
+  });
+}
+
+/** Đặt menu (position: fixed) ngay dưới nút ⋯ và luôn nằm trong khung nhìn:
+    sát mép phải thì lùi sang trái, sát mép dưới thì mở ngược lên trên. */
+function placeMessageMenu(menu, toggle) {
+  const margin = 12;
+  const gap = 6;
+  const anchor = toggle.getBoundingClientRect();
+  const box = menu.getBoundingClientRect();
+  let left = anchor.left;
+  if (left + box.width > window.innerWidth - margin) left = anchor.right - box.width;
+  left = Math.max(margin, Math.min(left, window.innerWidth - box.width - margin));
+  let top = anchor.bottom + gap;
+  if (top + box.height > window.innerHeight - margin) top = anchor.top - box.height - gap;
+  top = Math.max(margin, Math.min(top, window.innerHeight - box.height - margin));
+  menu.style.top = `${Math.round(top)}px`;
+  menu.style.left = `${Math.round(left)}px`;
+}
+
+function openMessageMenu(toggle) {
+  const menu = toggle.parentElement?.querySelector('.message-menu');
+  if (!menu) return;
+  const willOpen = menu.hidden;
+  closeMessageMenus(willOpen ? menu : null);
+  menu.hidden = !willOpen;
+  toggle.setAttribute('aria-expanded', String(willOpen));
+  toggle.classList.toggle('is-open', willOpen);
+  if (!willOpen) return;
+  placeMessageMenu(menu, toggle);
+  menu.querySelector('.message-menu-item')?.focus({ preventScroll: true });
+}
+
 function attachEvents() {
   savedMessages = loadSavedMessages();
   // Liên kết “bỏ qua điều hướng”: đưa focus tới đúng vùng đang dùng được.
@@ -205,6 +252,8 @@ function attachEvents() {
     els.messageInput.focus({ preventScroll: true });
   });
   els.chatMessages.addEventListener('scroll', markFeedRead, { passive: true });
+  els.chatMessages.addEventListener('scroll', () => closeMessageMenus(), { passive: true });
+  window.addEventListener('resize', () => closeMessageMenus(), { passive: true });
   $('#loadOlderButton')?.addEventListener('click', () => { void loadOlderMessages(); });
   $('#channelLockButton').addEventListener('click', () => { void toggleChannelLock(); });
   $('#unpinButton').addEventListener('click', () => {
@@ -275,25 +324,38 @@ function attachEvents() {
   $('#adminQuickBlocks').addEventListener('click', () => switchAdminTab('blocks'));
   $('#adminClearLogButton').addEventListener('click', async () => {
     const confirm = await openConfirm({
-      title: 'Xoá nhật ký quản trị?',
-      description: 'Toàn bộ nhật ký thao tác quản trị sẽ bị xoá khỏi Firebase. Hành động này không thể hoàn tác.',
-      acceptLabel: 'Xoá nhật ký',
+      title: 'Dọn nhật ký quản trị?',
+      description: 'Nhật ký cũ sẽ được đánh dấu đã dọn và ẩn khỏi bảng điều khiển. Bản ghi gốc vẫn được giữ lại trong Firebase để kiểm toán (không thể xoá).',
+      acceptLabel: 'Dọn nhật ký',
       tone: 'danger',
       iconName: 'trash'
     });
-    if (!confirm || !adminLogRef) return;
+    if (!confirm || !adminLogRef || !currentUser) return;
     try {
-      await adminLogRef.remove();
-      adminLogEntries = [];
-      renderAdminLog();
-      toast('Đã xoá nhật ký quản trị.', 'success');
+      await adminLogRef.push({
+        type: 'log-purge',
+        detail: 'Đánh dấu dọn nhật ký quản trị',
+        targetUid: '',
+        adminUid: currentUser.uid,
+        adminName: displayNameFor(currentUser).slice(0, 32),
+        timestamp: currentTimestamp()
+      });
+      toast('Đã đánh dấu dọn nhật ký. Bản ghi cũ vẫn được lưu để kiểm toán.', 'success');
     } catch (error) {
-      showDatabaseError(error, 'Không xoá được nhật ký. Kiểm tra quyền /adminLog.');
+      showDatabaseError(error, 'Không ghi được dấu dọn nhật ký. Kiểm tra quyền /adminLog.');
     }
   });
   document.addEventListener('click', (event) => {
     const target = event.target instanceof Element ? event.target : event.target.parentElement;
     if (!target) return;
+    const menuToggle = target.closest('[data-message-menu]');
+    if (menuToggle) {
+      event.preventDefault();
+      openMessageMenu(menuToggle);
+      return;
+    }
+    // Chọn một mục trong menu ⇒ đóng menu rồi để handler bên dưới chạy tiếp.
+    closeMessageMenus();
     const reaction = target.closest('[data-react-message]');
     if (reaction) {
       void toggleMessageReaction(reaction.dataset.reactMessage, reaction.dataset.reaction);
@@ -353,6 +415,7 @@ function attachEvents() {
       setMessageSearchOpen(true);
     }
     if (event.key === 'Escape') {
+      if (document.querySelector('.message-menu:not([hidden])')) { closeMessageMenus(); return; }
       if (editingMessageId) { cancelMessageEdit(); return; }
       if (!$('#muteDialog').hidden) closeMuteDialog(null);
       else if (!$('#emojiPopover').hidden) setEmojiPickerOpen(false);
