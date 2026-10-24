@@ -81,8 +81,6 @@
 .send-button { width: 32px; height: 32px; border-radius: 9px; }
 .composer-box textarea { min-height: 22px; max-height: 96px; font-size: 10.5px; line-height: 1.5; }
 .composer-hint { margin: 5px 2px 0; font-size: 7.5px; }
-.sticker-bar { gap: 5px; margin-bottom: 6px; }
-.sticker-button { width: 26px; height: 26px; border-radius: 8px; font-size: 13px; }
 .reply-preview, .pending-image-preview { margin-bottom: 6px; padding: 6px 8px; }
 .typing-indicator { margin-bottom: 4px; }
 

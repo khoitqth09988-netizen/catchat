@@ -72,6 +72,19 @@ async function submitAuth(event) {
   try {
     if (isSignUp) {
       const credential = await auth.createUserWithEmailAndPassword(email, password);
+      // Tên hiển thị là duy nhất: giữ chỗ /displayNames/<slug> trước khi lưu hồ sơ.
+      const claim = window.CatChat?.names?.claim
+        ? await CatChat.names.claim(credential.user.uid, displayName)
+        : { ok: true };
+      if (claim && claim.ok === false && claim.taken) {
+        // Chưa có gì được ghi vào /members nên chỉ cần trả lại tài khoản vừa tạo.
+        await credential.user.delete().catch(() => auth.signOut().catch(() => {}));
+        const suggestion = await CatChat.names.suggest(displayName);
+        els.displayName.value = suggestion;
+        setAuthError(`Tên hiển thị “${displayName}” đã có người dùng. Thử “${suggestion}” hoặc một tên khác nhé.`);
+        els.displayName.focus();
+        return;
+      }
       await credential.user.updateProfile({ displayName });
       try { await syncMemberProfile(credential.user); } catch (profileError) { console.warn('Không lưu được hồ sơ thành viên:', profileError); }
       setAuthNotice('Tài khoản đã được tạo. Đang mở không gian trò chuyện...', 'success');

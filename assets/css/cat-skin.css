@@ -1,4 +1,4 @@
-/* CatChat · Lớp da “tổ mèo”: bong bóng, sticker, Miu, saved, paw trail, con trỏ mèo.
+/* CatChat · Lớp da “tổ mèo”: bong bóng, Miu, saved, paw trail, con trỏ mèo.
    Tách từ index.html — nạp bằng <link> theo đúng thứ tự trong index.html. */
 
 /* ═══════════════════════════════════════════════════════════════
@@ -234,27 +234,6 @@ body[data-theme="ocean"] {
 .app-view .send-button:disabled { background: var(--theme-panel-alt); box-shadow: none; color: var(--theme-subtle); }
 .app-view .reply-preview, .app-view .pending-image-preview { border-radius: 14px; }
 
-/* Dải sticker mèo */
-.sticker-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 9px; padding: 0 4px; overflow-x: auto; scrollbar-width: none; }
-.sticker-bar::-webkit-scrollbar { display: none; }
-.sticker-label { display: inline-flex; align-items: center; gap: 5px; margin-right: 2px; color: var(--theme-subtle); font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
-.sticker-label .icon { width: 12px; height: 12px; color: var(--cat-meow, var(--theme-accent)); }
-.sticker-button {
-  display: grid;
-  width: 32px;
-  height: 32px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid var(--theme-line);
-  border-radius: 12px;
-  background: var(--theme-panel);
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  transition: transform .16s var(--ease), border-color .16s, background .16s;
-}
-.sticker-button:hover { transform: translateY(-2px) rotate(-4deg); border-color: var(--cat-meow, var(--theme-accent)); background: var(--theme-accent-soft); }
-.sticker-button:active { transform: scale(.94); }
 
 /* Bạn mèo Miu */
 .miu-companion { position: fixed; z-index: 46; right: 22px; bottom: 22px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
@@ -347,8 +326,6 @@ body[data-theme="ocean"] {
   .miu-face .icon { width: 27px; height: 27px; }
 }
 @media (max-width: 760px) {
-  .sticker-bar { gap: 5px; }
-  .sticker-button { width: 30px; height: 30px; border-radius: 10px; }
   .app-view .composer-box { border-radius: 20px; padding: 8px; }
   .saved-drawer { width: 100%; }
 }

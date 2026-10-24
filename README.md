@@ -14,7 +14,7 @@ assets/css/                    Giao diện, tách theo khu vực
   base.css                     Reset, biến màu, màn hình đăng nhập, khung chat
   workspace.css                Bố cục kiểu Discord: sidebar, kênh, hàng tin nhắn
   themes.css                   5 theme: light, dark, lavender, ocean, halloween
-  cat-skin.css                 Lớp da “tổ mèo”: bong bóng, sticker, Miu, con trỏ mèo
+  cat-skin.css                 Lớp da “tổ mèo”: bong bóng, Miu, con trỏ mèo
   halloween.css                Bảng màu gốc của theme Halloween
   views.css                    Tab thành viên, hồ sơ, emoji picker, kiểm duyệt
   chat-extras.css              Reaction và phòng thông báo
@@ -46,7 +46,7 @@ assets/js/app/                 Lõi ứng dụng, nạp theo thứ tự bằng <
   composer.js                  Khung soạn tin, gửi tin, gửi thông báo
   message-actions.js           Xoá tin nhắn, dọn kênh
   members.js                   Tab thành viên, danh bạ, hồ sơ, emoji picker
-  extras.js                    Tin nhắn đã lưu, sticker, Miu, bộ con trỏ mèo
+  extras.js                    Tin nhắn đã lưu, Miu, bộ con trỏ mèo
   admin.js                     Xác nhận, cấm thành viên, mở/đóng bảng admin, toast
   admin-tools.js               Kiểm duyệt tin nhắn trong admin
   moderation.js                Sửa/xoá/ghim tin, khoá kênh, mute, nhật ký, export
@@ -69,6 +69,7 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   account-deletion.js          Admin xoá tài khoản thành viên (có hàm purge dùng lại được)
   identity-guard.js            Dấu vân tay thiết bị/IP, chặn vĩnh viễn, giới hạn 2 tài khoản mỗi máy
   identity-blocks.js           Tab quản trị “Chặn vĩnh viễn” (thiết bị / IP / khoá tự động)
+  name-guard.js                Giữ chỗ tên hiển thị duy nhất (/displayNames), gợi ý tên thay thế
   boot-screen.js               Tiến trình khởi động thật cho splash (step/finish/fail)
   typing-indicator.js          Chỉ báo “ai đang nhập…” qua node /typing
   motion.js                    Tuỳ chọn chuyển động dùng chung cho CSS + JS
@@ -224,13 +225,13 @@ vào 17 file CSS cũ.
 - **Vùng an toàn**: tai thỏ / vạch home của iPhone được cộng vào thanh điều hướng dưới đáy, khung soạn
   tin, toast và ngăn kéo thành viên (`env(safe-area-inset-*)` ⇒ biến `--safe-*`).
 - **Bàn phím ảo**: `visualViewport` được theo dõi liên tục; `--app-vh` luôn là chiều cao còn thấy được.
-  Khi bàn phím mở, thanh điều hướng + dải sticker lùi lại (`html.is-keyboard-open`) để ô soạn tin nằm
+  Khi bàn phím mở, thanh điều hướng lùi lại (`html.is-keyboard-open`) để ô soạn tin nằm
   ngay trên bàn phím — trước đây trên iOS ô soạn tin bị bàn phím che.
 - **Thu nhỏ / phóng to cửa sổ, xoay ngang**: đổi mức (`phone` / `tablet` / `desktop`) sẽ đóng ngăn kéo
   thành viên và bảng emote đang mở, đưa khung tin nhắn về cuối nếu bạn đang ở gần cuối, và phát sự kiện
   `catchat:viewport-change`. Không còn cảnh ngăn kéo “treo” lại sau khi đổi kích thước.
 - **Màn hình thấp** (`max-height: 520px`, điện thoại nằm ngang): thu gọn topbar, thanh kênh và khung soạn
-  tin, ẩn dải sticker / gợi ý bàn phím.
+  tin, ẩn gợi ý bàn phím.
 - **Nội dung dài**: bong bóng tin nhắn, banner, hồ sơ đều `overflow-wrap: anywhere`; ảnh không tràn ngang.
 - **Hộp thoại cuộn được**: hồ sơ, giao diện, xác nhận, cấm chat đều có `max-height: calc(var(--app-vh) - 24px)`
   nên phần thông tin và nút hành động không bị cắt mất trên màn hình nhỏ.
@@ -282,13 +283,45 @@ Ba lớp chặn, tất cả đều **vĩnh viễn cho tới khi quản trị vi�
 > chỉ đọc được ở server. Đây là lớp giảm lạm dụng, **không phải** bằng chứng tuyệt đối — chặn thật phải
 > dựa vào Firebase Rules + App Check + Cloud Function (xem `SECURITY.md`).
 
+## Tên hiển thị là duy nhất
+
+Mỗi tên chỉ thuộc về một người. Khi đăng ký, tên được chuẩn hoá rồi “giữ chỗ” trong
+`/displayNames/<slug> = <uid>` bằng transaction, nên hai người bấm cùng lúc cũng chỉ một người thắng:
+
+| Tên nhập | slug |
+|---|---|
+| `Mèo Con` | `meo-con` |
+| `mèo   con` | `meo-con` |
+| `Đường` | `duong` |
+
+- Trùng tên ⇒ tài khoản vừa tạo bị xoá ngay, form gợi ý `Tên 2` và báo lỗi rõ ràng.
+- Người đã có tài khoản (dữ liệu cũ trùng tên) vẫn đăng nhập được: giữ tên cũ của chính mình,
+  nếu chưa có tên thì thêm hậu tố `(abcd)` để không hiển thị trùng người khác.
+- Khi tên đổi, khoá tên cũ được dọn tự động (`forgetOtherSlugs`).
+- Cần node `displayNames` trong Rules (đã có trong cả hai file Rules); thiếu node thì app **không**
+  chặn đăng nhập mà chỉ cảnh báo trong console.
+
+> Rules không chuẩn hoá được chuỗi (không có `toLowerCase`), nên slug do trình duyệt tính. Đây là lớp
+> chặn trùng tên cho luồng bình thường; muốn chặn tuyệt đối phải dùng Cloud Function.
+
+## Xoá kênh
+
+Quản trị viên mở kênh rồi bấm nút **xoá kênh** (biểu tượng `#` gạch chéo) trên thanh tiêu đề kênh:
+xác nhận + lý do → app dọn `channelMessages/<id>` (kèm reaction), `pins`, `locks`, `typing`, rồi xoá
+`channels/<id>`. Mọi người đang ở trong kênh đó được tự chuyển về `#phòng-chung`.
+
+- Thứ tự quan trọng: tin nhắn bị xoá **trước** khi kênh biến mất, vì Rules xoá tin nhắn yêu cầu
+  `/channels/<id>` còn tồn tại.
+- Kênh hệ thống `#phòng-chung` và `#thông-báo` không xoá được (cả ở UI lẫn Rules).
+- Hành động được ghi vào `/adminLog` với số tin nhắn đã xoá kèm lý do.
+
 ## Bố cục gọn kiểu Discord
 
 `assets/css/compact.css` (nạp sau `polish.css`, trước `mobile.css`) chỉnh **mật độ**, không đổi bảng màu:
 
 - Sidebar 228px, thanh trên 58px, thanh kênh 54px, danh sách thành viên 264px — mắt đọc nhanh hơn.
 - Bong bóng tin nhắn 7×10px, avatar 28px, khoảng cách giữa tin 8px, gộp tin liền mạch chặt hơn.
-- Khung soạn tin thấp hơn (textarea tối đa 96px), sticker/nhãn gợi ý nhỏ lại.
+- Khung soạn tin thấp hơn (textarea tối đa 96px), nhãn gợi ý nhỏ lại; emote chèn qua nút 🙂 trên thanh soạn.
 - Bỏ `backdrop-filter` ở sidebar (diện tích lớn, tốn GPU nhất khi cuộn) và giảm blur thanh trên.
 - Chuyển cảnh ngắn hơn (~0.22s / 0.13s) để cảm giác phản hồi nhanh, vẫn tôn trọng tuỳ chọn giảm chuyển động.
 

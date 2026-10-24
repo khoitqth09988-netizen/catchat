@@ -68,6 +68,7 @@
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 11v5M12 8h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
     <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16ZM5 2l.7 2.3L8 5l-2.3.7L5 8l-.7-2.3L2 5l2.3-.7L5 2Z" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h14M4 15h14M10 3 8 21M16 3l-2 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-channel-x" viewBox="0 0 24 24"><path d="M4.5 9h9M3.5 15h8M9.5 3.5 8 20.5M15 3.5 13.8 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="m16.5 16 5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
     <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18h1.4a2.2 2.2 0 0 0 1.5-3.8 1.7 1.7 0 0 1 1.2-2.9H18a3 3 0 0 0 3-3c0-4.6-4-8.3-9-8.3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="10" cy="7.3" r="1" fill="currentColor"/><circle cx="14.2" cy="7.8" r="1" fill="currentColor"/></symbol>
     <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
@@ -166,6 +167,7 @@
               <svg class="icon"><use href="#i-user"></use></svg>
               <input id="displayName" name="displayName" type="text" maxlength="32" autocomplete="nickname" placeholder="Ví dụ: Linh Nguyễn">
             </div>
+            <small class="field-note">Mỗi tên chỉ thuộc về một người — hãy chọn tên riêng của bạn.</small>
           </div>
           <div class="form-field">
             <label for="email">Địa chỉ email</label>
@@ -300,6 +302,7 @@
                 <span class="lock-chip" id="lockChip" hidden><svg class="icon"><use href="#i-lock"></use></svg><span>Đã khoá</span></span>
                 <button class="icon-button channel-lock-button" id="channelLockButton" type="button" title="Khoá kênh" aria-label="Khoá kênh" hidden><svg class="icon"><use href="#i-lock"></use></svg></button>
                 <button class="icon-button clear-channel-button" id="clearChannelButton" type="button" title="Xóa toàn bộ tin nhắn trong kênh" aria-label="Xóa toàn bộ tin nhắn trong kênh" hidden><svg class="icon"><use href="#i-trash"></use></svg></button>
+                <button class="icon-button delete-channel-button" id="deleteChannelButton" type="button" title="Xoá kênh này" aria-label="Xoá kênh này" hidden><svg class="icon"><use href="#i-channel-x"></use></svg></button>
                 <button class="icon-button" id="searchMessagesButton" type="button" title="Tìm tin nhắn" aria-label="Tìm tin nhắn" aria-expanded="false"><svg class="icon"><use href="#i-search"></use></svg></button>
                 <button class="icon-button" id="jumpLatestButton" type="button" title="Tin nhắn mới nhất" aria-label="Đi tới tin nhắn mới nhất"><svg class="icon"><use href="#i-clock"></use></svg></button>
               </div>
@@ -352,17 +355,6 @@
               <div class="typing-indicator" id="typingIndicator" role="status" aria-live="polite" hidden>
                 <span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span>
                 <span class="typing-text" id="typingText"></span>
-              </div>
-              <div class="sticker-bar" id="stickerBar" aria-label="Sticker mèo nhanh">
-                <span class="sticker-label"><svg class="icon"><use href="#i-paw"></use></svg>Miu gửi</span>
-                <button class="sticker-button" type="button" data-sticker="🐱" aria-label="Thêm mèo con">🐱</button>
-                <button class="sticker-button" type="button" data-sticker="😻" aria-label="Thêm mèo mắt trái tim">😻</button>
-                <button class="sticker-button" type="button" data-sticker="🐾" aria-label="Thêm dấu chân mèo">🐾</button>
-                <button class="sticker-button" type="button" data-sticker="😹" aria-label="Thêm mèo cười">😹</button>
-                <button class="sticker-button" type="button" data-sticker="🐈" aria-label="Thêm mèo">🐈</button>
-                <button class="sticker-button" type="button" data-sticker="💛" aria-label="Thêm trái tim vàng">💛</button>
-                <button class="sticker-button" type="button" data-sticker="✨" aria-label="Thêm lấp lánh">✨</button>
-                <button class="sticker-button" type="button" data-sticker="🌙" aria-label="Thêm mặt trăng">🌙</button>
               </div>
               <div class="reply-preview" id="replyPreview" hidden>
                 <svg class="icon"><use href="#i-reply"></use></svg>
@@ -690,6 +682,7 @@
   <script defer src="assets/js/features/account-deletion.js"></script>
   <script defer src="assets/js/features/identity-guard.js"></script>
   <script defer src="assets/js/features/identity-blocks.js"></script>
+  <script defer src="assets/js/features/name-guard.js"></script>
   <script defer src="assets/js/features/typing-indicator.js"></script>
   <script defer src="assets/js/features/cursor-fx.js"></script>
 

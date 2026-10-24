@@ -75,6 +75,74 @@ function updateActiveChannelUI() {
   syncChannelChrome();
 }
 
+/** Kênh hệ thống (phòng-chung, thông-báo) không cho xoá. */
+const PROTECTED_CHANNEL_IDS = ['general', 'thong-bao'];
+
+function canDeleteChannel(channelId) {
+  if (!channelId || PROTECTED_CHANNEL_IDS.includes(channelId)) return false;
+  const entry = channels[channelId];
+  return Boolean(entry && typeof entry === 'object' && !entry.system);
+}
+
+/**
+ * Xoá hẳn một kênh: dọn tin nhắn → ghim/khoá/đang nhập → rồi mới xoá kênh.
+ * Thứ tự này quan trọng: Rules xoá tin nhắn yêu cầu /channels/<id> còn tồn tại.
+ */
+async function deleteActiveChannel() {
+  if (!isAdmin || !currentUser || !channelsRef) {
+    toast('Chỉ quản trị viên được xoá kênh.', 'error');
+    return;
+  }
+  const channelId = activeChannelId;
+  if (!canDeleteChannel(channelId)) {
+    toast('Kênh hệ thống (#phòng-chung, #thông-báo) không thể xoá.', 'info');
+    return;
+  }
+  if (isSendingMessage) {
+    toast('Đợi tin nhắn đang gửi xong rồi mới xoá kênh nhé.', 'info');
+    return;
+  }
+  const name = channelNameFor(channelId);
+  const messageCount = activeChannelId === channelId ? messages.size : 0;
+  const result = await openConfirm({
+    title: `Xoá #${name}?`,
+    description: `Toàn bộ tin nhắn trong kênh (khoảng ${messageCount} tin đang hiển thị) sẽ bị xoá vĩnh viễn với mọi thành viên, sau đó kênh biến mất khỏi danh sách. Thao tác này không thể hoàn tác.`,
+    acceptLabel: 'Xoá kênh', tone: 'danger', reason: true, iconName: 'channel-x'
+  });
+  if (!result) return;
+  const user = currentUser;
+  try {
+    // 1) Tin nhắn + reaction của kênh.
+    const channelMessagesRef = database.ref(`channelMessages/${channelId}`);
+    const snapshot = await channelMessagesRef.once('value');
+    const ids = [];
+    snapshot.forEach((child) => ids.push(child.key));
+    await channelMessagesRef.remove();
+    for (let index = 0; index < ids.length; index += 100) {
+      const chunk = ids.slice(index, index + 100);
+      await Promise.allSettled(chunk.map((id) => messageReactionsRef.child(id).remove()));
+    }
+    // 2) Trạng thái phụ của kênh (ghim, khoá, đang nhập) — lỗi ở đây không chặn bước 3.
+    await Promise.allSettled([
+      pinsRef ? pinsRef.child(channelId).remove() : Promise.resolve(),
+      locksRef ? locksRef.child(channelId).remove() : Promise.resolve(),
+      typingRef ? typingRef.child(channelId).remove() : Promise.resolve()
+    ]);
+    // 3) Bản ghi kênh — listener /channels sẽ tự đưa mọi người về phòng-chung.
+    await channelsRef.child(channelId).remove();
+    delete channels[channelId];
+    if (currentUser?.uid === user.uid && activeChannelId === channelId) {
+      await switchChannel('general', { skipConfirm: true, force: true });
+    }
+    renderChannelList();
+    renderAdminPanel();
+    void logAdminAction('channel', `Xoá kênh #${name} (${ids.length} tin nhắn)${result.reason ? ` · ${result.reason}` : ''}`);
+    toast(`Đã xoá #${name}.`, 'success');
+  } catch (error) {
+    showDatabaseError(error, 'Không thể xoá kênh. Kiểm tra quyền ghi /channels và /channelMessages trong Firebase Rules.');
+  }
+}
+
 function openChannelDialog() {
   if (!isAdmin || !currentUser) {
     toast('Chỉ quản trị viên được cấp quyền trên Firebase mới có thể tạo kênh.', 'error');

@@ -348,9 +348,11 @@ function buildMessageNode(id, data, grouped = false) {
     CatChat.features.run('messageTools', meta, { id, data });
     if (canEditNow) meta.appendChild(makeMessageTool('edit', 'Sửa tin nhắn', { editMessage: id }));
     if (isAdmin) meta.appendChild(makeMessageTool('pin', isPinned ? 'Bỏ ghim tin nhắn' : 'Ghim tin nhắn', { pinMessage: id }));
+    // Tên luôn nằm sát avatar ở dòng đầu; trích dẫn trả lời đặt DƯỚI tên
+    // (nếu đặt trên, tên bị đẩy xuống và trông rời khỏi avatar).
+    content.appendChild(meta);
     const quote = makeReplyQuote(data);
     if (quote) content.appendChild(quote);
-    content.appendChild(meta);
     const imageURL = safeImageUrl(data.imageURL || '');
     if (imageURL) {
       const link = document.createElement('a');

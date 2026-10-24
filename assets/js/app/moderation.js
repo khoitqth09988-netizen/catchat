@@ -230,6 +230,14 @@ function syncChannelChrome() {
     const use = lockButton.querySelector('use');
     if (use) use.setAttribute('href', locked ? '#i-unlock' : '#i-lock');
   }
+  const deleteButton = $('#deleteChannelButton');
+  if (deleteButton) {
+    // Chỉ hiện ở kênh người dùng tạo và khi là admin; kênh hệ thống không xoá được.
+    const deletable = isAdmin && !announcementMode && canDeleteChannel(activeChannelId);
+    deleteButton.hidden = !deletable;
+    deleteButton.title = deletable ? `Xoá #${channelNameFor(activeChannelId)}` : 'Kênh hệ thống không thể xoá';
+    deleteButton.setAttribute('aria-label', deleteButton.title);
+  }
   els.appView.classList.toggle('channel-locked', locked);
   renderPinnedBanner();
 }
