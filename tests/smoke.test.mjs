@@ -113,7 +113,9 @@ function buildDom() {
     /<script defer src="assets\/js\/app\/config\.js"><\/script>/,
     `${FIREBASE_STUB}\n  <script defer src="assets/js/app/config.js"></script>`
   );
-  html = html.replace(/<script defer src="(assets\/js\/[^"]+)"><\/script>/g, (_, src) => {
+  // Inline cả script không defer (ui-mode.js chạy ngay trong <head>) để kiểm tra
+  // đúng đường tải trang thật.
+  html = html.replace(/<script(?: defer)? src="(assets\/js\/[^"]+)"><\/script>/g, (_, src) => {
     const code = readFileSync(path.join(ROOT, src), 'utf8').replace(/<\/script>/g, '<\\/script>');
     return `<script>/* ${src} */\n${code}\n</script>`;
   });
@@ -300,6 +302,43 @@ check('ô soạn tin thiếu autocapitalize', composerInput.getAttribute('autoca
 for (const id of ['messageSearchInput', 'directorySearchInput', 'adminMemberSearch', 'adminMessageSearch']) {
   check(`#${id} thiếu enterkeyhint="search"`, doc.getElementById(id)?.getAttribute('enterkeyhint') === 'search');
 }
+
+/* ── 6c. Chọn giao diện theo thiết bị ──────────────────────── */
+check('ui-mode chưa gắn data-ui lên <html>', ['desktop', 'mobile'].includes(doc.documentElement.dataset.ui), String(doc.documentElement.dataset.ui));
+check('trình duyệt 1024px không cảm ứng phải là desktop', doc.documentElement.dataset.ui, 'desktop');
+check('máy tính không được hiện thanh tab mobile', doc.getElementById('mobileTabbar').hidden, true);
+check('máy tính không được dựng lớp mờ mobile', doc.getElementById('mobileScrim').hidden, true);
+check('thiếu nút tab mobile', doc.querySelectorAll('#mobileTabbar [data-mobile-tab]').length, 4);
+check('bảng cài đặt mobile thiếu nút Giao diện', Boolean(doc.querySelector('[data-mobile-action="theme"]')));
+
+/* ── 6d. Chuyển sang chế độ mobile ngay trong trang thật ───── */
+const mobile = window.eval(`(() => {
+  const root = document.documentElement;
+  root.dataset.ui = 'mobile';
+  document.getElementById('appView').hidden = false;
+  CatChatMobileUI.refresh();
+  const tabbar = document.getElementById('mobileTabbar');
+  const scrim = document.getElementById('mobileScrim');
+  const shown = !tabbar.hidden && getComputedStyle(tabbar).display === 'grid';
+  tabbar.querySelector('[data-mobile-tab="channels"]').click();
+  const opened = root.dataset.mobileSheet === 'channels' && !scrim.hidden;
+  const computed = getComputedStyle(document.querySelector('.sidebar')).position;
+  scrim.click();
+  const closed = !root.dataset.mobileSheet && scrim.hidden;
+  root.dataset.ui = 'desktop';
+  CatChatMobileUI.refresh();
+  return { shown, opened, closed, computed, hiddenOnDesktop: tabbar.hidden };
+})()`);
+check('chế độ mobile không hiện thanh tab', mobile.shown, true);
+check('bấm tab Kênh không mở ngăn kéo', mobile.opened, true);
+check('ngăn kéo kênh không phải position fixed', mobile.computed, 'fixed');
+check('bấm lớp mờ không đóng ngăn kéo', mobile.closed, true);
+check('quay lại desktop không ẩn thanh tab', mobile.hiddenOnDesktop, true);
+
+/* ── 6e. Lỗi gốc: keydown không kèm event.key ───────────────── */
+window.eval("document.dispatchEvent(new Event('keydown'))");
+const featureFailures = window.eval('JSON.stringify(CatChat.features.failures())');
+check('keydown thiếu event.key làm hỏng tính năng', !featureFailures.includes('keydown'), featureFailures.slice(0, 300));
 
 /* ── 7. Không lỗi runtime ───────────────────────────────────── */
 check('lỗi runtime trong app', (window.__errors || []).length === 0, JSON.stringify((window.__errors || []).slice(0, 2)));

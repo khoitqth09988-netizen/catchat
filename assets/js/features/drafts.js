@@ -156,7 +156,12 @@
       restoreDraft(channelId);
     },
     keydown(event) {
-      if (event.key.toLowerCase() !== 'd' || !event.altKey || event.ctrlKey || event.metaKey) return false;
+      // Trên một số bàn phím Android / bộ gõ tiếng Việt, sự kiện keydown có thể
+      // không kèm event.key (IME trả mã 229) ⇒ phải đọc an toàn, nếu không sẽ
+      // ném TypeError mỗi lần gõ phím.
+      if (event.isComposing) return false;
+      const key = typeof event.key === 'string' ? event.key.toLowerCase() : '';
+      if (key !== 'd' || !event.altKey || event.ctrlKey || event.metaKey) return false;
       const target = event.target;
       const typing = target instanceof Element && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
       if (typing) return false;

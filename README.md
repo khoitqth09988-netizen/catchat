@@ -76,6 +76,8 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   viewport.js                  Bàn phím ảo, vùng an toàn, đổi kích thước / xoay ngang
   cursor-fx.js                 Hiệu ứng con trỏ: di chuyển, bấm, cuộn (có công tắc Tắt/Nhẹ/Đầy đủ)
   pwa.js                       Đăng ký Service Worker + manifest (cài như app)
+  ui-mode.js                   Chọn giao diện theo thiết bị (chạy trước lần vẽ đầu)
+  mobile-ui.js                 Thanh tab, ngăn kéo kênh, bảng cài đặt của giao diện mobile
   media.js                     Trạng thái Storage: có thì upload, không thì dán liên kết ảnh
 functions/                     Cloud Functions: xoá tài khoản Auth, lấy mã IP, tự khoá định danh
   package.json                 Khai báo phụ thuộc + engines Node 22 (bắt buộc để deploy được)
@@ -85,7 +87,7 @@ manifest.webmanifest           PWA: tên, icon, màu, chế độ standalone
 sw.js                          Service Worker: shell network-first, cache-bust theo VERSION
 assets/icons/                  Icon PWA 192/512/maskable + apple-touch-icon
 scripts/verify.mjs             Kiểm tra trước khi deploy (chạy: node scripts/verify.mjs)
-tests/                         rules.test.mjs (mô phỏng Rules) + smoke.test.mjs (jsdom)
+tests/                         Rules + cascade CSS mobile + nhận diện thiết bị + giao diện mobile + smoke (jsdom)
 .github/workflows/deploy.yml   CI: kiểm tra tĩnh, deploy Firebase Hosting nếu có secret
 SECURITY.md                    Checklist bảo mật: App Check, Rules, quota, CSP
 ROADMAP.md                     Lộ trình full stack: đã xong gì, còn gì
@@ -279,6 +281,40 @@ vào 17 file CSS cũ.
   `@supports (-webkit-touch-callout: none)`, áp cho cả màn hình ≤760px kể cả iPhone nằm ngang).
 - Máy yếu vẫn nhẹ: ở ≤640px mọi `backdrop-filter` đã bị bỏ từ trước, file này không thêm animation mới.
 
+## Giao diện app riêng cho điện thoại (`data-ui="mobile"`)
+
+Máy tính vẫn dùng giao diện cũ. Điện thoại / máy tính bảng cảm ứng nhận **một giao diện khác hẳn**,
+dựng trên chính các phần tử cũ nên mọi tính năng (realtime, quản trị, bản nháp, thông báo, tìm kiếm,
+ghim, tệp đính kèm…) giữ nguyên.
+
+- **Nhận diện lúc tải trang**: `assets/js/app/ui-mode.js` nạp ngay trong `<head>` (không `defer`), gắn
+  `data-ui="mobile"` hoặc `"desktop"` lên `<html>` **trước lần vẽ đầu** nên không bị nhấp nháy đổi bố cục.
+  Điều kiện: màn hình ≤ 760px, hoặc con trỏ chính là cảm ứng và ≤ 1024px, hoặc có điểm chạm và ≤ 820px.
+  Ép thử bằng `?ui=mobile` / `?ui=desktop`. Xoay ngang hay đổi kích thước cửa sổ sẽ tự tính lại.
+- **Bố cục mobile** (`assets/css/mobile-app.css`, nạp cuối): thanh trên 56px (tên kênh + công cụ, chừa tai thỏ),
+  vùng tin nhắn chiếm phần còn lại, ô soạn tin neo ngay trên **thanh tab 4 mục** ở đáy:
+  `Kênh · Trò chuyện · Thành viên · Cài đặt`.
+- **Kênh**: ngăn kéo trượt từ trái = `#sidebar` gốc, hiện lại đầy đủ chữ và danh sách kênh (bản ≤1080px
+  trước đây chỉ có dải icon). Chọn kênh xong ngăn kéo tự đóng.
+- **Thành viên**: tab mở danh bạ toàn màn hình (`#directoryPanel`) — có tìm kiếm, lọc trực tuyến/bị cấm.
+- **Cài đặt**: bảng trượt từ đáy gom Giao diện & cỡ chữ, Bảng quản trị (chỉ admin), Tin nhắn đã lưu,
+  Thông báo toàn máy chủ, Miu, trạng thái kết nối và Đăng xuất — tất cả **bấm hộ lại đúng nút cũ**,
+  không nhân bản logic. Nút Back của Android / phím Esc đóng bảng trước khi rời trang.
+- **An toàn cho giao diện cũ**: *mọi* luật trong `mobile-app.css` bắt đầu bằng `html[data-ui="mobile"]`;
+  `scripts/verify.mjs` kiểm tra điều này nên không thể vô tình làm lệch giao diện máy tính.
+- **Màu**: dùng biến `--theme-*` nên hoà với cả 5 bảng màu (light / dark / lavender / ocean / halloween).
+- Thanh tab tự ẩn khi bàn phím ảo mở (nhường chỗ cho ô soạn tin), khi ở màn hình đăng nhập, và nằm dưới
+  các lớp hộp thoại có sẵn (đã lưu, hồ sơ, quản trị, xác nhận) để không đè lên nút bấm.
+
+### Hai lỗi đã sửa trong đợt này
+
+- `<meta name="apple-mobile-web-app-capable">` bị Chrome cảnh báo lỗi thời ⇒ thêm
+  `<meta name="mobile-web-app-capable" content="yes">` và vẫn giữ bản Apple cho iOS.
+- `assets/js/features/drafts.js` ném `TypeError: Cannot read properties of undefined (reading 'toLowerCase')`
+  mỗi lần `keydown` không có `event.key` (bộ gõ tiếng Việt / bàn phím Android trả mã 229). Nay đọc
+  `event.key` an toàn và bỏ qua `event.isComposing`. Cùng lỗi tiềm ẩn đã vá ở `shortcuts.js`,
+  `command-palette.js` và `events.js` (Ctrl/Cmd + K).
+
 ## Trạng thái trực tuyến & hồ sơ thành viên
 
 - `assets/js/app/presence.js` là nguồn duy nhất trả lời “ai đang online” (`isUserOnline`, `onlineMemberCount`).
@@ -468,11 +504,18 @@ cd tests && npm install && npm test   # thêm smoke test giao diện bằng jsdo
 - `tests/smoke.test.mjs` dựng lại `index.html` trong bộ nhớ (CSS/JS thật + Firebase giả **không có
   Storage**) để kiểm menu `⋯`, phân quyền admin/thường, thông báo toàn máy chủ, chế độ dán ảnh
   bằng liên kết, gửi tin kèm `imageURL`, và bắt lỗi runtime.
-- `tests/mobile.test.mjs` tự đánh giá `@media` + specificity trên 19 tệp CSS ở 3 khổ màn hình
+- `tests/mobile.test.mjs` tự đánh giá `@media` + specificity trên 20 tệp CSS ở 3 khổ màn hình
   (390px cảm ứng, 820px iPad, 1280px chuột) để chắc rằng rule mobile **thực sự thắng**:
   chữ tin nhắn 15px, ô soạn tin 16px, mục menu 44px, nút `⋯` hiện trên iPad, desktop không đổi.
-- Cả ba chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
-  chạy `verify` + `rules`, job **Smoke test giao diện** cài jsdom rồi chạy `smoke`.
+  Test cũng chốt rằng **mọi** luật của `mobile-app.css` nằm trong `html[data-ui="mobile"]`, thanh tab
+  dùng `grid`, ngăn kéo kênh `fixed`, và giao diện máy tính không dính luật mobile nào.
+- `tests/ui-mode.test.mjs` kiểm bộ nhận diện thiết bị: 360/390px cảm ứng → `mobile`, iPad 1024px cảm ứng
+  → `mobile`, laptop 1280px và laptop cảm ứng 1100px → `desktop`; `?ui=desktop` / `?ui=mobile` ép được.
+- `tests/mobile-ui.test.mjs` dựng DOM tối thiểu rồi bấm thử: mở/đóng ngăn kéo, aria-expanded, lớp mờ,
+  Esc, chọn kênh tự đóng, các mục trong bảng cài đặt gọi đúng nút cũ, phản chiếu trạng thái kết nối,
+  ẩn thanh tab khi đăng xuất và khi chuyển sang giao diện máy tính.
+- Cả bốn chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
+  chạy `verify` + `rules`, job **Kiểm thử giao diện (jsdom)** cài jsdom rồi chạy `npm test`.
 
 ### Firebase Emulator (chạy full stack ở máy)
 

@@ -262,7 +262,8 @@
     keydown(event) {
       if (!currentUser) return false;
       const typing = event.target instanceof Element && (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA');
-      if (event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'k' && !typing) {
+      const key = typeof event.key === 'string' ? event.key.toLowerCase() : '';
+      if (event.altKey && !event.ctrlKey && !event.metaKey && key === 'k' && !typing) {
         event.preventDefault();
         setOpen(true);
         return true;

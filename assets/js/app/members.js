@@ -198,7 +198,11 @@ function setWorkspaceView(view) {
     renderDirectory();
     window.setTimeout(() => $('#directorySearchInput')?.focus({ preventScroll: true }), 60);
   } else {
-    if (window.matchMedia('(max-width: 760px)').matches) els.messageInput.focus({ preventScroll: true });
+    // Giao diện mobile mới: bấm tab "Trò chuyện" không tự bật bàn phím ảo
+    // (bàn phím sẽ che nửa màn hình); người dùng chạm vào ô soạn tin khi cần.
+    if (window.matchMedia('(max-width: 760px)').matches && document.documentElement.dataset.ui !== 'mobile') {
+      els.messageInput.focus({ preventScroll: true });
+    }
   }
 }
 

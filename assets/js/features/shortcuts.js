@@ -131,7 +131,7 @@
           stepChannel(1);
           return true;
         }
-        const key = event.key.toLowerCase();
+        const key = typeof event.key === 'string' ? event.key.toLowerCase() : '';
         if (key === 's') {
           event.preventDefault();
           openSavedPanel();
