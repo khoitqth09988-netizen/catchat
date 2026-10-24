@@ -1,0 +1,146 @@
+/* CatChat · Bố cục gọn kiểu Discord (nạp sau polish.css, trước mobile.css).
+   Mục tiêu: cùng một lượng thông tin nhưng ít khoảng trống hơn, mắt đọc nhanh hơn,
+   và bớt hiệu ứng đắt tiền (backdrop-filter diện tích lớn) để cuộn mượt hơn.
+
+   Nguyên tắc:
+     • Chỉ đổi KÍCH THƯỚC / MẬT ĐỘ, không đổi bảng màu — mọi theme vẫn đúng.
+     • Màn hình ≥1081px dùng mật độ gọn nhất (sidebar + danh sách thành viên + chat).
+     • ≤1080px và ≤560px do mobile.css quyết định (file này nạp trước mobile.css).
+     • Không thêm animation mới; chỉ rút ngắn vài chuyển cảnh đã có. */
+
+/* ─────────────── 1. Cột & khung ─────────────── */
+.app-shell { grid-template-columns: 228px minmax(0, 1fr); }
+.sidebar { padding: 16px 12px 12px; }
+.main-layout { grid-template-rows: 58px minmax(0, 1fr); }
+.content-grid { grid-template-columns: minmax(0, 1fr) 264px; }
+.right-panel { padding: 12px 12px 10px; }
+
+/* Blur trên diện tích lớn (sidebar) là thứ tốn GPU nhất khi cuộn;
+   nền sidebar vốn đã đục nên bỏ blur gần như không thấy khác biệt. */
+.sidebar {
+  background: color-mix(in srgb, var(--theme-sidebar, #141018) 96%, transparent);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.topbar {
+  gap: 12px;
+  padding: 0 18px;
+  backdrop-filter: blur(8px) saturate(130%);
+  -webkit-backdrop-filter: blur(8px) saturate(130%);
+}
+
+.topbar-heading h1 { font-size: 15px; }
+.breadcrumbs { font-size: 8px; letter-spacing: .13em; }
+.topbar-actions { gap: 6px; }
+.topbar-button { min-height: 30px; gap: 6px; padding: 0 9px; border-radius: 9px; font-size: 9.5px; }
+.topbar-button .icon { width: 14px; height: 14px; }
+.connection-pill { min-height: 28px; padding: 0 9px; font-size: 9px; }
+.role-pill { min-height: 28px; padding: 0 9px; font-size: 9px; }
+
+/* ─────────────── 2. Thanh kênh ─────────────── */
+.channel-toolbar { min-height: 54px; gap: 10px; padding: 7px 18px; }
+.channel-symbol { width: 32px; height: 32px; border-radius: 10px; font-size: 13px; }
+.channel-title-group { gap: 10px; }
+.channel-title-copy h2 { font-size: 13px; }
+.channel-title-copy p { font-size: 9px; }
+.channel-tools { gap: 4px; }
+.icon-button { width: 30px; height: 30px; border-radius: 8px; }
+.icon-button .icon { width: 15px; height: 15px; }
+
+/* ─────────────── 3. Danh sách tin nhắn ─────────────── */
+.messages-area { gap: 8px; padding: 14px 18px 12px; }
+.message-row { max-width: min(86%, 720px); gap: 8px; }
+.message-avatar { width: 28px; height: 28px; border-radius: 9px; font-size: 8.5px; }
+.message-meta { gap: 6px; margin-bottom: 2px; }
+.message-meta strong { font-size: 10px; }
+.message-meta time, .message-meta span { font-size: 8px; }
+.message-bubble {
+  padding: 7px 10px;
+  border-radius: 4px 11px 11px 11px;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+.message-row.mine .message-bubble { border-radius: 11px 4px 11px 11px; }
+.message-row.is-grouped { margin-top: -3px; }
+.date-divider { padding: 2px 0; }
+.date-divider span { font-size: 8px; padding: 3px 9px; }
+.load-older-button { margin: 0 auto 4px; }
+
+/* Tin nhắn cuối cùng không bị khung soạn tin che khi cuộn tới đáy */
+.messages-area::after { display: block; height: 2px; content: ""; }
+
+/* ─────────────── 4. Khung soạn tin ─────────────── */
+.composer-wrap { padding: 8px 16px 10px; }
+.composer-box {
+  gap: 7px;
+  padding: 6px 7px 6px 11px;
+  border-radius: 12px;
+}
+.attach-button { width: 28px; height: 30px; }
+.send-button { width: 32px; height: 32px; border-radius: 9px; }
+.composer-box textarea { min-height: 22px; max-height: 96px; font-size: 10.5px; line-height: 1.5; }
+.composer-hint { margin: 5px 2px 0; font-size: 7.5px; }
+.sticker-bar { gap: 5px; margin-bottom: 6px; }
+.sticker-button { width: 26px; height: 26px; border-radius: 8px; font-size: 13px; }
+.reply-preview, .pending-image-preview { margin-bottom: 6px; padding: 6px 8px; }
+.typing-indicator { margin-bottom: 4px; }
+
+/* ─────────────── 5. Cột thành viên & sidebar ─────────────── */
+.server-card { padding: 11px 12px 10px; border-radius: 12px; }
+.server-card h2 { margin: 7px 0 3px; font-size: 13px; }
+.server-card p { font-size: 9px; line-height: 1.5; }
+.server-stats { gap: 8px; margin-top: 9px; }
+.member-list { padding: 0 1px 4px; }
+.member-row { gap: 8px; padding: 5px 6px; border-radius: 9px; }
+.member-row .avatar { width: 26px; height: 26px; border-radius: 9px; font-size: 8px; }
+.member-row strong { font-size: 10px; }
+.member-row small, .member-row .member-meta { font-size: 8px; }
+.panel-heading { padding: 8px 2px 6px; }
+.members-footer { padding: 8px 0 2px; font-size: 8px; }
+
+.nav-link { min-height: 34px; padding: 0 10px; border-radius: 9px; font-size: 10px; }
+.nav-link .icon { width: 16px; height: 16px; }
+.side-nav { gap: 2px; margin-top: 12px; }
+.side-label { margin: 14px 0 5px; font-size: 7.5px; }
+.channel-link { min-height: 28px; padding: 0 9px; border-radius: 8px; font-size: 10px; }
+.channel-section-title { padding: 5px 4px; font-size: 7.5px; }
+.workspace-switch { padding: 7px 8px; border-radius: 11px; }
+.sidebar-tip { padding: 9px 10px; }
+.profile-chip { padding-top: 9px; }
+.profile-chip .avatar { width: 34px; height: 34px; border-radius: 11px; }
+
+/* ─────────────── 6. Bảng quản trị ─────────────── */
+.admin-drawer { width: min(520px, 100%); }
+.admin-header { padding: 14px 18px 12px; }
+.admin-tabs { padding: 8px 14px 0; gap: 2px; }
+.admin-tab { min-height: 34px; padding: 0 10px; font-size: 9.5px; }
+.admin-body { padding: 12px 16px 18px; }
+.admin-list { gap: 5px; }
+.admin-member-row { padding: 6px 7px; border-radius: 9px; }
+.admin-stat-card { padding: 9px 10px; }
+.admin-overview-card { padding: 9px 10px; }
+
+/* ─────────────── 7. Mật độ chữ & tiện ích ─────────────── */
+.toast-region { width: min(340px, calc(100vw - 28px)); }
+.toast { padding: 9px 11px; font-size: 9.5px; border-radius: 11px; }
+.profile-hero { padding: 26px 22px 16px; }
+.profile-facts { padding: 2px 18px 8px; }
+.profile-fact { padding: 8px 2px; }
+.profile-actions { padding: 4px 18px 18px; }
+
+/* ─────────────── 8. Chuyển cảnh ngắn hơn = cảm giác nhanh hơn ─────────────── */
+:root {
+  --cc-motion-mult: 0.82;
+}
+.app-view, .message-row, .toast { animation-duration: .22s; }
+.member-row, .channel-link, .nav-link, .topbar-button, .icon-button { transition-duration: .13s; }
+
+/* Tôn trọng tuỳ chọn giảm chuyển động (guard giống các file khác) */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .app-view,
+  html:not([data-motion="full"]) .message-row,
+  html:not([data-motion="full"]) .toast {
+    animation-duration: .01ms;
+  }
+}

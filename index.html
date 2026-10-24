@@ -40,6 +40,8 @@
   <link rel="stylesheet" href="assets/css/polish.css">
   <link rel="stylesheet" href="assets/css/halloween-night.css">
   <link rel="stylesheet" href="assets/css/motion.css">
+  <!-- Bố cục gọn kiểu Discord: mật độ dày hơn, ít blur diện tích lớn -->
+  <link rel="stylesheet" href="assets/css/compact.css">
   <!-- Tối ưu điện thoại / thu nhỏ cửa sổ: nạp cuối để phủ mọi breakpoint cũ -->
   <link rel="stylesheet" href="assets/css/mobile.css">
 </head>
@@ -463,6 +465,7 @@
         <button class="admin-tab" id="adminMembersTabButton" type="button" role="tab" aria-selected="false" data-tab="members"><svg class="icon"><use href="#i-users"></use></svg>Thành viên <span class="admin-tab-count" id="adminTabMemberCount">0</span></button>
         <button class="admin-tab" id="adminMessagesTabButton" type="button" role="tab" aria-selected="false" data-tab="messages"><svg class="icon"><use href="#i-trash"></use></svg>Tin nhắn <span class="admin-tab-count" id="adminTabMessageCount">0</span></button>
         <button class="admin-tab" id="adminAnnouncementsTabButton" type="button" role="tab" aria-selected="false" data-tab="announcements"><svg class="icon"><use href="#i-megaphone"></use></svg>Thông báo</button>
+        <button class="admin-tab" id="adminBlocksTabButton" type="button" role="tab" aria-selected="false" data-tab="blocks"><svg class="icon"><use href="#i-ban"></use></svg>Chặn vĩnh viễn <span class="admin-tab-count" id="adminTabBlockCount">0</span></button>
       </div>
       <div class="admin-body" id="adminOverviewTab" role="tabpanel">
         <div class="admin-overview-hero">
@@ -485,6 +488,7 @@
           <button class="admin-quick" id="adminQuickMessages" type="button"><svg class="icon"><use href="#i-trash"></use></svg><span>Kiểm duyệt tin nhắn</span></button>
           <button class="admin-quick" id="adminQuickExport" type="button"><svg class="icon"><use href="#i-download"></use></svg><span>Xuất dữ liệu kênh</span></button>
           <button class="admin-quick" id="adminQuickMuted" type="button"><svg class="icon"><use href="#i-mute"></use></svg><span>Danh sách cấm chat</span></button>
+          <button class="admin-quick" id="adminQuickBlocks" type="button"><svg class="icon"><use href="#i-ban"></use></svg><span>Chặn vĩnh viễn</span></button>
         </div>
         <div class="admin-muted-block">
           <div class="admin-block-heading"><h4>Đang bị cấm chat</h4><span id="adminMutedCountLabel">0 người</span></div>
@@ -527,6 +531,34 @@
         <div class="announcement-list-heading">Thông báo gần đây <span>Chọn thùng rác để xóa</span></div>
         <div id="adminAnnouncementList"><div class="admin-empty">Chưa có thông báo nào.</div></div>
         <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Thông báo sẽ xuất hiện trong phòng chung của mọi thành viên. Chỉ UID có quyền admin trên Firebase mới được gửi hoặc xóa; Security Rules phải từ chối ghi kind=announcement từ thành viên thường.</span></p>
+      </div>
+      <div class="admin-body" id="adminBlocksTab" role="tabpanel" hidden>
+        <div class="admin-message-head">
+          <div><h3>Chặn vĩnh viễn</h3><p id="identityStatusLine">Đang đọc dữ liệu định danh…</p></div>
+          <button class="admin-log-clear" id="identityRefreshButton" type="button">Làm mới</button>
+        </div>
+        <form class="identity-ban-form" id="identityBanForm" autocomplete="off">
+          <label class="identity-ban-field"><span>Loại</span>
+            <select id="identityBanKind" aria-label="Chọn loại chặn">
+              <option value="device">Thiết bị</option>
+              <option value="ip">Địa chỉ IP</option>
+            </select>
+          </label>
+          <label class="identity-ban-field grow"><span>Mã cần chặn</span>
+            <input id="identityBanHash" type="text" maxlength="64" placeholder="Mở hồ sơ thành viên để sao chép mã thiết bị / mã IP" aria-label="Mã thiết bị hoặc mã IP">
+          </label>
+          <label class="identity-ban-field grow"><span>Lý do</span>
+            <input id="identityBanReason" type="text" maxlength="160" placeholder="Ví dụ: spam, tạo nhiều tài khoản…" aria-label="Lý do chặn">
+          </label>
+          <button class="admin-danger-button" id="identityBanSubmit" type="submit"><svg class="icon"><use href="#i-ban"></use></svg>Chặn vĩnh viễn</button>
+        </form>
+        <div class="admin-block-heading"><h4>Thiết bị bị chặn</h4><span id="deviceBanCount">0</span></div>
+        <div class="admin-list identity-list" id="deviceBanList"><div class="admin-empty">Chưa chặn thiết bị nào.</div></div>
+        <div class="admin-block-heading"><h4>IP bị chặn</h4><span id="ipBanCount">0</span></div>
+        <div class="admin-list identity-list" id="ipBanList"><div class="admin-empty">Chưa chặn IP nào.</div></div>
+        <div class="admin-block-heading"><h4>Khoá tự động (vượt hạn mức)</h4><span id="identityLockCount">0</span></div>
+        <div class="admin-list identity-list" id="identityLockList"><div class="admin-empty">Không có định danh nào bị khoá tự động.</div></div>
+        <p class="admin-info"><svg class="icon"><use href="#i-info"></use></svg><span>Quá <strong>2 tài khoản</strong> trên cùng thiết bị/IP, hệ thống tự khoá toàn bộ định danh đó và dọn dữ liệu. Trình duyệt không tự biết IP công cộng: muốn chặn IP thật, deploy Cloud Function <code>getClientIdentity</code> rồi bật <code>enableIdentityFunction</code> trong config.js. Rules vẫn là nơi quyết định quyền ghi thật.</span></p>
       </div>
     </aside>
   </div>
@@ -656,6 +688,8 @@
   <script defer src="assets/js/features/anti-flood.js"></script>
   <script defer src="assets/js/features/login-guard.js"></script>
   <script defer src="assets/js/features/account-deletion.js"></script>
+  <script defer src="assets/js/features/identity-guard.js"></script>
+  <script defer src="assets/js/features/identity-blocks.js"></script>
   <script defer src="assets/js/features/typing-indicator.js"></script>
   <script defer src="assets/js/features/cursor-fx.js"></script>
 

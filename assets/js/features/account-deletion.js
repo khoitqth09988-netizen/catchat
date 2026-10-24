@@ -294,25 +294,22 @@
     }
   }
 
-  async function deleteMemberAccount(uid) {
-    if (!isAdmin) {
-      toast('Chỉ quản trị viên được xoá tài khoản.', 'error');
-      return;
+  /**
+   * Xoá một tài khoản khỏi hệ thống, KHÔNG hỏi lại — dùng cho cả hộp thoại xoá tay
+   * và cho tính năng tự khoá khi một thiết bị/IP tạo quá số tài khoản cho phép.
+   * Trả về bảng tóm tắt để nơi gọi tự quyết định có hiện toast hay không.
+   */
+  async function purgeAccount(uid, options = {}) {
+    if (!uid || !currentUser) return null;
+    // Không bao giờ dọn nhầm tài khoản quản trị (áp dụng cho cả xoá hàng loạt).
+    if (uid !== currentUser.uid && await isAdminAccount(uid)) {
+      console.warn('Bỏ qua tài khoản quản trị khi dọn dữ liệu:', uid);
+      return null;
     }
-    if (!uid || !currentUser) return;
-    if (uid === currentUser.uid) {
-      toast('Bạn không thể xoá tài khoản đang đăng nhập.', 'error');
-      return;
-    }
+    const removeMessages = options.removeMessages === true;
+    const removeReactions = options.removeReactions !== false;
+    const reason = String(options.reason || 'Tài khoản đã bị quản trị viên xoá khỏi hệ thống.').slice(0, 180);
     const info = accountLabel(uid);
-    if (await isAdminAccount(uid)) {
-      toast(`${info.name} đang là quản trị viên — hạ quyền admin trước khi xoá tài khoản.`, 'error');
-      return;
-    }
-
-    const answer = await openDialog(uid);
-    if (!answer?.confirmed) return;
-    const { removeMessages, removeReactions } = answer.options;
 
     const summary = { data: 0, reactions: 0, messages: 0, auth: null, failed: [] };
     const attempt = async (label, task) => {
@@ -336,10 +333,11 @@
       authDeleted: false
     }));
     await attempt('cấm truy cập', () => bansRef.child(uid).set({
-      reason: 'Tài khoản đã bị quản trị viên xoá khỏi hệ thống.',
+      reason,
       bannedBy: currentUser.uid,
       bannedAt: currentTimestamp(),
-      deleted: true
+      deleted: true,
+      permanent: true
     }));
 
     // 3) Dữ liệu hồ sơ
@@ -368,7 +366,7 @@
     delete memberEmails[uid];
     delete presence[uid];
     delete mutes[uid];
-    bans[uid] = { reason: 'Tài khoản đã bị quản trị viên xoá khỏi hệ thống.', deleted: true };
+    bans[uid] = { reason, deleted: true, permanent: true };
     if (removeMessages) {
       Array.from(messages.entries()).filter(([, data]) => data?.uid === uid).forEach(([id]) => messages.delete(id));
     }
@@ -378,12 +376,38 @@
     renderAllMessages(false);
     updateMessageComposer();
 
-    void logAdminAction('deleteAccount', `Xoá tài khoản ${info.name}${info.email ? ` (${info.email})` : ''} · UID ${uid}`, uid);
+    if (options.log !== false) {
+      void logAdminAction('deleteAccount', `Xoá tài khoản ${info.name}${info.email ? ` (${info.email})` : ''} · UID ${uid}`, uid);
+    }
+    return summary;
+  }
+
+  /** Đường dẫn có hộp thoại xác nhận (giữ nguyên hành vi cũ). */
+  async function deleteMemberAccount(uid) {
+    if (!isAdmin) {
+      toast('Chỉ quản trị viên được xoá tài khoản.', 'error');
+      return;
+    }
+    if (!uid || !currentUser) return;
+    if (uid === currentUser.uid) {
+      toast('Bạn không thể xoá tài khoản đang đăng nhập.', 'error');
+      return;
+    }
+    const info = accountLabel(uid);
+    if (await isAdminAccount(uid)) {
+      toast(`${info.name} đang là quản trị viên — hạ quyền admin trước khi xoá tài khoản.`, 'error');
+      return;
+    }
+
+    const answer = await openDialog(uid);
+    if (!answer?.confirmed) return;
+    const summary = await purgeAccount(uid, answer.options);
+    if (!summary) return;
 
     const parts = [
       `Xoá dữ liệu của ${info.name}`,
       `reaction: ${summary.reactions}`,
-      removeMessages ? `tin nhắn: ${summary.messages}` : 'giữ tin nhắn'
+      answer.options.removeMessages ? `tin nhắn: ${summary.messages}` : 'giữ tin nhắn'
     ];
     if (summary.auth?.deleted) parts.push('đã xoá cả tài khoản Auth');
     else if (summary.auth?.error) parts.push(`Auth chưa xoá (${summary.auth.error})`);
@@ -395,7 +419,12 @@
     }
   }
 
-  CatChat.accountDeletion = { deleteMember: deleteMemberAccount, open: openDialog, CONFIRM_WORD };
+  CatChat.accountDeletion = {
+    deleteMember: deleteMemberAccount,
+    purge: purgeAccount,
+    open: openDialog,
+    CONFIRM_WORD
+  };
 
   CatChat.features.register({
     id: 'account-deletion',

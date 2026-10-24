@@ -117,18 +117,19 @@ async function manageBan(uid, shouldBan) {
   const name = member.name || member.email?.split('@')[0] || 'thành viên này';
   if (shouldBan) {
     const result = await openConfirm({
-      title: `Cấm ${name}?`,
-      description: 'Thành viên sẽ bị đăng xuất và không thể truy cập lại ứng dụng cho tới khi được bỏ cấm. Lệnh này không vô hiệu hóa tài khoản Firebase.',
-      acceptLabel: 'Cấm truy cập', tone: 'danger', reason: true, iconName: 'ban'
+      title: `Cấm vĩnh viễn ${name}?`,
+      description: 'Tài khoản bị cấm vĩnh viễn: bị đăng xuất ngay và không thể truy cập lại cho tới khi quản trị viên gỡ. Muốn chặn luôn thiết bị/IP, dùng nút “Cấm vĩnh viễn (tài khoản + thiết bị + IP)” trong hồ sơ.',
+      acceptLabel: 'Cấm vĩnh viễn', tone: 'danger', reason: true, iconName: 'ban'
     });
     if (!result) return;
     try {
       await bansRef.child(uid).set({
         reason: result.reason || '',
         bannedBy: currentUser.uid,
-        bannedAt: currentTimestamp()
+        bannedAt: currentTimestamp(),
+        permanent: true
       });
-      toast(`Đã cấm truy cập của ${name}.`, 'success');
+      toast(`Đã cấm vĩnh viễn ${name}.`, 'success');
       void logAdminAction('ban', `Cấm truy cập ${name}${result.reason ? ` · ${result.reason}` : ''}`, uid);
     } catch (error) {
       showDatabaseError(error, 'Không thể cấm thành viên. Hãy kiểm tra Firebase Security Rules.');
@@ -173,18 +174,24 @@ function closeAdmin() {
 }
 
 function switchAdminTab(name) {
-  const tab = ['overview', 'members', 'messages', 'announcements'].includes(name) ? name : 'overview';
-  const panels = { overview: 'adminOverviewTab', members: 'adminMembersTab', messages: 'adminMessagesTab', announcements: 'adminAnnouncementsTab' };
-  const buttons = { overview: 'adminOverviewTabButton', members: 'adminMembersTabButton', messages: 'adminMessagesTabButton', announcements: 'adminAnnouncementsTabButton' };
+  const tab = ['overview', 'members', 'messages', 'announcements', 'blocks'].includes(name) ? name : 'overview';
+  const panels = { overview: 'adminOverviewTab', members: 'adminMembersTab', messages: 'adminMessagesTab', announcements: 'adminAnnouncementsTab', blocks: 'adminBlocksTab' };
+  const buttons = { overview: 'adminOverviewTabButton', members: 'adminMembersTabButton', messages: 'adminMessagesTabButton', announcements: 'adminAnnouncementsTabButton', blocks: 'adminBlocksTabButton' };
   Object.entries(panels).forEach(([key, panelId]) => {
     const active = key === tab;
-    $(`#${buttons[key]}`).classList.toggle('active', active);
-    $(`#${buttons[key]}`).setAttribute('aria-selected', String(active));
-    $(`#${panelId}`).hidden = !active;
+    const button = $(`#${buttons[key]}`);
+    const panel = $(`#${panelId}`);
+    if (button) {
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+    }
+    if (panel) panel.hidden = !active;
   });
   if (tab === 'overview') renderAdminOverview();
   if (tab === 'messages') renderAdminMessages();
   if (tab === 'announcements') els.announcementInput.focus();
+  // Tab chặn vĩnh viễn do feature identity-blocks dựng nội dung (không có trong app lõi).
+  if (tab === 'blocks') void window.CatChat?.identityBlocks?.render?.();
 }
 
 

@@ -371,6 +371,10 @@ function renderMemberProfile() {
   if (!layer) return;
   const photoUrl = member.photoURL || (isSelf ? currentUser?.photoURL || '' : '');
   const email = memberEmails[uid]?.email || (isSelf ? currentUser?.email : '') || member.email || '';
+  // Quản trị viên cần thấy mã thiết bị / mã IP để chặn vĩnh viễn. Dữ liệu này chỉ
+  // đọc được khi Rules cho phép (thường là admin), nên không hiện với người thường.
+  const identityApi = window.CatChat?.identity;
+  const identityInfo = isAdmin && !isSelf && identityApi ? identityApi.cached(uid) : null;
   // Presence được làm mới mỗi phút; chỉ vẽ lại khi có gì đó thật sự đổi để
   // hộp thoại không nhấp nháy và không mất focus của nút đang bấm.
   const renderKey = [
@@ -378,7 +382,8 @@ function renderMemberProfile() {
     member.createdAt || 0, member.lastSeen || 0,
     // nhãn “x phút trước” đổi theo thời gian → thêm mốc phút vào khoá vẽ lại
     member.lastSeen ? Math.floor((Date.now() - profileTimestamp(member.lastSeen)) / 60000) : 0,
-    photoUrl, email
+    photoUrl, email,
+    identityInfo ? `${identityInfo.device}|${identityInfo.ipHash}` : 'identity-pending'
   ].join('|');
   if (renderKey === profileRenderSignature) return;
   profileRenderSignature = renderKey;
@@ -430,6 +435,13 @@ function renderMemberProfile() {
   if (online) addFact('Hoạt động gần nhất', 'Đang trực tuyến', 'clock');
   else if (lastSeenAt) addFact('Hoạt động gần nhất', lastSeenLabel(lastSeenAt), 'clock');
   if (banned && bans[uid]?.reason) addFact('Lý do cấm', bans[uid].reason, 'info');
+  if (banned) addFact('Thời hạn cấm', 'Vĩnh viễn', 'ban');
+  if (isAdmin && !isSelf && identityApi) {
+    if (identityInfo?.device) addFact('Mã thiết bị', identityInfo.device, 'shield');
+    if (identityInfo?.ipHash) addFact('Mã IP', identityInfo.ipHash, 'wifi');
+    // Chưa có dữ liệu: đọc một lần; xong sẽ tự vẽ lại hồ sơ qua refreshMemberProfile.
+    if (!identityInfo) void identityApi.lookup(uid).then(() => refreshMemberProfile());
+  }
   if (isMuted(uid)) {
     addFact('Cấm chat', muteRemainingLabel(mutes[uid]), 'mute');
     if (mutes[uid]?.reason) addFact('Lý do cấm chat', mutes[uid].reason, 'info');
@@ -477,6 +489,26 @@ function renderMemberProfile() {
       closeMemberProfile();
       setWorkspaceView('chat');
       window.setTimeout(() => els.messageInput.focus({ preventScroll: true }), 80);
+    });
+  }
+  if (isAdmin && !isSelf && identityInfo?.device) {
+    addAction('Sao chép mã thiết bị', '', 'shield', async () => {
+      try {
+        await navigator.clipboard.writeText(identityInfo.device);
+        toast('Đã sao chép mã thiết bị.', 'success');
+      } catch (_) {
+        toast('Trình duyệt không cho phép sao chép tự động.', 'error');
+      }
+    });
+  }
+  if (isAdmin && !isSelf && identityInfo?.ipHash) {
+    addAction('Sao chép mã IP', '', 'wifi', async () => {
+      try {
+        await navigator.clipboard.writeText(identityInfo.ipHash);
+        toast('Đã sao chép mã IP.', 'success');
+      } catch (_) {
+        toast('Trình duyệt không cho phép sao chép tự động.', 'error');
+      }
     });
   }
   CatChat.features.run('memberActions', { uid, name, isSelf, actions, addAction });

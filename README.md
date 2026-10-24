@@ -26,6 +26,7 @@ assets/css/                    Giao diện, tách theo khu vực
   polish.css                   Lớp hoàn thiện thiết kế cho toàn bộ bề mặt (nạp trước halloween-night)
   halloween-night.css          Halloween ma mị (nạp cuối để ghi đè theme Halloween)
   motion.css                   Tuỳ chọn chuyển động (Theo máy / Đầy đủ / Giảm) + guard prefers-reduced-motion
+  compact.css                  Bố cục gọn kiểu Discord: mật độ dày, bớt blur diện tích lớn
   mobile.css                   Điện thoại, vùng an toàn, bàn phím ảo, màn hình thấp (nạp cuối cùng)
 assets/js/app/                 Lõi ứng dụng, nạp theo thứ tự bằng <script defer>
   config.js                    Hằng số, cấu hình Firebase, helper $ / $$
@@ -65,13 +66,16 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   appearance-extras.js         Màu nhấn, cỡ chữ, mật độ tin nhắn trong hộp thoại giao diện
   anti-flood.js                Giới hạn tần suất gửi tin, chống trùng, chống spam reaction
   login-guard.js               Chặn dò mật khẩu: 5 lần/phút rồi khoá tăng dần
-  account-deletion.js          Admin xoá tài khoản thành viên khỏi hệ thống
+  account-deletion.js          Admin xoá tài khoản thành viên (có hàm purge dùng lại được)
+  identity-guard.js            Dấu vân tay thiết bị/IP, chặn vĩnh viễn, giới hạn 2 tài khoản mỗi máy
+  identity-blocks.js           Tab quản trị “Chặn vĩnh viễn” (thiết bị / IP / khoá tự động)
   boot-screen.js               Tiến trình khởi động thật cho splash (step/finish/fail)
   typing-indicator.js          Chỉ báo “ai đang nhập…” qua node /typing
   motion.js                    Tuỳ chọn chuyển động dùng chung cho CSS + JS
   viewport.js                  Bàn phím ảo, vùng an toàn, đổi kích thước / xoay ngang
   cursor-fx.js                 Hiệu ứng con trỏ: di chuyển, bấm, cuộn (có công tắc Tắt/Nhẹ/Đầy đủ)
-functions/                     Cloud Function tuỳ chọn: xoá tài khoản Firebase Auth
+functions/                     Cloud Function tuỳ chọn: xoá tài khoản Auth, lấy mã IP, tự khoá định danh
+database.rules.json            Bản Rules Realtime Database đầy đủ (dán vào Firebase Console)
 SECURITY.md                    Checklist bảo mật: App Check, Rules, quota, CSP
 ```
 
@@ -250,6 +254,43 @@ vào 17 file CSS cũ.
   ngay khi `/members`, `presence` hoặc email về (trước đây phải đóng rồi mở lại). Nhãn “Hoạt động gần nhất”
   đổi sang dạng tương đối: *Vừa xong · 5 phút trước · 3 giờ trước*, và là “Đang trực tuyến” khi người đó online.
 - Không thêm node mới ⇒ **Rules Realtime Database không cần thay đổi**.
+
+## Chặn vĩnh viễn & giới hạn 2 tài khoản mỗi thiết bị/IP
+
+Ba lớp chặn, tất cả đều **vĩnh viễn cho tới khi quản trị viên gỡ**:
+
+| Lớp | Node | Ai ghi | Hiệu lực |
+|---|---|---|---|
+| Tài khoản | `/bans/<uid>` (`permanent: true`) | admin | chặn ngay khi đăng nhập, listener đá ra tức thì |
+| Thiết bị | `/deviceBans/<deviceHash>` | admin | chặn trước khi vào app, kể cả tài khoản mới |
+| IP | `/ipBans/<ipHash>` | admin | như trên (cần Cloud Function để biết IP) |
+
+- **Mã thiết bị** = băm SHA-256 của dấu vân tay trình duyệt + UUID lưu trong `localStorage`
+  (`catchat-device-id-v1`). Mở hồ sơ thành viên (vai trò admin) sẽ thấy **Mã thiết bị / Mã IP** kèm nút sao chép.
+- **Mã IP** chỉ có khi triển khai `functions/getClientIdentity` và bật `enableIdentityFunction: true`
+  trong `config.js`. Không có hàm này thì app vẫn chặn theo thiết bị, chỉ là không chặn được IP.
+- **Giới hạn 2 tài khoản**: mỗi lần đăng nhập, `/identityLedger/<deviceHash>/<uid>` và
+  `/identityIpLedger/<ipHash>/<uid>` được ghi lại. Khi một định danh có **quá 2 uid**, hệ thống:
+  1. tạo `/identityLocks/<hash>` = `{ kind, reason, uids }` → mọi tài khoản trong đó bị chặn vào app;
+  2. cấm `/bans/<uid>` (nếu phiên hiện tại là admin) và dọn dữ liệu hồ sơ;
+  3. phiên đang dùng bị đăng xuất ngay kèm thông báo lý do.
+  Đã deploy `onIdentityLedgerWrite` thì bước này chạy ở **máy chủ**, tự xoá cả Firebase Auth.
+- Tab **Quản trị → Chặn vĩnh viễn** liệt kê 3 danh sách trên, thêm chặn tay bằng mã, bỏ chặn, và nút
+  “Xoá toàn bộ tài khoản trong khoá”. Hồ sơ thành viên có thêm nút **Cấm vĩnh viễn (tài khoản + thiết bị + IP)**.
+
+> Giới hạn cần biết: dấu vân tay trình duyệt có thể đổi (xoá dữ liệu, ẩn danh, đổi máy) và IP công cộng
+> chỉ đọc được ở server. Đây là lớp giảm lạm dụng, **không phải** bằng chứng tuyệt đối — chặn thật phải
+> dựa vào Firebase Rules + App Check + Cloud Function (xem `SECURITY.md`).
+
+## Bố cục gọn kiểu Discord
+
+`assets/css/compact.css` (nạp sau `polish.css`, trước `mobile.css`) chỉnh **mật độ**, không đổi bảng màu:
+
+- Sidebar 228px, thanh trên 58px, thanh kênh 54px, danh sách thành viên 264px — mắt đọc nhanh hơn.
+- Bong bóng tin nhắn 7×10px, avatar 28px, khoảng cách giữa tin 8px, gộp tin liền mạch chặt hơn.
+- Khung soạn tin thấp hơn (textarea tối đa 96px), sticker/nhãn gợi ý nhỏ lại.
+- Bỏ `backdrop-filter` ở sidebar (diện tích lớn, tốn GPU nhất khi cuộn) và giảm blur thanh trên.
+- Chuyển cảnh ngắn hơn (~0.22s / 0.13s) để cảm giác phản hồi nhanh, vẫn tôn trọng tuỳ chọn giảm chuyển động.
 
 ## Bảo mật
 

@@ -235,6 +235,7 @@ function attachEvents() {
   $('#adminMembersTabButton').addEventListener('click', () => switchAdminTab('members'));
   $('#adminMessagesTabButton').addEventListener('click', () => switchAdminTab('messages'));
   $('#adminAnnouncementsTabButton').addEventListener('click', () => switchAdminTab('announcements'));
+  $('#adminBlocksTabButton').addEventListener('click', () => switchAdminTab('blocks'));
   $('#adminMessageSearch').addEventListener('input', renderAdminMessages);
   $('#adminClearChannelButton').addEventListener('click', () => { void clearCurrentChannel(); });
   els.adminMemberSearch.addEventListener('input', renderAdminPanel);
@@ -274,6 +275,7 @@ function attachEvents() {
   $('#adminQuickMessages').addEventListener('click', () => switchAdminTab('messages'));
   $('#adminQuickExport').addEventListener('click', exportChannelData);
   $('#adminQuickMuted').addEventListener('click', () => switchAdminTab('overview'));
+  $('#adminQuickBlocks').addEventListener('click', () => switchAdminTab('blocks'));
   $('#adminClearLogButton').addEventListener('click', async () => {
     const confirm = await openConfirm({
       title: 'Xoá nhật ký quản trị?',

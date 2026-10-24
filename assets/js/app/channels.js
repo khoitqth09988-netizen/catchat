@@ -315,6 +315,26 @@ async function enterWorkspace(user, generation) {
     console.warn('Không kiểm tra được trạng thái ban:', error);
   }
   if (generation !== authGeneration) return;
+  // Cổng định danh: cấm thiết bị/IP, hoặc vượt hạn mức 2 tài khoản mỗi máy.
+  // Feature identity-guard tự khoá + dọn dữ liệu rồi mới trả về blocked.
+  if (window.CatChat?.identity?.enforce) {
+    CatChat.bootScreen?.step('Đang kiểm tra thiết bị…', 80);
+    let gate = null;
+    try {
+      gate = await CatChat.identity.enforce(user.uid);
+    } catch (error) {
+      console.warn('Không kiểm tra được định danh thiết bị:', error);
+    }
+    if (generation !== authGeneration) return;
+    if (gate?.blocked) {
+      signedOutNotice = gate.reason || 'Thiết bị/IP của bạn đã bị chặn khỏi CatChat.';
+      setAuthNotice(signedOutNotice, 'error');
+      CatChat.bootScreen?.finish();
+      await auth.signOut();
+      return;
+    }
+    try { await CatChat.identity.watch(user.uid); } catch (error) { console.warn('Không theo dõi được trạng thái chặn:', error); }
+  }
   els.authView.hidden = true;
   els.appView.hidden = false;
   CatChat.bootScreen?.step('Đang mở tổ mèo của bạn…', 84);
