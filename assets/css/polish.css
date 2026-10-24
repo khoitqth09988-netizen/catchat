@@ -740,23 +740,6 @@ body {
 .composer-hint strong { color: var(--theme-muted); font-weight: var(--ds-weight-bold); }
 .char-count { color: var(--theme-subtle); }
 
-.sticker-button {
-  border: 1px solid var(--theme-line);
-  background: var(--theme-panel);
-  box-shadow: var(--ds-elev-1);
-  transition: transform var(--ds-dur-fast) var(--ds-ease-spring), border-color var(--ds-dur-fast), background var(--ds-dur-fast);
-}
-
-.sticker-button:hover {
-  transform: translateY(-2px) scale(1.06);
-  border-color: color-mix(in srgb, var(--theme-accent) 36%, var(--theme-line));
-  background: var(--theme-panel-alt);
-}
-
-.sticker-button:active { transform: scale(.94); }
-
-.sticker-label { color: var(--theme-subtle); }
-
 /* Banner (ghim / thông báo / tìm kiếm / mute) */
 .pinned-banner,
 .announcement-banner,
@@ -1350,7 +1333,6 @@ body {
   html:not([data-motion="full"]) .topbar-button:hover,
   html:not([data-motion="full"]) .icon-button:hover,
   html:not([data-motion="full"]) .member-row:hover,
-  html:not([data-motion="full"]) .sticker-button:hover,
   html:not([data-motion="full"]) .reaction-button:hover,
   html:not([data-motion="full"]) .dialog-button:hover,
   html:not([data-motion="full"]) .admin-quick:hover,

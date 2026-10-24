@@ -1,4 +1,4 @@
-/* CatChat · Tin nhắn đã lưu, sticker, Miu, vết chân mèo và con trỏ mèo.
+/* CatChat · Tin nhắn đã lưu, Miu, vết chân mèo và con trỏ mèo.
    Tách từ index.html — nạp bằng <script defer> theo đúng thứ tự trong index.html. */
 'use strict';
 
@@ -10,7 +10,7 @@ const MIU_TIPS = [
   'Tin nhắn dài quá thì chia nhỏ ra, dễ đọc hơn nhiều.',
   'Bấm vào biểu tượng con trỏ để lưu lại khoảnh khắc bạn thích.',
   'Hôm nay có gì vui, kể cho tổ mèo nghe với!',
-  'Gửi một sticker 🐾 thay cho lời chào cũng rất dễ thương.',
+  'Gửi một emote 🐾 thay cho lời chào cũng rất dễ thương.',
   'Đừng quên đổi bộ lông cho CatChat trong mục Giao diện nhé.',
   'Mèo ngoan là mèo biết nhường lời khi người khác đang nói.',
   'Một chiếc ảnh đẹp đôi khi nói nhiều hơn cả một đoạn văn.',
@@ -222,18 +222,6 @@ function updateWorkspaceGreeting() {
     : hour < 22 ? 'Tối nay tổ mèo có gì vui?'
     : 'Khuya rồi, nhớ nghỉ sớm nhé';
   heading.textContent = name ? `${base} · ${name}` : base;
-}
-
-function insertSticker(glyph) {
-  const input = els.messageInput;
-  if (!input) return;
-  const start = typeof input.selectionStart === 'number' ? input.selectionStart : input.value.length;
-  const end = typeof input.selectionEnd === 'number' ? input.selectionEnd : input.value.length;
-  input.value = `${input.value.slice(0, start)}${glyph}${input.value.slice(end)}`;
-  const caret = start + glyph.length;
-  input.focus();
-  input.setSelectionRange(caret, caret);
-  updateMessageComposer();
 }
 
 /* ───────────────────────────────────────────────────────────────

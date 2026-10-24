@@ -218,6 +218,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .form-field { min-width: 0; animation: field-in .36s var(--ease) both; }
 .field-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
 .field-heading label, .form-field > label { display: block; color: #dbdbdb; font-size: 11px; font-weight: 690; }
+.field-note { display: block; margin-top: 6px; color: #8b8b8b; font-size: 9px; line-height: 1.5; }
 .text-button { padding: 0; border: 0; background: transparent; color: #a4a4a4; cursor: pointer; font-size: 10px; font-weight: 700; transition: color .18s ease; }
 .text-button:hover { color: #cccccc; }
 .field-shell { position: relative; display: flex; align-items: center; min-width: 0; }

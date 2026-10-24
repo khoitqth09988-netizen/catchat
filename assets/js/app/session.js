@@ -11,6 +11,7 @@ function setAdminState(value) {
   els.channelAddButton.hidden = !isAdmin;
   $('#mobileCreateChannelButton').hidden = !isAdmin;
   els.clearChannelButton.hidden = !isAdmin;
+  $('#deleteChannelButton').hidden = !isAdmin;
   els.announcementInput.disabled = !isAdmin;
   els.publishAnnouncementButton.disabled = !isAdmin;
   const navAdmin = $('#navAdmin');

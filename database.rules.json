@@ -40,8 +40,8 @@
     "channels": {
       ".read": "auth != null",
       "$channelId": {
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.admin === true) && !data.exists() && $channelId.matches(/^[a-z0-9-]{1,32}$/) && $channelId !== 'general' && $channelId !== 'thong-bao' && $channelId !== 'constructor' && $channelId !== 'prototype'",
-        ".validate": "newData.hasChildren(['name', 'description', 'createdBy', 'createdAt']) && newData.child('name').val() === $channelId && newData.child('description').isString() && newData.child('description').val().length <= 120 && newData.child('createdBy').val() === auth.uid && newData.child('createdAt').isNumber()"
+        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.admin === true) && ((!data.exists() && $channelId.matches(/^[a-z0-9-]{1,32}$/) && $channelId !== 'general' && $channelId !== 'thong-bao' && $channelId !== 'constructor' && $channelId !== 'prototype') || (data.exists() && !newData.exists() && $channelId !== 'general' && $channelId !== 'thong-bao' && $channelId !== 'constructor' && $channelId !== 'prototype'))",
+        ".validate": "!newData.exists() || (newData.hasChildren(['name', 'description', 'createdBy', 'createdAt']) && newData.child('name').val() === $channelId && newData.child('description').isString() && newData.child('description').val().length <= 120 && newData.child('createdBy').val() === auth.uid && newData.child('createdAt').isNumber())"
       }
     },
     "messages": {
@@ -52,7 +52,7 @@
       ],
       "$messageId": {
         ".write": "auth != null && ((root.child('admins').child(auth.uid).val() === true || auth.token.admin === true) || ((!data.exists() || data.child('kind').val() !== 'announcement') && (!newData.exists() || newData.child('kind').val() !== 'announcement') && (!data.exists() || data.child('uid').val() === auth.uid) && (!newData.exists() || newData.child('uid').val() === auth.uid)))",
-        ".validate": "newData.hasChildren(['uid', 'name', 'text', 'kind', 'timestamp']) && newData.child('uid').isString() && newData.child('name').isString() && newData.child('name').val().length <= 32 && newData.child('text').isString() && newData.child('timestamp').isNumber() && ((newData.child('kind').val() === 'message' && newData.child('text').val().length <= 800) || (newData.child('kind').val() === 'announcement' && newData.child('text').val().length > 0 && newData.child('text').val().length <= 500)) && (!newData.child('imageURL').exists() || (newData.child('imageURL').isString() && newData.child('imageURL').val().length <= 4096)) && (!newData.child('imageName').exists() || (newData.child('imageName').isString() && newData.child('imageName').val().length <= 120)) && (!newData.child('replyTo').exists() || (newData.child('replyTo').isString() && newData.child('replyTo').val().length <= 128)) && (!newData.child('replyName').exists() || (newData.child('replyName').isString() && newData.child('replyName').val().length <= 32)) && (!newData.child('replyText').exists() || (newData.child('replyText').isString() && newData.child('replyText').val().length <= 180))"
+        ".validate": "!newData.exists() || (newData.hasChildren(['uid', 'name', 'text', 'kind', 'timestamp']) && newData.child('uid').isString() && newData.child('name').isString() && newData.child('name').val().length <= 32 && newData.child('text').isString() && newData.child('timestamp').isNumber() && ((newData.child('kind').val() === 'message' && newData.child('text').val().length <= 800) || (newData.child('kind').val() === 'announcement' && newData.child('text').val().length > 0 && newData.child('text').val().length <= 500)) && (!newData.child('imageURL').exists() || (newData.child('imageURL').isString() && newData.child('imageURL').val().length <= 4096)) && (!newData.child('imageName').exists() || (newData.child('imageName').isString() && newData.child('imageName').val().length <= 120)) && (!newData.child('replyTo').exists() || (newData.child('replyTo').isString() && newData.child('replyTo').val().length <= 128)) && (!newData.child('replyName').exists() || (newData.child('replyName').isString() && newData.child('replyName').val().length <= 32)) && (!newData.child('replyText').exists() || (newData.child('replyText').isString() && newData.child('replyText').val().length <= 180)))"
       }
     },
     "channelMessages": {
@@ -64,7 +64,7 @@
         ],
         "$messageId": {
           ".write": "auth != null && root.child('channels').child($channelId).exists() && ((root.child('admins').child(auth.uid).val() === true || auth.token.admin === true) || ((!data.exists() || data.child('kind').val() !== 'announcement') && (!newData.exists() || newData.child('kind').val() !== 'announcement') && (!data.exists() || data.child('uid').val() === auth.uid) && (!newData.exists() || newData.child('uid').val() === auth.uid)))",
-          ".validate": "newData.hasChildren(['uid', 'name', 'text', 'kind', 'timestamp']) && newData.child('uid').isString() && newData.child('name').isString() && newData.child('name').val().length <= 32 && newData.child('text').isString() && newData.child('text').val().length <= 800 && newData.child('kind').val() === 'message' && newData.child('timestamp').isNumber() && (!newData.child('imageURL').exists() || (newData.child('imageURL').isString() && newData.child('imageURL').val().length <= 4096)) && (!newData.child('imageName').exists() || (newData.child('imageName').isString() && newData.child('imageName').val().length <= 120)) && (!newData.child('replyTo').exists() || (newData.child('replyTo').isString() && newData.child('replyTo').val().length <= 128)) && (!newData.child('replyName').exists() || (newData.child('replyName').isString() && newData.child('replyName').val().length <= 32)) && (!newData.child('replyText').exists() || (newData.child('replyText').isString() && newData.child('replyText').val().length <= 180))"
+          ".validate": "!newData.exists() || (newData.hasChildren(['uid', 'name', 'text', 'kind', 'timestamp']) && newData.child('uid').isString() && newData.child('name').isString() && newData.child('name').val().length <= 32 && newData.child('text').isString() && newData.child('text').val().length <= 800 && newData.child('kind').val() === 'message' && newData.child('timestamp').isNumber() && (!newData.child('imageURL').exists() || (newData.child('imageURL').isString() && newData.child('imageURL').val().length <= 4096)) && (!newData.child('imageName').exists() || (newData.child('imageName').isString() && newData.child('imageName').val().length <= 120)) && (!newData.child('replyTo').exists() || (newData.child('replyTo').isString() && newData.child('replyTo').val().length <= 128)) && (!newData.child('replyName').exists() || (newData.child('replyName').isString() && newData.child('replyName').val().length <= 32)) && (!newData.child('replyText').exists() || (newData.child('replyText').isString() && newData.child('replyText').val().length <= 180)))"
         }
       }
     },
@@ -130,6 +130,13 @@
         ".read": "auth != null",
         ".write": "(auth != null && ((root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true) || newData.child('uids').child(auth.uid).val() === true))",
         ".validate": "!newData.exists() || (newData.hasChildren(['kind', 'at', 'uids']) && (newData.child('kind').val() === 'device' || newData.child('kind').val() === 'ip') && newData.child('at').isNumber())"
+      }
+    },
+    "displayNames": {
+      ".read": "auth != null",
+      "$slug": {
+        ".write": "auth != null && newData.val() === auth.uid && (!data.exists() || data.val() === auth.uid)",
+        ".validate": "!newData.exists() || newData.val() === auth.uid"
       }
     }
   }

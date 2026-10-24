@@ -11,9 +11,23 @@ async function syncMemberProfile(user) {
   const ref = membersRef.child(user.uid);
   let existing = {};
   try { existing = (await ref.once('value')).val() || {}; } catch (_) { /* A write below may still be allowed by rules. */ }
+  let name = displayNameFor(user).slice(0, 32);
+  // Tên hiển thị là duy nhất: giữ chỗ slug của tên hiện tại.
+  if (window.CatChat?.names?.ensure) {
+    const claim = await CatChat.names.ensure(user.uid, name);
+    if (claim && claim.ok === false && claim.taken) {
+      // Tên đã có người khác dùng (dữ liệu cũ) — giữ tên cũ của chính mình nếu có,
+      // nếu chưa có thì thêm hậu tố ngắn để không hiển thị trùng người khác.
+      const previous = String(existing.name || '').trim();
+      name = previous && CatChat.names.slugFor(previous) !== CatChat.names.slugFor(name)
+        ? previous.slice(0, 32)
+        : `${name} (${String(user.uid).slice(0, 4)})`.slice(0, 32);
+      console.warn(`Tên “${displayNameFor(user)}” đã có người dùng, dùng tên “${name}” thay thế.`);
+    }
+  }
   await ref.update({
     uid: user.uid,
-    name: displayNameFor(user).slice(0, 32),
+    name,
     photoURL: user.photoURL || existing.photoURL || '',
     createdAt: existing.createdAt || currentTimestamp(),
     lastSeen: currentTimestamp()

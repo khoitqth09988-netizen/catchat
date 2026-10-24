@@ -47,8 +47,7 @@ html {
   .directory-card,
   .message-reply,
   .message-tool,
-  .theme-option,
-  .sticker-button {
+  .theme-option {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
@@ -133,16 +132,6 @@ html {
   .profile-actions button,
   .dialog-button,
   .theme-option { min-height: 42px; }
-
-  /* Dải sticker cuộn ngang thay vì bóp nhỏ từng nút */
-  .sticker-bar {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    scroll-padding: 12px;
-  }
-  .sticker-bar::-webkit-scrollbar { height: 0; }
-  .sticker-label { position: sticky; left: 0; z-index: 1; }
 
   /* Tiêu đề kênh co lại bằng dấu “…” thay vì đẩy các nút công cụ ra ngoài */
   .channel-title-copy { min-width: 0; }
@@ -230,8 +219,8 @@ html {
 }
 
 /* ─────────────── 7. Bàn phím ảo đang mở ───────────────
-   viewport.js gắn class .is-keyboard-open. Khi đó thanh điều hướng dưới đáy và
-   dải sticker lùi lại để ô soạn tin nằm ngay trên bàn phím. */
+   viewport.js gắn class .is-keyboard-open. Khi đó thanh điều hướng dưới đáy lùi
+   lại để ô soạn tin nằm ngay trên bàn phím. */
 html.is-keyboard-open .sidebar {
   transform: translateY(calc(100% + 24px));
   opacity: 0;
@@ -240,7 +229,6 @@ html.is-keyboard-open .sidebar {
 }
 
 html.is-keyboard-open .app-shell { height: 100%; }
-html.is-keyboard-open .sticker-bar,
 html.is-keyboard-open .composer-hint,
 html.is-keyboard-open .typing-indicator { display: none; }
 html.is-keyboard-open .composer-wrap { padding-bottom: calc(8px + var(--safe-bottom)); }
@@ -253,7 +241,6 @@ html.is-keyboard-open .toast-region { bottom: calc(12px + var(--safe-bottom)); }
   .channel-toolbar { min-height: 48px; padding-top: 6px; padding-bottom: 6px; }
   .messages-area { padding-top: 10px; padding-bottom: 8px; gap: 8px; }
   .composer-wrap { padding-top: 6px; padding-bottom: 6px; }
-  .sticker-bar,
   .composer-hint,
   .sidebar-tip,
   .channel-title-copy p { display: none; }

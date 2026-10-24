@@ -139,6 +139,13 @@
         ".read": "auth != null",
         ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true || newData.child('uids').child(auth.uid).val() === true)"
       }
+    },
+    "displayNames": {
+      ".read": "auth != null",
+      "$slug": {
+        ".write": "auth != null && newData.val() === auth.uid && (!data.exists() || data.val() === auth.uid)",
+        ".validate": "!newData.exists() || newData.val() === auth.uid"
+      }
     }
   }
 }

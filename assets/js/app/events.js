@@ -46,10 +46,6 @@ function attachEvents() {
   $('#miuFace')?.addEventListener('click', miuSayHello);
   $('#catCompanionButton')?.addEventListener('click', miuSayHello);
   $('#closeMiuBubble')?.addEventListener('click', () => { $('#miuBubble').hidden = true; });
-  $('#stickerBar')?.addEventListener('click', (event) => {
-    const button = event.target instanceof Element ? event.target.closest('[data-sticker]') : null;
-    if (button) insertSticker(button.dataset.sticker);
-  });
   els.authForm.addEventListener('submit', submitAuth);
   els.openThemeSettingsButton.addEventListener('click', openThemeDialog);
   els.closeThemeDialogButton.addEventListener('click', closeThemeDialog);
@@ -176,6 +172,7 @@ function attachEvents() {
   els.cancelCreateChannelButton.addEventListener('click', closeChannelDialog);
   els.channelDialog.addEventListener('click', (event) => { if (event.target === els.channelDialog) closeChannelDialog(); });
   els.clearChannelButton.addEventListener('click', () => { void clearCurrentChannel(); });
+  $('#deleteChannelButton')?.addEventListener('click', () => { void deleteActiveChannel(); });
   $('#channelAnnouncements').addEventListener('click', async () => {
     setWorkspaceView('chat');
     if (activeChannelId !== 'general') {
