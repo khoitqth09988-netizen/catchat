@@ -116,6 +116,60 @@ for (const id of ['messageSearchInput', 'directorySearchInput', 'adminMemberSear
 }
 note('đã kiểm các luật tối ưu mobile (⋯ trên cảm ứng, chiều cao an toàn, vùng chạm, cỡ chữ)');
 
+/* 8. Giao diện app riêng cho điện thoại (data-ui="mobile") */
+if (!/<meta name="mobile-web-app-capable" content="yes">/.test(html)) {
+  fail('index.html: thiếu <meta name="mobile-web-app-capable"> (Chrome báo apple-mobile-web-app-capable đã lỗi thời)');
+}
+if (!/<meta name="apple-mobile-web-app-capable" content="yes">/.test(html)) {
+  fail('index.html: thiếu apple-mobile-web-app-capable ⇒ iOS mất chế độ toàn màn hình');
+}
+const styleOrder = [...html.matchAll(/<link rel="stylesheet" href="(assets\/css\/[^"]+)">/g)].map((match) => match[1]);
+if (styleOrder.at(-1) !== 'assets/css/mobile-app.css') {
+  fail(`index.html: assets/css/mobile-app.css phải là stylesheet cuối (đang là ${styleOrder.at(-1) || 'không có'})`);
+}
+for (const id of ['mobileTabbar', 'mobileScrim', 'mobileSettingsSheet']) {
+  if (!html.includes(`id="${id}"`)) fail(`index.html: thiếu khung giao diện mobile #${id}`);
+}
+if (!/data-mobile-tab="(?:channels|chat|members|settings)"/.test(html)) {
+  fail('index.html: thanh tab mobile không có nút nào (data-mobile-tab)');
+}
+const uiModeTag = (html.match(/<script[^>]+src="assets\/js\/app\/ui-mode\.js"[^>]*>/) || [''])[0];
+if (!uiModeTag) fail('index.html: thiếu assets/js/app/ui-mode.js (không chọn được giao diện theo thiết bị)');
+if (/\bdefer\b/.test(uiModeTag)) fail('index.html: ui-mode.js phải chạy ngay (không defer) để chọn giao diện trước lần vẽ đầu');
+if (html.indexOf('assets/js/app/ui-mode.js') > html.indexOf('assets/css/mobile-app.css')) {
+  fail('index.html: ui-mode.js phải nạp trước mobile-app.css');
+}
+if (!/<html[^>]+lang="vi"/.test(html)) fail('index.html: thẻ <html> thiếu lang="vi"');
+
+const mobileAppCss = read('assets/css/mobile-app.css');
+const bareSelectors = [];
+{
+  const clean = mobileAppCss.replace(/\/\*[\s\S]*?\*\//g, '');
+  const open = [];
+  let buffer = '';
+  for (const char of clean) {
+    if (char === '{') {
+      open.push(buffer.trim());
+      buffer = '';
+    } else if (char === '}') {
+      const prelude = open.pop();
+      const inKeyframes = open.some((item) => item.startsWith('@keyframes'));
+      if (prelude && !prelude.startsWith('@') && !inKeyframes) bareSelectors.push(prelude);
+      buffer = '';
+    } else if (char === ';' && !open.length) {
+      buffer = '';
+    } else {
+      buffer += char;
+    }
+  }
+}
+for (const selector of bareSelectors.flatMap((item) => item.split(',').map((part) => part.trim()))) {
+  if (selector && !selector.startsWith('html[data-ui="mobile"]')) {
+    fail(`mobile-app.css: luật "${selector}" không nằm trong html[data-ui="mobile"] ⇒ có thể ảnh hưởng giao diện máy tính`);
+  }
+}
+note(`đã kiểm giao diện mobile riêng (${bareSelectors.length} nhóm luật đều giới hạn trong html[data-ui="mobile"])`);
+
 for (const message of notes) console.log(`· ${message}`);
 if (failures.length) {
   console.error(`\n✗ ${failures.length} lỗi:`);

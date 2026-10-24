@@ -478,7 +478,8 @@ function attachEvents() {
   els.adminOverlay.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeAdmin(); });
   document.addEventListener('keydown', (event) => {
     if (CatChat.features.run('keydown', event) === true) return;
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && currentUser && !els.adminOverlay.classList.contains('open') && !els.confirmLayer.classList.contains('open') && els.channelDialog.hidden && els.themeDialog.hidden) {
+    const hotkey = typeof event.key === 'string' ? event.key.toLowerCase() : '';
+    if ((event.ctrlKey || event.metaKey) && hotkey === 'k' && currentUser && !els.adminOverlay.classList.contains('open') && !els.confirmLayer.classList.contains('open') && els.channelDialog.hidden && els.themeDialog.hidden) {
       event.preventDefault();
       setMessageSearchOpen(true);
     }

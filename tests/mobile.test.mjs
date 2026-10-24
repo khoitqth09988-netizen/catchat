@@ -113,6 +113,13 @@ document.body.innerHTML = `
         <header class="topbar"></header>
         <main class="content-grid">
           <section class="chat-panel">
+            <div class="channel-toolbar">
+              <div class="channel-title-group">
+                <div class="channel-symbol">#</div>
+                <div class="channel-title-copy"><h2>phòng-chung</h2><p>Nơi mọi người trò chuyện</p></div>
+              </div>
+              <div class="channel-tools"><button class="icon-button" type="button"></button></div>
+            </div>
             <div class="messages-area">
               <article class="message-row">
                 <div class="message-content">
@@ -165,6 +172,60 @@ check('820px · chiều cao mục menu', winner(q('.message-menu-item'), 'min-he
 check('1280px · cỡ chữ tin nhắn', winner(q('.message-bubble'), 'font-size', desktop).value, '13.5px');
 check('1280px · nút ⋯ ẩn tới khi hover', winner(q('.message-more'), 'opacity', desktop).value, '0');
 check('1280px · mục menu gọn', winner(q('.message-menu-item'), 'min-height', desktop).value, '32px');
+
+/* ── Giao diện app riêng cho điện thoại (mobile-app.css) ── */
+check('mobile-app.css phải nạp cuối cùng', cssFiles.at(-1), 'assets/css/mobile-app.css');
+
+const mobileAppCss = readFileSync(path.join(ROOT, 'assets/css/mobile-app.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+const mobileSelectors = [];
+const preludes = [];
+let buffer = '';
+for (const char of mobileAppCss) {
+  if (char === '{') {
+    preludes.push(buffer.trim());
+    buffer = '';
+  } else if (char === '}') {
+    const prelude = preludes.pop();
+    const insideKeyframes = preludes.some((item) => item.startsWith('@keyframes'));
+    if (prelude && !prelude.startsWith('@') && !insideKeyframes) mobileSelectors.push(prelude);
+    buffer = '';
+  } else if (char === ';') {
+    if (!preludes.length) buffer = '';
+  } else {
+    buffer += char;
+  }
+}
+const unscoped = mobileSelectors
+  .flatMap((selector) => selector.split(',').map((part) => part.trim()))
+  .filter((selector) => selector && !selector.startsWith('html[data-ui="mobile"]'));
+check('mobile-app.css có luật không phải html[data-ui="mobile"]', unscoped.slice(0, 5).join(' | '), '');
+check('mobile-app.css quá ngắn (thiếu bố cục mobile)', mobileSelectors.length > 40, true);
+
+/* Dựng thêm khung mobile lấy nguyên từ index.html rồi kiểm ở chế độ mobile. */
+const shellStart = html.indexOf('<div class="mobile-scrim"');
+const shellEnd = html.indexOf('<div class="toast-region"');
+check('index.html thiếu khung #mobileScrim/#mobileTabbar', shellStart > 0 && shellEnd > shellStart, true);
+if (shellStart > 0 && shellEnd > shellStart) {
+  document.body.insertAdjacentHTML('beforeend', html.slice(shellStart, shellEnd));
+  document.documentElement.dataset.ui = 'mobile';
+
+  check('mobile · thanh tab hiện', winner(q('#mobileTabbar'), 'display', phone).value, 'grid');
+  check('mobile · thanh trên kiểu máy tính ẩn', winner(q('.topbar'), 'display', phone).value, 'none');
+  check('mobile · thanh tab cao 58px', winner(q('#mobileTabbar'), 'height', phone).value, 'var(--tabbar-total)');
+  check('mobile · chat chừa chỗ cho thanh tab', winner(q('.chat-panel'), 'padding-bottom', phone).value, 'var(--tabbar-total)');
+  check('mobile · thanh kênh dính đỉnh', winner(q('.channel-toolbar'), 'position', phone).value, 'sticky');
+  check('mobile · ngăn kéo kênh cố định', winner(q('.sidebar'), 'position', phone).value, 'fixed');
+  check('mobile · ngăn kéo trượt khỏi màn hình', winner(q('.sidebar'), 'transform', phone).value, 'translateX(-102%)');
+  check('mobile · chữ tin nhắn vẫn 15px', winner(q('.message-bubble'), 'font-size', phone).value, '15px');
+  check('mobile · ô soạn tin vẫn 16px', winner(q('#messageInput'), 'font-size', phone).value, '16px');
+  check('mobile · bảng cài đặt có nút Giao diện', Boolean(html.includes('data-mobile-action="theme"')), true);
+
+  document.documentElement.removeAttribute('data-ui');
+  const desktopTab = winner(q('#mobileTabbar'), 'display', desktop);
+  check('desktop · thanh tab dính luật mobile', desktopTab.selector.startsWith('html[data-ui="mobile"]'), false);
+  const desktopAppBar = winner(q('.channel-toolbar'), 'position', desktop);
+  check('desktop · thanh kênh dính luật mobile', desktopAppBar.selector.startsWith('html[data-ui="mobile"]'), false);
+}
 
 if (failures.length) {
   console.error(`\n✗ ${failures.length} lỗi cascade mobile:`);

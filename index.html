@@ -10,6 +10,8 @@
   <!-- PWA: cài lên màn hình chính / desktop, mở toàn màn hình như app. -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="application-name" content="CatChat">
+  <!-- Chrome đã bỏ apple-mobile-web-app-capable; khai báo chuẩn mới và vẫn giữ bản Apple cho iOS. -->
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="CatChat">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -29,6 +31,9 @@
   <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com">
   <link rel="dns-prefetch" href="https://chat-e58b5-default-rtdb.firebaseio.com">
   <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
+  <!-- Chọn giao diện theo thiết bị TRƯỚC khi vẽ: điện thoại/máy tính bảng cảm ứng dùng
+       giao diện app riêng (mobile-app.css), máy tính giữ giao diện cũ. -->
+  <script src="assets/js/app/ui-mode.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- CSS: nạp theo thứ tự, halloween-night.css luôn cuối để ghi đè theme Halloween -->
   <link rel="stylesheet" href="assets/css/boot.css">
@@ -52,6 +57,8 @@
   <link rel="stylesheet" href="assets/css/compact.css">
   <!-- Tối ưu điện thoại / thu nhỏ cửa sổ: nạp cuối để phủ mọi breakpoint cũ -->
   <link rel="stylesheet" href="assets/css/mobile.css">
+  <!-- Giao diện app riêng cho điện thoại: chỉ áp dụng khi html[data-ui="mobile"] -->
+  <link rel="stylesheet" href="assets/css/mobile-app.css">
 </head>
 <body>
   <a class="ds-skip-link" href="#messageInput">Bỏ qua điều hướng, tới ô soạn tin</a>
@@ -641,6 +648,53 @@
     </aside>
   </div>
 
+  <!-- ─── Giao diện app cho điện thoại (ẩn hoàn toàn trên máy tính) ───
+       Khung này chỉ hiện khi html[data-ui="mobile"] và người dùng đã đăng nhập;
+       assets/js/app/mobile-ui.js bỏ thuộc tính hidden và nối các nút với hành vi có sẵn. -->
+  <div class="mobile-scrim" id="mobileScrim" hidden role="presentation"></div>
+
+  <nav class="mobile-tabbar" id="mobileTabbar" hidden aria-label="Điều hướng di động">
+    <button type="button" data-mobile-tab="channels" aria-label="Danh sách kênh" aria-expanded="false">
+      <svg class="icon" aria-hidden="true"><use href="#i-hash"></use></svg><span>Kênh</span>
+    </button>
+    <button type="button" data-mobile-tab="chat" aria-current="page" aria-label="Trò chuyện">
+      <svg class="icon" aria-hidden="true"><use href="#i-chat"></use></svg><span>Trò chuyện</span>
+    </button>
+    <button type="button" data-mobile-tab="members" aria-label="Thành viên">
+      <svg class="icon" aria-hidden="true"><use href="#i-users"></use></svg><span>Thành viên</span>
+    </button>
+    <button type="button" data-mobile-tab="settings" aria-label="Cài đặt nhanh" aria-expanded="false">
+      <svg class="icon" aria-hidden="true"><use href="#i-palette"></use></svg><span>Cài đặt</span>
+    </button>
+  </nav>
+
+  <section class="mobile-sheet" id="mobileSettingsSheet" hidden role="dialog" aria-modal="true" aria-labelledby="mobileSettingsTitle">
+    <div class="mobile-sheet-grip" aria-hidden="true"></div>
+    <h2 class="mobile-sheet-title" id="mobileSettingsTitle">Cài đặt nhanh</h2>
+    <button class="mobile-sheet-row" type="button" data-mobile-action="theme">
+      <svg class="icon" aria-hidden="true"><use href="#i-palette"></use></svg><span>Giao diện &amp; cỡ chữ</span>
+    </button>
+    <button class="mobile-sheet-row" type="button" data-mobile-action="admin" hidden>
+      <svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>Bảng quản trị</span>
+    </button>
+    <button class="mobile-sheet-row" type="button" data-mobile-action="saved">
+      <svg class="icon" aria-hidden="true"><use href="#i-bookmark"></use></svg><span>Tin nhắn đã lưu</span><span class="mobile-sheet-hint" id="mobileSavedCount"></span>
+    </button>
+    <button class="mobile-sheet-row" type="button" data-mobile-action="announcements">
+      <svg class="icon" aria-hidden="true"><use href="#i-megaphone"></use></svg><span>Thông báo toàn máy chủ</span>
+    </button>
+    <button class="mobile-sheet-row" type="button" data-mobile-action="miu">
+      <svg class="icon" aria-hidden="true"><use href="#i-paw"></use></svg><span>Nhận lời nhắn từ Miu</span>
+    </button>
+    <div class="mobile-sheet-status">
+      <span class="connection-dot" id="mobileConnectionDot"></span>
+      <span id="mobileConnectionLabel">Đang kết nối</span>
+    </div>
+    <button class="mobile-sheet-row danger" type="button" data-mobile-action="logout">
+      <svg class="icon" aria-hidden="true"><use href="#i-logout"></use></svg><span>Đăng xuất</span>
+    </button>
+  </section>
+
   <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="false"></div>
 
   <!-- Firebase SDK (compat) -->
@@ -696,6 +750,9 @@
   <script defer src="assets/js/features/typing-indicator.js"></script>
   <script defer src="assets/js/features/cursor-fx.js"></script>
   <script defer src="assets/js/features/pwa.js"></script>
+
+  <!-- Giao diện mobile: nối thanh tab / ngăn kéo với các nút có sẵn -->
+  <script defer src="assets/js/app/mobile-ui.js"></script>
 
   <!-- Khởi động app (luôn cuối cùng) -->
   <script defer src="assets/js/app/boot.js"></script>

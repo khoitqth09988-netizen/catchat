@@ -10,7 +10,7 @@
    Khi deploy thay đổi lớn, tăng VERSION để xoá cache cũ. */
 'use strict';
 
-const VERSION = 'catchat-v3';
+const VERSION = 'catchat-v4';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 

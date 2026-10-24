@@ -18,6 +18,8 @@
 | Chạy được khi **không có Storage** (gói miễn phí) | ✅ xong | `assets/js/app/media.js`: ảnh bằng liên kết https, avatar chữ |
 | Tự kiểm thử trong CI: mô phỏng Rules + smoke test jsdom | ✅ xong | `tests/`, `.github/workflows/deploy.yml` |
 | Tối ưu mobile: ⋯ luôn hiện trên cảm ứng, vùng chạm 44px, safe-area trên, chữ 15–16px | ✅ xong | `assets/css/mobile.css`, `index.html` |
+| Giao diện app riêng cho điện thoại: nhận diện lúc tải, thanh tab 4 mục, ngăn kéo kênh, bảng cài đặt | ✅ xong | `assets/js/app/ui-mode.js`, `assets/js/app/mobile-ui.js`, `assets/css/mobile-app.css` |
+| Sửa cảnh báo `apple-mobile-web-app-capable` và lỗi `keydown` của bản nháp (`event.key` undefined) | ✅ xong | `index.html`, `assets/js/features/drafts.js` |
 | App Check **enforce** cho RTDB + Storage | ⏳ việc trong Console (xem `SECURITY.md` §2) |
 | Rate limit thật ở Functions, chuyển ghi tin nhắn sang Function | ⏳ P1 |
 | Tìm kiếm lịch sử, phân trang, push notification, DM, vai trò | ⏳ P1 |
@@ -26,7 +28,7 @@
 
 | Lớp | Hiện trạng |
 |---|---|
-| Frontend | SPA thuần JS, tách module theo tính năng, CSS 19 lớp, theme + giảm chuyển động, mobile |
+| Frontend | SPA thuần JS, tách module theo tính năng, CSS 20 lớp, theme + giảm chuyển động, giao diện mobile riêng |
 | Auth | Email/Password, phân quyền admin 3 nguồn (`/admins`, email, custom claim) |
 | Database | RTDB 24 node, Rules gốc đóng, validate độ dài/kiểu, whitelist reaction |
 | Storage | Ảnh chat + avatar (chưa có `storage.rules` trong repo) |
