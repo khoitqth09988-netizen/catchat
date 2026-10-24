@@ -32,6 +32,11 @@ const firebaseConfig = {
   // Deploy thư mục functions/ rồi đổi thành true để app gọi Cloud Function deleteUserAccount.
   // Để false: app vẫn xoá dữ liệu + cấm vĩnh viễn UID, nhưng bản ghi Auth phải xoá tay trong Console.
   enableAccountDeletionFunction: false,
+  // Định danh thiết bị/IP: cần Cloud Function getClientIdentity để biết IP công cộng.
+  // Chưa deploy → app vẫn chặn theo dấu vân tay thiết bị, chỉ là không có IP.
+  enableIdentityFunction: false,
+  // Một thiết bị/IP được tạo tối đa bao nhiêu tài khoản trước khi bị khoá toàn bộ.
+  maxAccountsPerIdentity: 2,
   functionsRegion: "us-central1"
 };
 

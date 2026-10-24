@@ -59,3 +59,127 @@
   .mute-durations { grid-template-columns: 1fr 1fr; }
   .mute-banner { margin: 0 9px 8px; }
 }
+
+/* ─────────────── Chặn vĩnh viễn: thiết bị / IP / khoá tự động ───────────────
+   Dùng lại khung .admin-list, .admin-block-heading có sẵn để tab mới trông
+   cùng một hệ với các tab khác. Mọi kích thước ở đây là mật độ gọn. */
+.identity-ban-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 4px 0 14px;
+  padding: 10px;
+  border: 1px solid var(--theme-line);
+  border-radius: 12px;
+  background: var(--theme-panel-alt);
+}
+
+.identity-ban-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.identity-ban-field.grow { flex: 1 1 160px; }
+
+.identity-ban-field > span {
+  color: var(--theme-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.identity-ban-field select,
+.identity-ban-field input {
+  width: 100%;
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--theme-line-strong);
+  border-radius: 8px;
+  background: var(--theme-panel);
+  color: var(--theme-text);
+  font-size: 10px;
+  outline: none;
+}
+
+.identity-ban-field select:focus-visible,
+.identity-ban-field input:focus-visible {
+  border-color: color-mix(in srgb, var(--theme-accent) 52%, var(--theme-line-strong));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-accent) 18%, transparent);
+}
+
+.identity-ban-form .admin-danger-button { min-height: 32px; white-space: nowrap; }
+
+.identity-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 8px;
+  border: 1px solid var(--theme-line);
+  border-radius: 10px;
+  background: var(--theme-panel);
+}
+
+.identity-row + .identity-row { margin-top: 5px; }
+
+.identity-row-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--ds-danger, #e05663) 12%, transparent);
+  color: var(--ds-danger, #e05663);
+}
+
+.identity-row-icon .icon { width: 14px; height: 14px; }
+
+.identity-row-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.identity-row-copy strong {
+  color: var(--theme-text);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.identity-row-copy span {
+  overflow: hidden;
+  color: var(--theme-muted);
+  font-size: 8.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identity-row-hash {
+  overflow: hidden;
+  color: var(--theme-subtle);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identity-row-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.identity-list:empty { display: none; }
+
+@media (max-width: 640px) {
+  .identity-ban-form { flex-direction: column; align-items: stretch; }
+  .identity-ban-field.grow { flex: 1 1 auto; }
+  .identity-row-actions .admin-action { min-width: 30px; min-height: 30px; }
+  .identity-row-hash { display: none; }
+}

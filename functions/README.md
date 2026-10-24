@@ -39,3 +39,21 @@ nữa), nhưng bản ghi trong Authentication phải xoá tay ở Firebase Conso
 - `ADMIN_EMAILS` trong `functions/index.js` phải khớp với danh sách admin trong Rules.
 - Xoá xong, người dùng có thể đăng ký lại bằng email cũ (UID mới). Muốn chặn hẳn thì cần thêm
   bước kiểm tra email ở server hoặc chặn domain trong Firebase Authentication.
+
+
+## Chặn theo thiết bị / IP (tuỳ chọn)
+
+| Hàm | Loại | Việc nó làm |
+|---|---|---|
+| `getClientIdentity` | callable | Trả về `ipHash` (SHA-256 của IP + muối bí mật). Bật `enableIdentityFunction: true` trong `config.js` để app dùng. |
+| `enforceIdentityLock` | callable | Admin dọn toàn bộ tài khoản trong `/identityLocks/<hash>` (xoá cả Auth). |
+| `onIdentityLedgerWrite` | Realtime trigger | Khi một thiết bị vượt 2 tài khoản: tự tạo khoá, cấm và xoá toàn bộ tài khoản đó **ở server**. |
+
+```bash
+firebase functions:config:set identity.salt="chuoi-bi-mat-rieng-cua-ban"
+firebase deploy --only functions:getClientIdentity,functions:enforceIdentityLock,functions:onIdentityLedgerWrite
+```
+
+- Nên đặt `IDENTITY_SALT` khác nhau giữa môi trường thử và thật; đổi muối sẽ làm toàn bộ mã IP cũ vô hiệu.
+- Hàm tự khoá bỏ qua tài khoản quản trị (`/admins/<uid> = true` hoặc email trong `ADMIN_EMAILS`).
+- Nếu chưa deploy, app vẫn chặn được theo dấu vân tay thiết bị ở phía trình duyệt (Rules quyết định quyền ghi).

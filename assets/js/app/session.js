@@ -103,6 +103,8 @@ function handleAuthState(user) {
   const generation = ++authGeneration;
   const previousUid = currentUser?.uid || null;
   cleanupRealtime();
+  // Ngừng theo dõi chặn thiết bị/IP của phiên trước.
+  try { window.CatChat?.identity?.unwatch?.(); } catch (_) { /* feature chưa nạp */ }
   closeChannelDialog();
   closeThemeDialog();
   currentUser = user || null;
