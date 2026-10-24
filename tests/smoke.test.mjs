@@ -193,6 +193,40 @@ toggle.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 check('Esc không đóng menu', menu.hidden === true);
 
+/* ── 2a. Vị trí menu: ưu tiên cạnh tin nhắn, luôn nằm trong khung nhìn ── */
+const pos = (anchorBox, box, rowBox, viewport) => window.eval(
+  `messageMenuPosition(${JSON.stringify(anchorBox)}, ${JSON.stringify(box)}, ${JSON.stringify(rowBox)}, ${JSON.stringify(viewport)})`
+);
+const box = { width: 196, height: 180 };
+const viewport = { width: 900, height: 700 };
+
+const besideRight = pos({ left: 600, right: 624, top: 100, bottom: 118 }, box, { left: 300, right: 640, top: 96, bottom: 200 }, viewport);
+check('không mở bên phải hàng tin', besideRight.side === 'right' && besideRight.left === 648, JSON.stringify(besideRight));
+check('menu bên phải lệch dọc so với hàng tin', Math.abs(besideRight.top - 94) <= 2, String(besideRight.top));
+
+const besideLeft = pos({ left: 700, right: 724, top: 100, bottom: 118 }, box, { left: 400, right: 760, top: 96, bottom: 200 }, { width: 800, height: 700 });
+check('không lật sang trái khi hết chỗ bên phải', besideLeft.side === 'left' && besideLeft.left === 196, JSON.stringify(besideLeft));
+
+const clipped = window.eval(`messageMenuPosition(
+  ${JSON.stringify({ left: 860, right: 884, top: 100, bottom: 118 })},
+  ${JSON.stringify(box)},
+  ${JSON.stringify({ left: 300, right: 880, top: 96, bottom: 200 })},
+  ${JSON.stringify({ width: 1200, height: 700 })},
+  { bounds: { left: 0, top: 0, right: 900, bottom: 700 } }
+)`);
+check('menu tràn sang cột thành viên', clipped.side === 'left' && clipped.left === 96, JSON.stringify(clipped));
+
+const narrow = pos({ left: 300, right: 324, top: 300, bottom: 318 }, box, { left: 12, right: 380, top: 296, bottom: 420 }, { width: 400, height: 700 });
+check('màn hình hẹp không rơi xuống dưới nút', narrow.side === 'below' && narrow.top === 326, JSON.stringify(narrow));
+
+const nearBottom = pos({ left: 300, right: 324, top: 640, bottom: 658 }, box, { left: 12, right: 380, top: 636, bottom: 680 }, { width: 400, height: 700 });
+check('sát đáy không lật lên trên', nearBottom.side === 'above' && nearBottom.top + box.height <= 700, JSON.stringify(nearBottom));
+
+for (const result of [besideRight, besideLeft, narrow, nearBottom]) {
+  check('menu lọt ra ngoài khung nhìn', result.left >= 0 && result.top >= 0
+    && result.left + box.width <= viewport.width + 100 && result.top + box.height <= 700, JSON.stringify(result));
+}
+
 /* ── 2b. Render lại khi menu đang mở: không để menu mồ côi ──── */
 toggle.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 check('không mở lại được menu để test render', menu.hidden === false);

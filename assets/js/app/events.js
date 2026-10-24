@@ -40,21 +40,58 @@ function closeMessageMenus() {
   }
 }
 
-/** Đặt menu (position: fixed) ngay dưới nút ⋯ và luôn nằm trong khung nhìn:
-    sát mép phải thì lùi sang trái, sát mép dưới thì mở ngược lên trên. */
+/** Tính vị trí menu hành động. Ưu tiên đặt **cạnh tin nhắn** (bên phải hàng tin,
+    nếu không đủ chỗ thì bên trái), chỉ khi màn hình quá hẹp mới mở dưới/trên nút ⋯.
+    Hàm thuần (không đụng DOM) để test được bằng số liệu giả lập.
+
+    anchor : rect của nút ⋯   box : kích thước menu
+    row    : rect của hàng tin nhắn (có thể null)
+    viewport: { width, height } */
+function messageMenuPosition(anchor, box, row, viewport, options = {}) {
+  const margin = options.margin ?? 10;
+  const gap = options.gap ?? 8;
+  // Khung cho phép: mặc định là cả khung nhìn; placeMessageMenu() truyền vào khung
+  // của danh sách tin nhắn để menu không tràn sang cột thành viên / mép trang.
+  const bounds = options.bounds || { left: 0, top: 0, right: viewport.width, bottom: viewport.height };
+  const clamp = (value, min, max) => Math.min(Math.max(value, min), Math.max(min, max));
+  const minLeft = Math.max(margin, bounds.left + 4);
+  const minTop = Math.max(margin, bounds.top + 4);
+  const maxLeft = Math.min(viewport.width - box.width - margin, bounds.right - box.width - 4);
+  const maxTop = Math.min(viewport.height - box.height - margin, bounds.bottom - box.height - 4);
+  const topBeside = clamp((row ? row.top : anchor.top) - 2, minTop, maxTop);
+
+  // 1) Bên phải hàng tin nhắn (ngay cạnh tin).
+  if (row && row.right + gap <= maxLeft) {
+    return { left: Math.round(row.right + gap), top: Math.round(topBeside), side: 'right' };
+  }
+  // 2) Bên trái hàng tin nhắn.
+  if (row && row.left - gap - box.width >= minLeft) {
+    return { left: Math.round(row.left - gap - box.width), top: Math.round(topBeside), side: 'left' };
+  }
+  // 3) Màn hình hẹp: mở ngay dưới nút.
+  const left = clamp(anchor.left, minLeft, maxLeft);
+  if (anchor.bottom + gap + box.height <= maxTop + box.height) {
+    return { left: Math.round(left), top: Math.round(clamp(anchor.bottom + gap, minTop, maxTop)), side: 'below' };
+  }
+  // 4) Không còn chỗ dưới: mở lên trên nút.
+  return { left: Math.round(left), top: Math.round(clamp(anchor.top - box.height - gap, minTop, maxTop)), side: 'above' };
+}
+
+/** Đặt menu đã portal vào đúng vị trí tính được. */
 function placeMessageMenu(menu, toggle) {
-  const margin = 12;
-  const gap = 6;
-  const anchor = toggle.getBoundingClientRect();
-  const box = menu.getBoundingClientRect();
-  let left = anchor.left;
-  if (left + box.width > window.innerWidth - margin) left = anchor.right - box.width;
-  left = Math.max(margin, Math.min(left, window.innerWidth - box.width - margin));
-  let top = anchor.bottom + gap;
-  if (top + box.height > window.innerHeight - margin) top = anchor.top - box.height - gap;
-  top = Math.max(margin, Math.min(top, window.innerHeight - box.height - margin));
-  menu.style.top = `${Math.round(top)}px`;
-  menu.style.left = `${Math.round(left)}px`;
+  const row = toggle.closest('.message-row');
+  const list = toggle.closest('.messages-area');
+  const listBox = list ? list.getBoundingClientRect() : null;
+  const position = messageMenuPosition(
+    toggle.getBoundingClientRect(),
+    menu.getBoundingClientRect(),
+    row ? row.getBoundingClientRect() : null,
+    { width: window.innerWidth, height: window.innerHeight },
+    listBox ? { bounds: listBox } : {}
+  );
+  menu.dataset.side = position.side;
+  menu.style.top = `${position.top}px`;
+  menu.style.left = `${position.left}px`;
 }
 
 function openMessageMenu(toggle) {
