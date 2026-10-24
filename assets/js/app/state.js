@@ -78,6 +78,7 @@ let reactionStops = new Map();
 let messageSearchQuery = '';
 let replyTarget = null;
 let pendingImageFile = null;
+let pendingImageUrl = '';
 let pendingImageObjectUrl = null;
 let isSendingMessage = false;
 let hasAdminMarker = false;

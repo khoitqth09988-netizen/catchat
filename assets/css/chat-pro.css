@@ -617,3 +617,7 @@
   .message-more { width: 30px; height: 28px; opacity: 1; }
   .message-menu-item { min-height: 38px; font-size: 12.5px; }
 }
+
+/* Chế độ không có Firebase Storage: nút đính kèm mở hộp thoại dán liên kết ảnh. */
+.attach-button.is-link-only { color: var(--theme-accent, #d6d9de); }
+.attach-button.is-link-only .icon { transform: none; }

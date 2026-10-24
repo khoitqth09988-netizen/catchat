@@ -44,7 +44,7 @@ for (const href of refs) {
 note(`${new Set(refs).size} tệp nội bộ được index.html tham chiếu`);
 
 /* 2. Cú pháp JS */
-const jsFiles = [...walk('assets/js'), ...walk('scripts'), ...walk('functions'), 'sw.js'].filter((file) => existsSync(path.join(root, file)));
+const jsFiles = [...walk('assets/js'), ...walk('scripts'), ...walk('functions'), ...walk('tests'), 'sw.js'].filter((file) => existsSync(path.join(root, file)));
 for (const file of jsFiles) {
   try {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });

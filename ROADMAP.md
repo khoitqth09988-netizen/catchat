@@ -15,6 +15,8 @@
 | Bịt lỗ hổng `name` / `timestamp` / `adminLog` trong Rules | ✅ xong (JSON mới ở chat) | `database.rules.json` |
 | PWA: manifest, icon, Service Worker network-first, cache-bust theo `VERSION` | ✅ xong | `manifest.webmanifest`, `sw.js`, `assets/js/features/pwa.js` |
 | Menu ⋯ gộp Trả lời / Lưu / Sao chép / Sửa / Ghim / Xoá | ✅ xong | `assets/js/app/messages.js`, `chat-pro.css` |
+| Chạy được khi **không có Storage** (gói miễn phí) | ✅ xong | `assets/js/app/media.js`: ảnh bằng liên kết https, avatar chữ |
+| Tự kiểm thử trong CI: mô phỏng Rules + smoke test jsdom | ✅ xong | `tests/`, `.github/workflows/deploy.yml` |
 | App Check **enforce** cho RTDB + Storage | ⏳ việc trong Console (xem `SECURITY.md` §2) |
 | Rate limit thật ở Functions, chuyển ghi tin nhắn sang Function | ⏳ P1 |
 | Tìm kiếm lịch sử, phân trang, push notification, DM, vai trò | ⏳ P1 |

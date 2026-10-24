@@ -76,6 +76,7 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   viewport.js                  Bàn phím ảo, vùng an toàn, đổi kích thước / xoay ngang
   cursor-fx.js                 Hiệu ứng con trỏ: di chuyển, bấm, cuộn (có công tắc Tắt/Nhẹ/Đầy đủ)
   pwa.js                       Đăng ký Service Worker + manifest (cài như app)
+  media.js                     Trạng thái Storage: có thì upload, không thì dán liên kết ảnh
 functions/                     Cloud Functions: xoá tài khoản Auth, lấy mã IP, tự khoá định danh
   package.json                 Khai báo phụ thuộc + engines Node 22 (bắt buộc để deploy được)
 storage.rules                  Storage Rules cho ảnh chat + avatar (dán riêng trong Console)
@@ -84,6 +85,7 @@ manifest.webmanifest           PWA: tên, icon, màu, chế độ standalone
 sw.js                          Service Worker: shell network-first, cache-bust theo VERSION
 assets/icons/                  Icon PWA 192/512/maskable + apple-touch-icon
 scripts/verify.mjs             Kiểm tra trước khi deploy (chạy: node scripts/verify.mjs)
+tests/                         rules.test.mjs (mô phỏng Rules) + smoke.test.mjs (jsdom)
 .github/workflows/deploy.yml   CI: kiểm tra tĩnh, deploy Firebase Hosting nếu có secret
 SECURITY.md                    Checklist bảo mật: App Check, Rules, quota, CSP
 ROADMAP.md                     Lộ trình full stack: đã xong gì, còn gì
@@ -385,6 +387,19 @@ Một lần xoá gồm các bước:
 
 Admin không xoá được: chính mình, hoặc một tài khoản đang là admin (phải hạ quyền trước).
 
+## Không có Firebase Storage (gói miễn phí)
+
+Dự án vẫn chạy đủ tính năng chat khi chưa bật Storage:
+
+- **Gửi ảnh**: bấm nút đính kèm → app hỏi **liên kết ảnh https://** thay vì mở hộp chọn tệp.
+  Ảnh chỉ là URL công khai lưu trong `imageURL` của tin nhắn (≤ 4096 ký tự, Rules cho phép),
+  **không upload gì lên Firebase** nên không cần Storage, không tốn quota.
+- **Ảnh đại diện**: dùng chữ cái đầu của tên (avatar chữ) — không cần Storage.
+- Nếu lỡ bật Storage sau này, app tự nhận và quay lại luồng chọn tệp bình thường; khi gặp lỗi
+  kiểu `storage/bucket-not-found`, app tự chuyển sang chế độ liên kết và báo một lần.
+- `storage.rules` trong repo để dành cho lúc bật Storage; **không dán cũng không sao** —
+  chỉ ảnh upload mới cần tới nó.
+
 ## Firebase
 
 - Bật Authentication (Email/Password), Realtime Database và Storage.
@@ -429,6 +444,23 @@ node scripts/verify.mjs
 # · node --check cho 45+ tệp JS (kể cả functions/, sw.js)
 # · CSS cân bằng ngoặc · JSON hợp lệ · icon PWA · Rules gốc đóng, không numChildren()
 ```
+
+### Kiểm thử tự động (không cần Firebase thật)
+
+```bash
+node scripts/verify.mjs        # cú pháp JS/CSS/JSON, tài nguyên, PWA, Rules tĩnh
+node tests/rules.test.mjs      # mô phỏng Rules: 27 tình huống quyền ghi
+cd tests && npm install && npm test   # thêm smoke test giao diện bằng jsdom
+```
+
+- `tests/rules.test.mjs` dịch biểu thức trong `database.rules.json` sang JS rồi chạy:
+  giả danh admin, giả uid, timestamp tương lai, sửa/xoá tin người khác, adminLog append-only,
+  khách chưa đăng nhập, kênh không tồn tại… Không cần Emulator, chạy trong ~0,1 giây.
+- `tests/smoke.test.mjs` dựng lại `index.html` trong bộ nhớ (CSS/JS thật + Firebase giả **không có
+  Storage**) để kiểm menu `⋯`, phân quyền admin/thường, thông báo toàn máy chủ, chế độ dán ảnh
+  bằng liên kết, gửi tin kèm `imageURL`, và bắt lỗi runtime.
+- Cả hai chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
+  chạy `verify` + `rules`, job **Smoke test giao diện** cài jsdom rồi chạy `smoke`.
 
 ### Firebase Emulator (chạy full stack ở máy)
 

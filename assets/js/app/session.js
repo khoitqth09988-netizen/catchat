@@ -323,8 +323,8 @@ async function uploadAvatar(event) {
   const storageService = storage;
   event.target.value = '';
   if (!file) return;
-  if (!user || !storageService) {
-    toast('Tải ảnh đại diện chưa sẵn sàng. Hãy bật Firebase Storage và đăng nhập lại.', 'error');
+  if (!user || !storageService || !storageReady()) {
+    markStorageUnavailable();
     return;
   }
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -359,8 +359,12 @@ async function uploadAvatar(event) {
     }
     toast(memberProfileSaved ? 'Đã cập nhật ảnh đại diện.' : 'Ảnh đã lưu trong tài khoản. Hãy cấp quyền cập nhật /members để mọi người nhìn thấy ảnh mới.', memberProfileSaved ? 'success' : 'error');
   } catch (error) {
-    const denied = error?.code === 'storage/unauthorized' || error?.code === 'PERMISSION_DENIED';
-    toast(denied ? 'Firebase Storage Rules chưa cho phép tải ảnh lên.' : 'Không thể tải ảnh lên. Hãy thử ảnh khác hoặc kiểm tra Firebase Storage.', 'error');
+    if (isStorageUnavailableError(error)) {
+      markStorageUnavailable(error);
+    } else {
+      const denied = error?.code === 'storage/unauthorized' || error?.code === 'PERMISSION_DENIED';
+      toast(denied ? 'Firebase Storage Rules chưa cho phép tải ảnh lên.' : 'Không thể tải ảnh lên. Hãy thử ảnh khác hoặc kiểm tra Firebase Storage.', 'error');
+    }
     console.warn('Avatar upload:', error);
   } finally {
     els.avatarFileInput.disabled = false;

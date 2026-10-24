@@ -25,6 +25,8 @@ jobs:
           node-version: '22'
       - name: Cú pháp JS, CSS, JSON, tham chiếu tài nguyên, PWA
         run: node scripts/verify.mjs
+      - name: Mô phỏng Rules Realtime Database
+        run: node tests/rules.test.mjs
       - name: Rules không dùng numChildren và gốc vẫn đóng
         run: |
           node -e "
@@ -35,9 +37,27 @@ jobs:
           console.log('Rules hợp lệ ở mức tĩnh.');
           "
 
+  tests:
+    name: Smoke test giao diện (jsdom)
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+      - name: Cài jsdom
+        working-directory: tests
+        run: npm ci
+      - name: Dựng index.html + chạy smoke test
+        working-directory: tests
+        run: npm run smoke
+
   deploy-hosting:
     name: Deploy Firebase Hosting (tuỳ chọn)
-    needs: verify
+    needs: [verify, tests]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
