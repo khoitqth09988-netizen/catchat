@@ -463,7 +463,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .message-content { min-width: 0; }
 .message-row.mine .message-content { text-align: right; }
 .message-meta { display: flex; align-items: baseline; gap: 8px; margin: 1px 0 5px; }
-.message-row.mine .message-meta { justify-content: flex-end; }
+.message-row.mine .message-meta { justify-content: flex-start; }
 .message-name { color: #c2c2c2; font-size: 9px; font-weight: 720; }
 .message-time { color: #7a7a7a; font-size: 8px; font-variant-numeric: tabular-nums; }
 .message-reply { display: inline-flex; align-items: center; gap: 3px; padding: 1px 3px; border: 0; border-radius: 5px; background: transparent; color: #a8a8a8; cursor: pointer; opacity: 0; transition: opacity .15s, background .15s, color .15s; }
