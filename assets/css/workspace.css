@@ -46,8 +46,14 @@
 .message-row.mine .message-content { text-align: left; }
 .message-row.mine .message-meta { justify-content: flex-start; }
 .message-avatar { width: 38px; height: 38px; border-radius: 50%; }
-.message-meta { gap: 9px; margin-bottom: 3px; }
-.message-name { color: #f2f3f5; font-size: 12px; }
+/* Thứ tự trong hàng meta luôn là: tên → giờ → nút thao tác.
+   Không dùng `order` âm cho nút, nếu không tên sẽ bị đẩy ra xa avatar. */
+.message-meta { gap: 9px; margin-bottom: 3px; align-items: center; }
+.message-name { color: #f2f3f5; font-size: 12px; white-space: nowrap; }
+.message-meta > .message-name { order: 0; flex: 0 0 auto; }
+.message-meta > .message-time { flex: 0 0 auto; }
+/* Nhóm nút (trả lời/lưu/sao chép/sửa/ghim) dạt về cuối hàng, tách khỏi tên. */
+.message-meta > .message-reply { margin-left: auto; }
 .message-time { font-size: 9px; }
 .message-bubble, .message-row.mine .message-bubble { display: block; width: fit-content; max-width: 100%; padding: 1px 0; border: 0; border-radius: 0; background: transparent; color: #dbdee1; font-size: 13px; line-height: 1.55; }
 .message-row.mine .message-delete, .message-row .message-delete { right: 8px; left: auto; top: 6px; z-index: 2; }

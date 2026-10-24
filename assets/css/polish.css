@@ -614,9 +614,6 @@ body {
 
 .app-view .message-meta > .message-save.is-saved { opacity: 1; color: var(--theme-accent); }
 
-.message-row.mine .message-meta > .message-tool,
-.message-row.mine .message-meta > .message-save { order: -1; }
-
 .message-avatar {
   border: 1px solid var(--theme-line);
   background: var(--theme-avatar);
