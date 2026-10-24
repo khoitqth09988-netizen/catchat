@@ -1,162 +1,135 @@
 {
   "rules": {
-    ".read": false,
-    ".write": false,
-
+    ".read": "true",
+    ".write": "true",
     "admins": {
-      ".read": "auth != null",
       "$uid": {
-        ".write": "root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true"
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "true"
       }
     },
-
     "members": {
       ".read": "auth != null",
       "$uid": {
-        ".write": "auth != null && (auth.uid === $uid || root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
-        ".validate": "!newData.exists() || newData.child('name').isString()"
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.child('uid').val() === $uid && newData.child('name').isString() && newData.child('name').val().length <= 32"
       }
     },
-
     "memberEmails": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
+      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.admin === true)",
       "$uid": {
-        ".write": "auth != null && (auth.uid === $uid || root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['email']) && newData.child('email').isString() && newData.child('email').val().length <= 254"
       }
     },
-
     "presence": {
       ".read": "auth != null",
       "$uid": {
         ".write": "auth != null && auth.uid === $uid",
-        ".validate": "!newData.exists() || newData.hasChild('lastChanged')"
+        ".validate": "newData.hasChildren(['state', 'lastChanged']) && newData.child('state').val() === 'online' && newData.child('lastChanged').isNumber()"
       }
     },
-
     "bans": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
+      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.admin === true)",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
+        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.admin === true) && auth.uid !== $uid",
+        ".validate": "newData.hasChildren(['reason', 'bannedBy', 'bannedAt']) && newData.child('reason').isString() && newData.child('reason').val().length <= 240 && newData.child('bannedBy').val() === auth.uid && newData.child('bannedAt').isNumber()"
       }
     },
-
-    "mutes": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
-      }
-    },
-
     "channels": {
       ".read": "auth != null",
-      ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
+      "$channelId": {
+        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.admin === true) && !data.exists() && $channelId.matches(/^[a-z0-9-]{1,32}$/) && $channelId !== 'general' && $channelId !== 'thong-bao' && $channelId !== 'constructor' && $channelId !== 'prototype'",
+        ".validate": "newData.hasChildren(['name', 'description', 'createdBy', 'createdAt']) && newData.child('name').val() === $channelId && newData.child('description').isString() && newData.child('description').val().length <= 120 && newData.child('createdBy').val() === auth.uid && newData.child('createdAt').isNumber()"
+      }
     },
-
     "messages": {
       ".read": "auth != null",
+      ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.admin === true)",
+      ".indexOn": [
+        "timestamp"
+      ],
       "$messageId": {
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true || ((newData.child('uid').val() === auth.uid || data.child('uid').val() === auth.uid) && (!newData.exists() || newData.child('kind').val() !== 'announcement')))",
-        ".validate": "!newData.exists() || newData.child('text').isString() || newData.child('imageURL').isString()"
+        ".write": "auth != null && ((root.child('admins').child(auth.uid).val() === true || auth.token.admin === true) || ((!data.exists() || data.child('kind').val() !== 'announcement') && (!newData.exists() || newData.child('kind').val() !== 'announcement') && (!data.exists() || data.child('uid').val() === auth.uid) && (!newData.exists() || newData.child('uid').val() === auth.uid)))",
+        ".validate": "newData.hasChildren(['uid', 'name', 'text', 'kind', 'timestamp']) && newData.child('uid').isString() && newData.child('name').isString() && newData.child('name').val().length <= 32 && newData.child('text').isString() && newData.child('timestamp').isNumber() && ((newData.child('kind').val() === 'message' && newData.child('text').val().length <= 800) || (newData.child('kind').val() === 'announcement' && newData.child('text').val().length > 0 && newData.child('text').val().length <= 500)) && (!newData.child('imageURL').exists() || (newData.child('imageURL').isString() && newData.child('imageURL').val().length <= 4096)) && (!newData.child('imageName').exists() || (newData.child('imageName').isString() && newData.child('imageName').val().length <= 120)) && (!newData.child('replyTo').exists() || (newData.child('replyTo').isString() && newData.child('replyTo').val().length <= 128)) && (!newData.child('replyName').exists() || (newData.child('replyName').isString() && newData.child('replyName').val().length <= 32)) && (!newData.child('replyText').exists() || (newData.child('replyText').isString() && newData.child('replyText').val().length <= 180))"
       }
     },
-
     "channelMessages": {
       "$channelId": {
-        ".read": "auth != null",
+        ".read": "auth != null && root.child('channels').child($channelId).exists()",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.admin === true) && root.child('channels').child($channelId).exists()",
+        ".indexOn": [
+          "timestamp"
+        ],
         "$messageId": {
-          ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true || ((newData.child('uid').val() === auth.uid || data.child('uid').val() === auth.uid) && (!newData.exists() || newData.child('kind').val() !== 'announcement')))",
-          ".validate": "!newData.exists() || newData.child('text').isString() || newData.child('imageURL').isString()"
+          ".write": "auth != null && root.child('channels').child($channelId).exists() && ((root.child('admins').child(auth.uid).val() === true || auth.token.admin === true) || ((!data.exists() || data.child('kind').val() !== 'announcement') && (!newData.exists() || newData.child('kind').val() !== 'announcement') && (!data.exists() || data.child('uid').val() === auth.uid) && (!newData.exists() || newData.child('uid').val() === auth.uid)))",
+          ".validate": "newData.hasChildren(['uid', 'name', 'text', 'kind', 'timestamp']) && newData.child('uid').isString() && newData.child('name').isString() && newData.child('name').val().length <= 32 && newData.child('text').isString() && newData.child('text').val().length <= 800 && newData.child('kind').val() === 'message' && newData.child('timestamp').isNumber() && (!newData.child('imageURL').exists() || (newData.child('imageURL').isString() && newData.child('imageURL').val().length <= 4096)) && (!newData.child('imageName').exists() || (newData.child('imageName').isString() && newData.child('imageName').val().length <= 120)) && (!newData.child('replyTo').exists() || (newData.child('replyTo').isString() && newData.child('replyTo').val().length <= 128)) && (!newData.child('replyName').exists() || (newData.child('replyName').isString() && newData.child('replyName').val().length <= 32)) && (!newData.child('replyText').exists() || (newData.child('replyText').isString() && newData.child('replyText').val().length <= 180))"
         }
       }
     },
-
     "messageReactions": {
+      ".read": "auth != null",
       "$messageId": {
-        ".read": "auth != null",
-        "$uid": {
-          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || newData.hasChild('type') || newData.hasChild('key'))"
+        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.admin === true)",
+        "$reactionKey": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && ($reactionKey === 'like' || $reactionKey === 'heart' || $reactionKey === 'laugh' || $reactionKey === 'wow') && (!newData.exists() || newData.val() === true)",
+            ".validate": "newData.val() === true"
+          }
         }
       }
     },
-
-    "pins": {
-      ".read": "auth != null",
-      ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
-    },
-
-    "locks": {
-      ".read": "auth != null",
-      ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
-    },
-
-    "typing": {
-      ".read": "auth != null",
-      "$channelId": {
-        "$uid": {
-          ".write": "auth != null && auth.uid === $uid"
-        }
-      }
-    },
-
-    "adminLog": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
-      ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
-    },
-
-    "deletedUsers": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
-      ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
-    },
-
     "memberIdentity": {
       ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "!newData.exists() || (newData.hasChildren(['device', 'at']) && newData.child('device').isString() && newData.child('device').val().length <= 64 && newData.child('at').isNumber() && (!newData.child('ipHash').exists() || (newData.child('ipHash').isString() && newData.child('ipHash').val().length <= 64)))"
       }
     },
-
     "identityLedger": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
       "$deviceHash": {
         ".read": "auth != null",
         "$uid": {
-          ".write": "auth != null && auth.uid === $uid"
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "!newData.exists() || (newData.hasChildren(['at']) && newData.child('at').isNumber() && (!newData.child('ipHash').exists() || newData.child('ipHash').isString()))"
         }
       }
     },
-
     "identityIpLedger": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
       "$ipHash": {
         ".read": "auth != null",
         "$uid": {
-          ".write": "auth != null && auth.uid === $uid"
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "!newData.exists() || (newData.hasChildren(['at']) && newData.child('at').isNumber() && (!newData.child('device').exists() || newData.child('device').isString()))"
         }
       }
     },
-
     "deviceBans": {
       ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
       "$deviceHash": {
         ".read": "auth != null",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
+        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
+        ".validate": "!newData.exists() || (newData.hasChildren(['reason', 'by', 'at']) && newData.child('reason').isString() && newData.child('reason').val().length <= 180 && newData.child('at').isNumber())"
       }
     },
-
     "ipBans": {
       ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
       "$ipHash": {
         ".read": "auth != null",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)"
+        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
+        ".validate": "!newData.exists() || (newData.hasChildren(['reason', 'by', 'at']) && newData.child('reason').isString() && newData.child('reason').val().length <= 180 && newData.child('at').isNumber())"
       }
     },
-
     "identityLocks": {
       ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
       "$hash": {
         ".read": "auth != null",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true || newData.child('uids').child(auth.uid).val() === true)"
+        ".write": "(auth != null && ((root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true) || newData.child('uids').child(auth.uid).val() === true))",
+        ".validate": "!newData.exists() || (newData.hasChildren(['kind', 'at', 'uids']) && (newData.child('kind').val() === 'device' || newData.child('kind').val() === 'ip') && newData.child('at').isNumber())"
       }
     }
   }
