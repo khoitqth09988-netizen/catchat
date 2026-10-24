@@ -40,10 +40,11 @@ Khi `appCheckSiteKey` để trống, `appcheck.js` không làm gì — app chạ
 
 - **Authentication → Settings → User actions**: bật giới hạn tần suất gửi email xác thực / đặt lại mật khẩu.
 - **Authentication → Sign-in method**: chỉ bật Email/Password nếu chỉ cần thế.
-- **Gốc Rules phải đóng**: đặt `".read": false` / `".write": false` ở gốc rồi mở từng node. Nếu để
-  `"true"` ở gốc (`database.rules.json` bản tương thích), mọi tài khoản đã đăng nhập đều ghi được mọi
-  node — người bị cấm tự xoá được `/bans`, `/deviceBans`, `/identityLocks` và tự thêm vào `/admins`.
-  Dùng `database.rules.strict.json` khi cần chặn thật.
+- **Gốc Rules phải đóng**: `database.rules.json` đặt `".read": false` / `".write": false` ở gốc rồi mở
+  từng node. Đừng để `"true"` ở gốc: khi đó mọi tài khoản đã đăng nhập đều ghi được mọi node, người bị
+  cấm tự xoá được `/bans`, `/deviceBans`, `/identityLocks` và tự thêm vào `/admins`.
+- **`/admins` chỉ admin ghi**: tuyệt đối không đặt `.write: "true"` ở `admins/$uid` — đó là đường tự
+  phong quản trị viên. Tài khoản admin đầu tiên thêm tay trong Firebase Console.
 - **Realtime Database → Rules**: dùng bộ Rules đã giao (chặn ghi khi thiếu quyền, chặn người bị mute/ban,
   chỉ admin ghi `/pins`, `/locks`, `/adminLog`).
 - **Realtime Database → Backups**: bật để phục hồi nếu bị xoá dữ liệu.
