@@ -48,6 +48,7 @@
     },
     "messages": {
       ".read": "auth != null",
+      ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
       "$messageId": {
         ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true || ((newData.child('uid').val() === auth.uid || data.child('uid').val() === auth.uid) && (!newData.exists() || newData.child('kind').val() !== 'announcement')))",
         ".validate": "!newData.exists() || newData.child('text').isString() || newData.child('imageURL').isString()"
@@ -56,6 +57,7 @@
     "channelMessages": {
       "$channelId": {
         ".read": "auth != null",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
         "$messageId": {
           ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true || ((newData.child('uid').val() === auth.uid || data.child('uid').val() === auth.uid) && (!newData.exists() || newData.child('kind').val() !== 'announcement')))",
           ".validate": "!newData.exists() || newData.child('text').isString() || newData.child('imageURL').isString()"
@@ -65,8 +67,12 @@
     "messageReactions": {
       "$messageId": {
         ".read": "auth != null",
-        "$uid": {
-          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || newData.hasChild('type') || newData.hasChild('key'))"
+        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@com.vn' || auth.token.admin === true)",
+        "$reactionKey": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && ($reactionKey === 'like' || $reactionKey === 'heart' || $reactionKey === 'laugh' || $reactionKey === 'wow') && (!newData.exists() || newData.val() === true)",
+            ".validate": "newData.val() === true"
+          }
         }
       }
     },
