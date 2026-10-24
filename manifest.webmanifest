@@ -1,0 +1,44 @@
+{
+  "id": "./",
+  "name": "CatChat — Ngôi nhà của những cuộc trò chuyện",
+  "short_name": "CatChat",
+  "description": "Phòng chat realtime cho hội bạn mèo: kênh, thông báo, ghim, reaction và nhật ký quản trị.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "background_color": "#161219",
+  "theme_color": "#161219",
+  "categories": ["social", "communication"],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Phòng chung",
+      "short_name": "Phòng chung",
+      "url": "./?view=chat",
+      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

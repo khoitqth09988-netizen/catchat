@@ -63,9 +63,15 @@ function setAdminState(value) {
   if (isAdmin && adminLogRef && !stopAdminLogListener) {
     stopAdminLogListener = subscribe(adminLogRef, 'value', (snapshot) => {
       const raw = snapshot.val() || {};
-      adminLogEntries = Object.entries(raw)
+      const all = Object.entries(raw)
         .map(([id, entry]) => ({ id, ...(entry || {}) }))
-        .sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0))
+        .sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0));
+      // Nhật ký là append-only: "dọn" chỉ ghi thêm một dấu log-purge,
+      // các mục cũ hơn dấu đó bị ẩn khỏi bảng điều khiển nhưng vẫn còn trong Firebase.
+      const purgeAt = all.find((entry) => entry.type === 'log-purge')?.timestamp;
+      adminLogEntries = all
+        .filter((entry) => entry.type !== 'log-purge')
+        .filter((entry) => !purgeAt || (Number(entry.timestamp) || 0) > Number(purgeAt))
         .slice(0, 60);
       renderAdminLog();
     }, (error) => {

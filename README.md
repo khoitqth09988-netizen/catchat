@@ -75,9 +75,18 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   motion.js                    Tuỳ chọn chuyển động dùng chung cho CSS + JS
   viewport.js                  Bàn phím ảo, vùng an toàn, đổi kích thước / xoay ngang
   cursor-fx.js                 Hiệu ứng con trỏ: di chuyển, bấm, cuộn (có công tắc Tắt/Nhẹ/Đầy đủ)
-functions/                     Cloud Function tuỳ chọn: xoá tài khoản Auth, lấy mã IP, tự khoá định danh
+  pwa.js                       Đăng ký Service Worker + manifest (cài như app)
+functions/                     Cloud Functions: xoá tài khoản Auth, lấy mã IP, tự khoá định danh
+  package.json                 Khai báo phụ thuộc + engines Node 22 (bắt buộc để deploy được)
+storage.rules                  Storage Rules cho ảnh chat + avatar (dán riêng trong Console)
 database.rules.json            Bản Rules Realtime Database đầy đủ (dán vào Firebase Console)
+manifest.webmanifest           PWA: tên, icon, màu, chế độ standalone
+sw.js                          Service Worker: shell network-first, cache-bust theo VERSION
+assets/icons/                  Icon PWA 192/512/maskable + apple-touch-icon
+scripts/verify.mjs             Kiểm tra trước khi deploy (chạy: node scripts/verify.mjs)
+.github/workflows/deploy.yml   CI: kiểm tra tĩnh, deploy Firebase Hosting nếu có secret
 SECURITY.md                    Checklist bảo mật: App Check, Rules, quota, CSP
+ROADMAP.md                     Lộ trình full stack: đã xong gì, còn gì
 ```
 
 Không dùng bundler: mọi file là script cổ điển nạp bằng `<script defer>` để giữ đúng thứ tự,
@@ -155,6 +164,25 @@ Tính năng lỗi được cô lập: `CatChat.features.failures()` ghi lại l�
   }
 }
 ```
+
+## Menu hành động của tin nhắn (⋯)
+
+Mỗi tin nhắn có **một** nút `⋯` nằm ngay sau tên và giờ gửi. Bấm vào mở menu gồm:
+
+| Mục | Quyền |
+|---|---|
+| Trả lời | mọi thành viên |
+| Lưu / Bỏ lưu | mọi thành viên |
+| Sao chép nội dung | mọi thành viên (từ hook `messageTools`) |
+| Sửa tin nhắn | chủ tin nhắn (hoặc admin) |
+| Ghim / Bỏ ghim | admin |
+| Xoá tin nhắn | chủ tin nhắn (hoặc admin) |
+
+Hàng meta vì thế chỉ còn **tên → giờ → ⋯**: tên luôn sát avatar, không còn icon rời.
+Menu đóng khi chọn một mục, bấm ra ngoài, nhấn `Esc`, cuộn danh sách hoặc xoay/đổi kích thước cửa sổ;
+tự lật sang trái/lên khi sát mép màn hình. Trên cảm ứng (≤ 760px) nút `⋯` luôn hiện và mục cao 38px
+cho dễ bấm. Các nút bên trong vẫn giữ `data-*` cũ nên handler uỷ quyền trong `events.js` không đổi —
+feature thêm nút mới chỉ cần mount vào container `context.container` như trước.
 
 ## Hệ thống thiết kế
 
@@ -374,11 +402,80 @@ Admin không xoá được: chính mình, hoặc một tài khoản đang là ad
 > Node `/admins` chỉ admin hiện tại ghi được; tài khoản quản trị đầu tiên đặt tay trong Console
 > (Console bỏ qua Rules).
 - Ảnh chat và avatar dùng **Storage Rules** riêng, không nằm trong Rules của Realtime Database.
+  Mở [`storage.rules`](storage.rules) → copy **toàn bộ file** → Console → Storage → Rules → Publish.
+  Chỉ chủ tài khoản ghi được vào `chatImages/<uid>/…` (≤ 5 MB) và `avatars/<uid>/…` (≤ 8 MB),
+  `contentType` phải là `image/*`; mọi đường dẫn khác bị chặn.
+- `/adminLog` là **append-only**: admin chỉ `push` được mục mới, không xoá/sửa. Nút “Dọn nhật ký”
+  trong bảng quản trị chỉ ghi thêm một dấu `log-purge` để ẩn mục cũ khỏi giao diện — bản ghi gốc
+  vẫn còn để kiểm toán.
+- Tin nhắn: Rules đối chiếu `name` với `/members/<uid>/name` và đòi `timestamp` không lệch quá
+  5 phút so với giờ máy chủ ⇒ không giả danh admin, không đẩy tin lên đầu bằng timestamp tương lai.
 - Tài khoản `admin@com.vn` (hoặc UID có `/admins/<uid> = true`) sẽ thấy bảng quản trị.
 
 ## Chạy thử cục bộ
+
+Chỉ xem giao diện (vẫn cần Internet cho Firebase SDK):
 
 ```bash
 python3 -m http.server 8000
 # mở http://localhost:8000
 ```
+
+Kiểm tra toàn bộ mã trước khi commit (không cần cài gì):
+
+```bash
+node scripts/verify.mjs
+# · tham chiếu tài nguyên trong index.html
+# · node --check cho 45+ tệp JS (kể cả functions/, sw.js)
+# · CSS cân bằng ngoặc · JSON hợp lệ · icon PWA · Rules gốc đóng, không numChildren()
+```
+
+### Firebase Emulator (chạy full stack ở máy)
+
+```bash
+npm install -g firebase-tools
+firebase emulators:start            # auth 9099 · database 9000 · storage 9199 · UI 4000
+firebase emulators:start --only auth,database,storage,hosting
+```
+
+`firebase.json` đã khai báo đủ cổng. Muốn app nói chuyện với emulator, thêm một lần trong Console
+của trình duyệt (chỉ khi phát triển):
+
+```js
+firebase.database().useEmulator('localhost', 9000);
+firebase.auth().useEmulator('http://localhost:9099');
+firebase.storage().useEmulator('localhost', 9199);
+```
+
+### Cloud Functions
+
+```bash
+cd functions
+npm install            # firebase-admin + firebase-functions, engines Node 22
+npm run check          # node --check index.js
+cd ..
+firebase deploy --only functions
+```
+
+Deploy xong thì bật trong `assets/js/app/config.js`:
+`enableAccountDeletionFunction: true` (xoá tài khoản Auth) và `enableIdentityFunction: true`
+(lấy IP thật cho giới hạn thiết bị/IP).
+
+### PWA
+
+- `manifest.webmanifest` + `sw.js` đã có sẵn: mở bằng HTTPS (GitHub Pages/Firebase Hosting) là
+  cài được lên màn hình chính/desktop.
+- Trang, JS và CSS tải **network-first** ⇒ deploy xong là thấy bản mới ngay (tên tệp không có hash);
+  ảnh/icon dùng stale-while-revalidate; **không** cache dữ liệu Firebase.
+- Khi sửa nhiều tệp tĩnh và muốn xoá cache cũ ngay, tăng `VERSION` trong `sw.js` (`catchat-v1` →
+  `catchat-v2`).
+
+### CI/CD
+
+`.github/workflows/deploy.yml` chạy `node scripts/verify.mjs` cho mọi push/PR vào `main`.
+Muốn tự deploy Firebase Hosting: tạo secret `FIREBASE_SERVICE_ACCOUNT` (JSON của service account
+có quyền Firebase Hosting Admin). Không có secret thì job deploy được bỏ qua, GitHub Pages vẫn phục vụ
+nhánh `main` như trước.
+
+> Rules và Functions **không** tự deploy trong CI: chủ dự án dán Rules tay trong Console để kiểm soát
+> từng thay đổi, và deploy Functions bằng lệnh ở trên.

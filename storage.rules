@@ -1,0 +1,39 @@
+rules_version = '2';
+
+/* CatChat · Firebase Storage Rules
+   Ảnh chat:  /chatImages/<uid>/<tên tệp>   (tối đa 5 MB, chỉ ảnh)
+   Ảnh đại diện: /avatars/<uid>/<tên tệp>  (tối đa 8 MB ảnh gốc, tối đa 2 MB sau khi nén)
+
+   Nguyên tắc:
+   - Chỉ người đã đăng nhập mới đọc được ảnh (link tải có token vẫn xem được nếu đã chia sẻ).
+   - Mỗi người chỉ ghi/xoá được trong thư mục mang đúng uid của mình ⇒ không ghi đè ảnh người khác.
+   - Chặn mọi đường dẫn khác.
+
+   Cách dán: Firebase Console → Storage → Rules → dán toàn bộ tệp này → Publish.
+   Lưu ý: đây là Storage Rules, KHÔNG phải Realtime Database Rules. */
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /chatImages/{uid}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /avatars/{uid}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Không mở bất kỳ thư mục nào khác.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

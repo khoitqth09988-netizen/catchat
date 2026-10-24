@@ -6,6 +6,26 @@ function currentTimestamp() {
   return database?.ServerValue?.TIMESTAMP || Date.now();
 }
 
+/** Tên hiển thị để ghi vào tin nhắn — phải trùng /members/<uid>/name.
+    Rules đối chiếu đúng giá trị này, nên không ai giả danh admin bằng cách sửa `name`. */
+async function authorNameFor(user = currentUser) {
+  const uid = user?.uid;
+  if (!uid) return displayNameFor(user).slice(0, 32);
+  const cached = String(members?.[uid]?.name || '').trim();
+  if (cached) return cached.slice(0, 32);
+  if (membersRef) {
+    try {
+      await syncMemberProfile(user);
+      const snapshot = await membersRef.child(uid).child('name').once('value');
+      const stored = String(snapshot.val() || '').trim();
+      if (stored) return stored.slice(0, 32);
+    } catch (error) {
+      console.warn('Chưa đọc được tên thành viên, dùng tên tài khoản:', error);
+    }
+  }
+  return displayNameFor(user).slice(0, 32);
+}
+
 async function syncMemberProfile(user) {
   if (!database || !user) return;
   const ref = membersRef.child(user.uid);
