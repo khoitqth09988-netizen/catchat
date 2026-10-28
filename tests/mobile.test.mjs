@@ -108,7 +108,29 @@ function winner(element, property, viewport) {
 document.body.innerHTML = `
   <div class="app-view" id="appView">
     <div class="app-shell">
-      <aside class="sidebar"></aside>
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-drawer-head">
+          <div class="drawer-head-copy"><span class="drawer-eyebrow">Điều hướng</span><strong>Kênh &amp; trò chuyện</strong></div>
+          <button class="drawer-close" id="mobileDrawerClose" type="button"></button>
+        </div>
+        <label class="drawer-filter" for="mobileChannelFilter">
+          <input id="mobileChannelFilter" type="search" placeholder="Tìm kênh…">
+        </label>
+        <div class="brand-lockup"><div class="brand-mark"></div><div><span class="brand-name">CatChat</span></div></div>
+        <nav class="side-nav">
+          <button class="nav-link" type="button"><span>Trò chuyện</span></button>
+          <button class="nav-link" type="button"><span>Thành viên</span></button>
+        </nav>
+        <div class="sidebar-channel-block">
+          <div class="channel-list" id="channelList">
+            <button class="channel-link" type="button" data-channel-id="general"><span class="channel-mark">#</span><span class="channel-name">phòng-chung</span></button>
+            <button class="channel-link" type="button" data-channel-id="meo"><span class="channel-mark">#</span><span class="channel-name">mèo-con</span></button>
+          </div>
+          <p class="drawer-empty" id="mobileChannelEmpty" hidden>Không tìm thấy kênh nào khớp.</p>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="profile-chip"><button class="avatar" type="button">M</button><div class="profile-text"><strong>Mèo</strong><span>meo@com.vn</span></div></div>
+      </aside>
       <div class="main-layout">
         <header class="topbar"></header>
         <main class="content-grid">
@@ -195,9 +217,12 @@ for (const char of mobileAppCss) {
     buffer += char;
   }
 }
+// Chỉ chấp nhận hai phạm vi: riêng giao diện mobile, hoặc riêng phần KHÔNG phải mobile
+// (dùng để ẩn khung mới trên máy tính).
+const MOBILE_SCOPES = ['html[data-ui="mobile"]', 'html:not([data-ui="mobile"])'];
 const unscoped = mobileSelectors
   .flatMap((selector) => selector.split(',').map((part) => part.trim()))
-  .filter((selector) => selector && !selector.startsWith('html[data-ui="mobile"]'));
+  .filter((selector) => selector && !MOBILE_SCOPES.some((scope) => selector.startsWith(scope)));
 check('mobile-app.css có luật không phải html[data-ui="mobile"]', unscoped.slice(0, 5).join(' | '), '');
 check('mobile-app.css quá ngắn (thiếu bố cục mobile)', mobileSelectors.length > 40, true);
 
@@ -220,7 +245,48 @@ if (shellStart > 0 && shellEnd > shellStart) {
   check('mobile · ô soạn tin vẫn 16px', winner(q('#messageInput'), 'font-size', phone).value, '16px');
   check('mobile · bảng cài đặt có nút Giao diện', Boolean(html.includes('data-mobile-action="theme"')), true);
 
+  /* ── Ngăn kéo kênh: phải nhìn thấy, bấm được và nằm TRÊN lớp mờ ── */
+  check('mobile · chiều rộng ngăn kéo', winner(q('.sidebar'), 'width', phone).value, 'min(330px, 86vw)');
+  check('mobile · ngăn kéo ẩn khi chưa mở', winner(q('.sidebar'), 'visibility', phone).value, 'hidden');
+  check('mobile · ngăn kéo đóng thì trượt ra ngoài', winner(q('.sidebar'), 'transform', phone).value, 'translateX(-102%)');
+  check('mobile · danh sách điều hướng dạng cột', winner(q('.side-nav'), 'display', phone).value, 'grid');
+  check('mobile · logo hiện lại trong ngăn kéo', winner(q('.brand-lockup'), 'display', phone).value, 'flex');
+  check('mobile · đầu ngăn kéo hiện', winner(q('.sidebar-drawer-head'), 'display', phone).value, 'flex');
+  check('mobile · ô tìm kênh 16px (iOS không tự phóng to)', winner(q('#mobileChannelFilter'), 'font-size', phone).value, '16px');
+  check('mobile · đầu ngăn kéo dính đỉnh', winner(q('.sidebar-drawer-head'), 'position', phone).value, 'sticky');
+  check('mobile · hồ sơ bám đáy', winner(q('.profile-chip'), 'position', phone).value, 'sticky');
+  check('mobile · app-view không còn animation (tránh stacking context)', winner(q('.app-view'), 'animation', phone).value, 'none');
+
+  /* Xếp lớp: lớp mờ phải nằm trên thanh tab nhưng DƯỚI ngăn kéo. */
+  const zIndexOf = (selector) => winner(q(selector), 'z-index', phone).value;
+  const scrimZ = Number(zIndexOf('#mobileScrim'));
+  const drawerZ = Number(zIndexOf('.sidebar'));
+  const tabbarZ = Number(zIndexOf('#mobileTabbar'));
+  const sheetZ = Number(zIndexOf('#mobileSettingsSheet'));
+  check('lớp mờ phải trên thanh tab', scrimZ > tabbarZ, true);
+  check('ngăn kéo phải trên lớp mờ (lỗi "bấm Kênh bị mờ")', drawerZ > scrimZ, true);
+  check('bảng cài đặt phải trên lớp mờ', sheetZ > scrimZ, true);
+  check('lớp mờ không được blur nội dung', /\.mobile-scrim\s*\{[^}]*backdrop-filter/.test(mobileAppCss), false);
+
+  /* Mở ngăn kéo: hiện ra và trượt vào trong khung hình. */
+  document.documentElement.dataset.mobileSheet = 'channels';
+  check('mobile · mở ngăn kéo thì hiện', winner(q('.sidebar'), 'visibility', phone).value, 'visible');
+  check('mobile · mở ngăn kéo thì trượt vào', winner(q('.sidebar'), 'transform', phone).value, 'translateX(0)');
+  check('mobile · mở ngăn kéo có transition', winner(q('.sidebar'), 'transition-delay', phone).value, '0s, 0s');
+
+  /* Bàn phím ảo mở (mobile.css ẩn thanh dưới đáy) không được làm ngăn kéo biến mất,
+     nếu không người dùng đang gõ ô tìm kênh sẽ thấy ngăn kéo “bốc hơi”. */
+  document.documentElement.classList.add('is-keyboard-open');
+  check('mobile · bàn phím mở vẫn thấy ngăn kéo', winner(q('.sidebar'), 'opacity', phone).value, '1');
+  check('mobile · bàn phím mở vẫn bấm được ngăn kéo', winner(q('.sidebar'), 'pointer-events', phone).value, 'auto');
+  check('mobile · ngăn kéo cao theo vùng nhìn thấy', winner(q('.sidebar'), 'height', phone).value, 'var(--app-vh, 100dvh)');
+  document.documentElement.classList.remove('is-keyboard-open');
+
+  document.documentElement.removeAttribute('data-mobile-sheet');
+
   document.documentElement.removeAttribute('data-ui');
+  check('desktop · ẩn đầu ngăn kéo', winner(q('.sidebar-drawer-head'), 'display', desktop).value, 'none');
+  check('desktop · ẩn ô tìm kênh', winner(q('.drawer-filter'), 'display', desktop).value, 'none');
   const desktopTab = winner(q('#mobileTabbar'), 'display', desktop);
   check('desktop · thanh tab dính luật mobile', desktopTab.selector.startsWith('html[data-ui="mobile"]'), false);
   const desktopAppBar = winner(q('.channel-toolbar'), 'position', desktop);

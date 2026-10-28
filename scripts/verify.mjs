@@ -116,6 +116,11 @@ for (const id of ['messageSearchInput', 'directorySearchInput', 'adminMemberSear
 }
 note('đã kiểm các luật tối ưu mobile (⋯ trên cảm ứng, chiều cao an toàn, vùng chạm, cỡ chữ)');
 
+const swSource = read('sw.js');
+if (!/fonts\.gstatic\.com/.test(swSource)) {
+  fail('sw.js: thiếu cache Google Fonts ⇒ mở PWA ngoại tuyến sẽ mất kiểu chữ');
+}
+
 /* 8. Giao diện app riêng cho điện thoại (data-ui="mobile") */
 if (!/<meta name="mobile-web-app-capable" content="yes">/.test(html)) {
   fail('index.html: thiếu <meta name="mobile-web-app-capable"> (Chrome báo apple-mobile-web-app-capable đã lỗi thời)');
@@ -127,8 +132,11 @@ const styleOrder = [...html.matchAll(/<link rel="stylesheet" href="(assets\/css\
 if (styleOrder.at(-1) !== 'assets/css/mobile-app.css') {
   fail(`index.html: assets/css/mobile-app.css phải là stylesheet cuối (đang là ${styleOrder.at(-1) || 'không có'})`);
 }
-for (const id of ['mobileTabbar', 'mobileScrim', 'mobileSettingsSheet']) {
+for (const id of ['mobileTabbar', 'mobileScrim', 'mobileSettingsSheet', 'mobileDrawerClose', 'mobileChannelFilter']) {
   if (!html.includes(`id="${id}"`)) fail(`index.html: thiếu khung giao diện mobile #${id}`);
+}
+if (!/class="sidebar-drawer-head"/.test(html)) {
+  fail('index.html: ngăn kéo kênh thiếu đầu ngăn kéo (tiêu đề + nút đóng)');
 }
 if (!/data-mobile-tab="(?:channels|chat|members|settings)"/.test(html)) {
   fail('index.html: thanh tab mobile không có nút nào (data-mobile-tab)');
@@ -163,8 +171,9 @@ const bareSelectors = [];
     }
   }
 }
+const MOBILE_SCOPES = ['html[data-ui="mobile"]', 'html:not([data-ui="mobile"])'];
 for (const selector of bareSelectors.flatMap((item) => item.split(',').map((part) => part.trim()))) {
-  if (selector && !selector.startsWith('html[data-ui="mobile"]')) {
+  if (selector && !MOBILE_SCOPES.some((scope) => selector.startsWith(scope))) {
     fail(`mobile-app.css: luật "${selector}" không nằm trong html[data-ui="mobile"] ⇒ có thể ảnh hưởng giao diện máy tính`);
   }
 }

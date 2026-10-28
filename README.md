@@ -294,8 +294,18 @@ ghim, tệp đính kèm…) giữ nguyên.
 - **Bố cục mobile** (`assets/css/mobile-app.css`, nạp cuối): thanh trên 56px (tên kênh + công cụ, chừa tai thỏ),
   vùng tin nhắn chiếm phần còn lại, ô soạn tin neo ngay trên **thanh tab 4 mục** ở đáy:
   `Kênh · Trò chuyện · Thành viên · Cài đặt`.
-- **Kênh**: ngăn kéo trượt từ trái = `#sidebar` gốc, hiện lại đầy đủ chữ và danh sách kênh (bản ≤1080px
-  trước đây chỉ có dải icon). Chọn kênh xong ngăn kéo tự đóng.
+- **Kênh**: ngăn kéo trượt từ trái = `#sidebar` gốc, hiện lại đầy đủ logo, điều hướng và danh sách kênh
+  (bản ≤1080px trước đây chỉ có dải icon). Đầu ngăn kéo có tiêu đề + nút ✕ (dính đỉnh khi cuộn), ô
+  **tìm kênh** lọc ngay trên máy (gõ không dấu vẫn ra “mèo-con”, tự áp lại khi có kênh mới), và
+  **vuốt sang trái ≥ 64px để đóng**. Chọn kênh xong ngăn kéo tự đóng; hồ sơ bám đáy để nút đăng xuất
+  luôn thấy dù danh sách dài.
+- **Bàn phím ảo + ngăn kéo**: khi gõ vào ô tìm kênh, bàn phím mở (mobile.css ẩn thanh điều hướng dưới
+  đáy bằng `opacity: 0`) — ngăn kéo dùng chung `#sidebar` nên có luật riêng giữ `opacity: 1` và
+  `pointer-events: auto`, chiều cao theo `--app-vh` để không bị bàn phím che.
+- **Xếp lớp (đã sửa lỗi “bấm Kênh thấy mờ tịt”)**: `.app-view` không còn `animation` (animation opacity
+  từng tạo stacking context khiến ngăn kéo 78 bị lớp mờ che), lớp mờ `z-index: 76` **chỉ làm tối,
+  không blur**, ngăn kéo/bảng cài đặt `z-index: 78`; thanh tab (45) chìm dưới lớp mờ. Ngăn kéo đóng
+  dùng `visibility: hidden` nên không còn điểm dừng Tab ngoài màn hình.
 - **Thành viên**: tab mở danh bạ toàn màn hình (`#directoryPanel`) — có tìm kiếm, lọc trực tuyến/bị cấm.
 - **Cài đặt**: bảng trượt từ đáy gom Giao diện & cỡ chữ, Bảng quản trị (chỉ admin), Tin nhắn đã lưu,
   Thông báo toàn máy chủ, Miu, trạng thái kết nối và Đăng xuất — tất cả **bấm hộ lại đúng nút cũ**,
@@ -314,6 +324,17 @@ ghim, tệp đính kèm…) giữ nguyên.
   mỗi lần `keydown` không có `event.key` (bộ gõ tiếng Việt / bàn phím Android trả mã 229). Nay đọc
   `event.key` an toàn và bỏ qua `event.isComposing`. Cùng lỗi tiềm ẩn đã vá ở `shortcuts.js`,
   `command-palette.js` và `events.js` (Ctrl/Cmd + K).
+- **Ngăn kéo kênh bị mờ**: xem mục *Xếp lớp* ở trên — nguyên nhân là stacking context + lớp mờ có blur.
+  Tester `tests/mobile.test.mjs` chốt thứ tự `thanh tab < lớp mờ < ngăn kéo` để lỗi này không tái diễn.
+
+### Nâng cấp kèm theo (đợt này)
+
+- **Hiệu năng điện thoại**: bỏ `backdrop-filter` ở thanh trên, khung soạn tin và thanh tab (dải cố định
+  nên blur là thứ tốn GPU nhất khi cuộn); ngăn kéo và bảng cài đặt dùng nền đục theo `--theme-*`.
+- **Ảnh trong tin nhắn**: giới hạn `max-height: min(260px, 42dvh)` trên mobile, khung chờ nhỏ lại nên
+  danh sách tin ít “nhảy” khi ảnh tải xong.
+- **Font khi ngoại tuyến**: `sw.js` cache `fonts.googleapis.com` + `fonts.gstatic.com` (tối đa 24 mục,
+  tự dọn) ⇒ mở PWA lúc mất mạng vẫn đúng kiểu chữ Nunito thay vì nhảy sang font hệ thống.
 
 ## Trạng thái trực tuyến & hồ sơ thành viên
 
@@ -507,8 +528,12 @@ cd tests && npm install && npm test   # thêm smoke test giao diện bằng jsdo
 - `tests/mobile.test.mjs` tự đánh giá `@media` + specificity trên 20 tệp CSS ở 3 khổ màn hình
   (390px cảm ứng, 820px iPad, 1280px chuột) để chắc rằng rule mobile **thực sự thắng**:
   chữ tin nhắn 15px, ô soạn tin 16px, mục menu 44px, nút `⋯` hiện trên iPad, desktop không đổi.
-  Test cũng chốt rằng **mọi** luật của `mobile-app.css` nằm trong `html[data-ui="mobile"]`, thanh tab
-  dùng `grid`, ngăn kéo kênh `fixed`, và giao diện máy tính không dính luật mobile nào.
+  Test cũng chốt rằng **mọi** luật của `mobile-app.css` nằm trong `html[data-ui="mobile"]` (hoặc
+  `html:not([data-ui="mobile"])` để ẩn khung mới trên máy tính), thanh tab dùng `grid`, ngăn kéo
+  `fixed` + `visibility: hidden` khi đóng, và **thứ tự xếp lớp `thanh tab < lớp mờ < ngăn kéo`** —
+  đúng lỗi “bấm Kênh bị mờ”.
+- `tests/mobile-ui.test.mjs` còn kiểm nút ✕ của ngăn kéo, ô lọc kênh (gõ có dấu/không dấu, thông báo
+  “không tìm thấy”, tự xoá bộ lọc khi đóng, tự áp lại khi danh sách kênh được vẽ lại).
 - `tests/ui-mode.test.mjs` kiểm bộ nhận diện thiết bị: 360/390px cảm ứng → `mobile`, iPad 1024px cảm ứng
   → `mobile`, laptop 1280px và laptop cảm ứng 1100px → `desktop`; `?ui=desktop` / `?ui=mobile` ép được.
 - `tests/mobile-ui.test.mjs` dựng DOM tối thiểu rồi bấm thử: mở/đóng ngăn kéo, aria-expanded, lớp mờ,
@@ -554,8 +579,10 @@ Deploy xong thì bật trong `assets/js/app/config.js`:
   cài được lên màn hình chính/desktop.
 - Trang, JS và CSS tải **network-first** ⇒ deploy xong là thấy bản mới ngay (tên tệp không có hash);
   ảnh/icon dùng stale-while-revalidate; **không** cache dữ liệu Firebase.
-- Khi sửa nhiều tệp tĩnh và muốn xoá cache cũ ngay, tăng `VERSION` trong `sw.js` (`catchat-v1` →
-  `catchat-v2`).
+- **Google Fonts** (`fonts.googleapis.com`, `fonts.gstatic.com`) được cache riêng, trả cache trước và
+  cập nhật ngầm: mở app nhanh hơn và ngoại tuyến vẫn giữ đúng font. Cache font tự dọn còn 24 mục.
+- Khi sửa nhiều tệp tĩnh và muốn xoá cache cũ ngay, tăng `VERSION` trong `sw.js`
+  (hiện là `catchat-v5`).
 
 ### CI/CD
 
