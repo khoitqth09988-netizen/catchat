@@ -26,6 +26,7 @@
   let historyPushed = false;
   let wired = false;
   let dragOriginX = null;
+  let dragOriginY = null;
 
   const isMobile = () => root.dataset.ui === 'mobile';
   const currentSheet = () => (SHEETS.includes(root.dataset.mobileSheet) ? root.dataset.mobileSheet : '');
@@ -216,31 +217,43 @@
      Dùng pointer events nên chuột trên máy tính cũng không bị ảnh hưởng. */
   function attachDrawerSwipe() {
     if (!sidebar) return;
+    const reset = () => {
+      dragOriginX = null;
+      dragOriginY = null;
+      sidebar.classList.remove('is-dragging');
+      sidebar.style.transform = '';
+    };
     const finish = (event) => {
       if (dragOriginX === null) return;
       const dx = (event.clientX ?? dragOriginX) - dragOriginX;
-      dragOriginX = null;
-      sidebar.classList.remove('is-dragging');
-      sidebar.style.transform = '';
+      reset();
       if (dx <= -64) closeSheet();
     };
     sidebar.addEventListener('pointerdown', (event) => {
       if (currentSheet() !== 'channels' || event.pointerType === 'mouse') return;
+      if (event.button > 0) return;
       dragOriginX = event.clientX;
+      dragOriginY = event.clientY;
+      // Giữ mọi sự kiện của ngón tay này trên ngăn kéo, kể cả khi ngón tay đã
+      // trượt ra ngoài mép trái (nếu không, pointerup rơi vào lớp mờ/body và
+      // ngăn kéo bị kẹt ở vị trí đang kéo).
+      try { sidebar.setPointerCapture?.(event.pointerId); } catch (error) { /* trình duyệt cũ */ }
     });
     sidebar.addEventListener('pointermove', (event) => {
       if (dragOriginX === null) return;
       const dx = Math.min(0, event.clientX - dragOriginX);
-      if (dx > -6) return;
+      const dy = Math.abs(event.clientY - (dragOriginY ?? event.clientY));
+      // Cuộn dọc trong danh sách kênh không được kéo ngăn kéo xê dịch.
+      if (Math.abs(dx) < 8 || Math.abs(dx) < dy) return;
       sidebar.classList.add('is-dragging');
       sidebar.style.transform = `translateX(${dx}px)`;
     });
     sidebar.addEventListener('pointerup', finish);
-    sidebar.addEventListener('pointercancel', () => {
-      dragOriginX = null;
-      sidebar.classList.remove('is-dragging');
-      sidebar.style.transform = '';
-    });
+    sidebar.addEventListener('pointercancel', reset);
+    // Dự phòng: một số trình duyệt không hỗ trợ pointer capture hoặc huỷ capture
+    // giữa chừng ⇒ vẫn kết thúc thao tác kéo khi ngón tay nhấc lên ở nơi khác.
+    window.addEventListener('pointerup', finish);
+    window.addEventListener('pointercancel', reset);
   }
 
   /* ── Gắn sự kiện (chỉ một lần) ── */
@@ -249,10 +262,14 @@
     scrim = q('#mobileScrim');
     tabbar = q('#mobileTabbar');
     settingsSheet = q('#mobileSettingsSheet');
-    sidebar = q('#sidebar');
+    // Ngăn kéo là <aside class="sidebar" id="sidebar"> trong index.html. Vẫn chấp nhận
+    // trường hợp chỉ có class để bản HTML cũ (đang nằm trong cache của người dùng)
+    // không làm mất vuốt-để-đóng; nếu không tìm thấy gì thì cảnh báo rõ ràng.
+    sidebar = q('#sidebar') || q('.sidebar');
     channelFilter = q('#mobileChannelFilter');
     channelList = q('#channelList');
     if (!scrim || !tabbar || !settingsSheet) return false;
+    if (!sidebar) console.warn('CatChat: không tìm thấy ngăn kéo #sidebar — bỏ qua vuốt để đóng.');
     wired = true;
 
     tabbar.addEventListener('click', onTabClick);
@@ -269,13 +286,16 @@
       new MutationObserver(applyChannelFilter).observe(channelList, { childList: true });
     }
     attachDrawerSwipe();
+    // Pha capture: khi đang mở ngăn kéo/bảng, Esc chỉ đóng đúng lớp đó và không
+    // chạy tiếp chuỗi Escape của events.js (sẽ đóng nhầm menu ⋯, bảng thành viên…).
     document.addEventListener('keydown', (event) => {
       if (!isMobile() || !currentSheet()) return;
       if (event.key === 'Escape' || event.key === 'Esc') {
         event.preventDefault();
+        event.stopPropagation();
         closeSheet();
       }
-    });
+    }, true);
     window.addEventListener('popstate', () => {
       if (!currentSheet()) {
         historyPushed = false;
@@ -285,7 +305,7 @@
     });
 
     // Đổi kênh / mở mục khác trong ngăn kéo thì đóng ngăn kéo cho gọn.
-    q('#sidebar')?.addEventListener('click', (event) => {
+    sidebar?.addEventListener('click', (event) => {
       if (!isMobile()) return;
       const target = event.target instanceof Element ? event.target : null;
       if (!target) return;

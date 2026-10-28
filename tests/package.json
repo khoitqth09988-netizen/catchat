@@ -9,7 +9,9 @@
     "ui-mode": "node ui-mode.test.mjs",
     "mobile-ui": "node mobile-ui.test.mjs",
     "smoke": "node smoke.test.mjs",
-    "test": "node rules.test.mjs && node mobile.test.mjs && node ui-mode.test.mjs && node mobile-ui.test.mjs && node smoke.test.mjs"
+    "flows": "node flows.test.mjs",
+    "deep-link": "node deep-link.test.mjs",
+    "test": "node rules.test.mjs && node mobile.test.mjs && node ui-mode.test.mjs && node mobile-ui.test.mjs && node smoke.test.mjs && node flows.test.mjs && node deep-link.test.mjs"
   },
   "devDependencies": {
     "jsdom": "^30.1.3"

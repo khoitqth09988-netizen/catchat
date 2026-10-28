@@ -186,6 +186,52 @@ check('mục Thông báo gọi nút cũ', clicked.includes('channelAnnouncements
 check('mục Đăng xuất gọi nút cũ', clicked.includes('logoutButton'), true);
 check('mục Quản trị ẩn với thành viên thường', q('[data-mobile-action="admin"]').hidden, true);
 
+/* ── Vuốt sang trái để đóng ngăn kéo ── */
+const pointer = (type, x, y = 300) => new window.MouseEvent(type, { bubbles: true, clientX: x, clientY: y });
+channelTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+const drawer = q('#sidebar');
+drawer.dispatchEvent(pointer('pointerdown', 300, 300));
+drawer.dispatchEvent(pointer('pointermove', 280, 302));
+check('kéo ngang thì ngăn kéo bám theo tay', drawer.style.transform, 'translateX(-20px)');
+drawer.dispatchEvent(pointer('pointermove', 290, 420));
+check('cuộn dọc không kéo ngăn kéo', drawer.style.transform, 'translateX(-20px)');
+drawer.dispatchEvent(pointer('pointerup', 200, 300));
+check('vuốt trái đủ xa thì đóng ngăn kéo', document.documentElement.dataset.mobileSheet, undefined);
+
+channelTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+const drawer2 = q('#sidebar');
+drawer2.dispatchEvent(pointer('pointerdown', 300, 300));
+drawer2.dispatchEvent(pointer('pointermove', 270, 300));
+drawer2.dispatchEvent(pointer('pointerup', 285, 300));
+check('vuốt chưa đủ xa thì giữ ngăn kéo', document.documentElement.dataset.mobileSheet, 'channels');
+check('vuốt xong phải trả lại transform', drawer2.style.transform, '');
+
+/* Nhấc tay ra ngoài ngăn kéo (sự kiện rơi vào body) vẫn phải kết thúc thao tác kéo,
+   nếu không ngăn kéo sẽ kẹt ở vị trí dở dang và không đóng được. */
+const drawer3 = q('#sidebar');
+drawer3.dispatchEvent(pointer('pointerdown', 300, 300));
+drawer3.dispatchEvent(pointer('pointermove', 240, 300));
+check('kéo thì ngăn kéo bám theo tay', drawer3.style.transform, 'translateX(-60px)');
+document.body.dispatchEvent(pointer('pointerup', 120, 300));
+check('nhấc tay ngoài ngăn kéo vẫn đóng được', document.documentElement.dataset.mobileSheet, undefined);
+check('nhấc tay ngoài ngăn kéo phải trả lại transform', drawer3.style.transform, '');
+
+/* ── Esc chỉ đóng lớp đang mở, không chạy tiếp handler toàn cục phía sau ──
+   events.js cũng nghe keydown trên document; nếu Esc của ngăn kéo không chặn lan
+   truyền thì nó sẽ đóng nhầm menu ⋯ / bảng thành viên / hộp xác nhận. */
+// Mở lại ngăn kéo kênh để kiểm tra Esc (mục ngay trên đã đóng nó).
+channelTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+check('mở lại ngăn kéo trước khi kiểm tra Esc', document.documentElement.dataset.mobileSheet, 'channels');
+let globalEscapeRan = 0;
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') globalEscapeRan += 1;
+});
+document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+check('Esc đóng ngăn kéo kênh', document.documentElement.dataset.mobileSheet, undefined);
+check('Esc của ngăn kéo không chạy tiếp handler toàn cục', globalEscapeRan, 0);
+document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+check('khi không mở lớp nào thì Esc vẫn tới handler toàn cục', globalEscapeRan, 1);
+
 /* ── Phím Esc đóng bảng ── */
 settingsTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));

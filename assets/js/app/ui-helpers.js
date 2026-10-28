@@ -83,6 +83,7 @@ function setAvatarContent(element, name, photoURL = '') {
   image.alt = '';
   image.loading = 'lazy';
   image.decoding = 'async';
+  image.referrerPolicy = 'no-referrer';
   image.addEventListener('error', () => {
     image.remove();
     if (!element.querySelector('img')) element.appendChild(document.createTextNode(initialsFor(name)));
