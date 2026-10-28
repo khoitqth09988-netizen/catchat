@@ -359,6 +359,8 @@ function buildMessageNode(id, data, grouped = false) {
       image.alt = data.imageName || `Ảnh được gửi bởi ${name}`;
       image.loading = 'lazy';
       image.decoding = 'async';
+      // Ảnh đến từ máy chủ bất kỳ: không gửi địa chỉ trang chat (và tham số ?view=…) sang họ.
+      image.referrerPolicy = 'no-referrer';
       // Ảnh hiện dần khi tải xong để danh sách không bị “nhảy” và không có khung trống.
       const revealImage = () => image.classList.add('is-loaded');
       if (image.complete && image.naturalWidth) revealImage();

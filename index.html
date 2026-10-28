@@ -242,7 +242,7 @@
       <span class="spooky-spark spark-c">✦</span>
     </div>
     <div class="app-shell">
-      <aside class="sidebar" aria-label="Điều hướng">
+      <aside class="sidebar" id="sidebar" aria-label="Điều hướng">
         <!-- Chỉ hiện khi sidebar được dùng làm ngăn kéo trên điện thoại
              (html[data-ui="mobile"]); máy tính ẩn hoàn toàn bằng CSS. -->
         <div class="sidebar-drawer-head">
@@ -767,6 +767,8 @@
   <script defer src="assets/js/features/cursor-fx.js"></script>
   <script defer src="assets/js/features/pwa.js"></script>
 
+  <!-- Lối tắt PWA: đọc ?view=chat|members|announcements sau khi đăng nhập xong -->
+  <script defer src="assets/js/app/deep-link.js"></script>
   <!-- Giao diện mobile: nối thanh tab / ngăn kéo với các nút có sẵn -->
   <script defer src="assets/js/app/mobile-ui.js"></script>
 

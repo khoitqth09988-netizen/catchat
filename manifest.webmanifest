@@ -8,11 +8,18 @@
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui", "browser"],
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
   "orientation": "any",
   "background_color": "#161219",
   "theme_color": "#161219",
-  "categories": ["social", "communication"],
+  "categories": [
+    "social",
+    "communication"
+  ],
   "icons": [
     {
       "src": "assets/icons/icon-192.png",
@@ -35,10 +42,43 @@
   ],
   "shortcuts": [
     {
-      "name": "Phòng chung",
-      "short_name": "Phòng chung",
+      "name": "Trò chuyện",
+      "short_name": "Trò chuyện",
+      "description": "Mở khung trò chuyện",
       "url": "./?view=chat",
-      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "assets/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Thành viên",
+      "short_name": "Thành viên",
+      "description": "Xem danh bạ tổ mèo",
+      "url": "./?view=members",
+      "icons": [
+        {
+          "src": "assets/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Thông báo",
+      "short_name": "Thông báo",
+      "description": "Xem thông báo toàn máy chủ",
+      "url": "./?view=announcements",
+      "icons": [
+        {
+          "src": "assets/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

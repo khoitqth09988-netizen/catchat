@@ -2,9 +2,14 @@
    Tách từ index.html — nạp bằng <script defer> theo đúng thứ tự trong index.html. */
 'use strict';
 
+const THEME_STORAGE_KEY = 'catchat-theme-v1';
+/* Khoá cũ từ thời còn tên "cham-chat". Vẫn đọc để người dùng đã chọn giao diện
+   trước đây không bị mất lựa chọn sau khi đổi tên khoá. */
+const THEME_STORAGE_KEY_LEGACY = 'cham-chat-theme';
+
 function loadSavedTheme() {
   try {
-    const saved = localStorage.getItem('cham-chat-theme');
+    const saved = localStorage.getItem(THEME_STORAGE_KEY) || localStorage.getItem(THEME_STORAGE_KEY_LEGACY);
     return THEME_OPTIONS.some((theme) => theme.id === saved) ? saved : 'light';
   } catch (_) { return 'light'; }
 }
@@ -21,8 +26,11 @@ function applyTheme(themeId, persist = true) {
   });
   els.themeStatus.textContent = `Đang dùng giao diện ${theme.name}`;
   if (persist) {
-    try { localStorage.setItem('cham-chat-theme', theme.id); }
-    catch (error) { console.warn('Không lưu được cài đặt màu trên thiết bị:', error); }
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme.id);
+      // Giữ luôn khoá cũ để bản đang mở ở tab khác (chưa tải lại) vẫn đọc được.
+      localStorage.setItem(THEME_STORAGE_KEY_LEGACY, theme.id);
+    } catch (error) { console.warn('Không lưu được cài đặt màu trên thiết bị:', error); }
   }
 }
 

@@ -78,6 +78,7 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   pwa.js                       Đăng ký Service Worker + manifest (cài như app)
   ui-mode.js                   Chọn giao diện theo thiết bị (chạy trước lần vẽ đầu)
   mobile-ui.js                 Thanh tab, ngăn kéo kênh, bảng cài đặt của giao diện mobile
+  deep-link.js                 Lối tắt PWA: đọc ?view=chat|members|announcements sau khi đăng nhập
   media.js                     Trạng thái Storage: có thì upload, không thì dán liên kết ảnh
 functions/                     Cloud Functions: xoá tài khoản Auth, lấy mã IP, tự khoá định danh
   package.json                 Khai báo phụ thuộc + engines Node 22 (bắt buộc để deploy được)
@@ -87,7 +88,8 @@ manifest.webmanifest           PWA: tên, icon, màu, chế độ standalone
 sw.js                          Service Worker: shell network-first, cache-bust theo VERSION
 assets/icons/                  Icon PWA 192/512/maskable + apple-touch-icon
 scripts/verify.mjs             Kiểm tra trước khi deploy (chạy: node scripts/verify.mjs)
-tests/                         Rules + cascade CSS mobile + nhận diện thiết bị + giao diện mobile + smoke (jsdom)
+tests/                         harness dùng chung + rules + cascade CSS mobile + nhận diện thiết bị +
+                               mobile-ui + smoke + flows + deep-link (jsdom, chạy trong CI)
 .github/workflows/deploy.yml   CI: kiểm tra tĩnh, deploy Firebase Hosting nếu có secret
 SECURITY.md                    Checklist bảo mật: App Check, Rules, quota, CSP
 ROADMAP.md                     Lộ trình full stack: đã xong gì, còn gì
@@ -336,6 +338,42 @@ ghim, tệp đính kèm…) giữ nguyên.
 - **Font khi ngoại tuyến**: `sw.js` cache `fonts.googleapis.com` + `fonts.gstatic.com` (tối đa 24 mục,
   tự dọn) ⇒ mở PWA lúc mất mạng vẫn đúng kiểu chữ Nunito thay vì nhảy sang font hệ thống.
 
+## Đợt 26 — rà soát toàn bộ và chốt bản cuối
+
+Đợt này không thêm tính năng lớn: mục tiêu là **đọc lại toàn bộ mã, chạy hết test và sửa những lỗi
+chỉ lộ khi thao tác thật**. Danh sách việc đã làm:
+
+### Lỗi thật đã sửa
+
+| Lỗi | Người dùng thấy gì | Cách sửa |
+|---|---|---|
+| Khoá lưu giao diện lệch tên | Chọn màu xong tải lại trang là mất, quay về mặc định | `theme.js` đọc/ghi `catchat-theme-v1`, vẫn đọc khoá cũ `cham-chat-theme` và ghi cả hai |
+| Ngăn kéo mobile **không có** `id="sidebar"` | “Vuốt sang trái để đóng” và “chọn kênh xong tự đóng ngăn kéo” không chạy chút nào — JS tìm `#sidebar` ra `null` rồi bỏ qua trong im lặng, còn test dựng DOM giả có id nên vẫn xanh | Thêm `id="sidebar"` cho `<aside class="sidebar">`, cho `mobile-ui.js` chấp nhận cả `.sidebar`, và **kiểm thử trên đúng `index.html`** (chọn kênh + vuốt bằng phần tử thật) |
+| Vuốt để đóng ngăn kéo bị “kẹt” | Kéo ngăn kéo rồi nhấc tay ra ngoài mép trái ⇒ ngăn kéo đứng nguyên giữa màn hình, không đóng được | `setPointerCapture` + lắng nghe `pointerup`/`pointercancel` ở `window` để luôn kết thúc thao tác kéo |
+| Hỏi “Bỏ bản nháp và đổi kênh?” | Chuyển kênh khi đang gõ dở bị chặn bởi hộp thoại, trong khi tính năng *Bản nháp theo kênh* vẫn lưu lại ⇒ thông báo sai và người dùng ngại chuyển kênh | Chỉ hỏi khi sắp mất thứ **không** lưu được (ảnh đính kèm / tin đang trả lời); nội dung đang gõ được lưu nháp tự động |
+| Lối tắt PWA `?view=` bị bỏ qua | Giữ biểu tượng app → “Thành viên” / “Thông báo” chỉ mở trang như thường | Thêm `assets/js/app/deep-link.js`: đọc `view`, chờ `catchat:workspace-ready`, áp dụng, xác nhận lại rồi xoá `?view` khỏi địa chỉ |
+| Ảnh ngoài nhận được địa chỉ trang chat | Máy chủ ảnh biết bạn đang ở trang nào (kèm cả `?view=…`) | `referrerPolicy = 'no-referrer'` cho ảnh tin nhắn và avatar |
+| Esc đóng nhầm lớp phía sau | Đang mở ngăn kéo mobile, bấm Esc lại đóng luôn menu ⋯ / bảng thành viên bên dưới | Ngăn kéo nghe Esc ở **pha capture** và `stopPropagation()` |
+
+### Hạ tầng kiểm thử
+
+- `tests/harness.mjs` — khung dựng app dùng chung: nhúng CSS/JS thật vào jsdom, thay Firebase bằng RTDB
+  trong bộ nhớ (**không có Storage**, đúng gói miễn phí), listener `value` phát giá trị hiện có ngay khi
+  đăng ký giống RTDB thật. `tests/smoke.test.mjs`, `tests/flows.test.mjs`, `tests/deep-link.test.mjs`
+  đều dựa trên nó nên không còn ba bản stub chép tay lệch nhau.
+- `tests/flows.test.mjs` (15 nhóm luồng) nay phủ thêm: lệnh `/shrug`, sửa tin qua menu ⋯, ghim tin,
+  bật/thoát chế độ thông báo, tạo kênh và **nháp theo kênh** (rời kênh → quay lại vẫn còn chữ).
+- `tests/deep-link.test.mjs` kiểm lối tắt PWA, kể cả trường hợp app tự chuyển về `#phòng-chung` sau khi
+  đăng nhập (phải bật lại chế độ thông báo, không được “bật rồi tắt ngay”).
+- Test chờ theo **điều kiện** (`waitFor`) thay vì ngủ cố định ở những chỗ phụ thuộc mạng/CPU, nên chạy
+  trên CI chậm vẫn ổn định.
+
+### Dọn dẹp
+
+- `sw.js` tăng `VERSION` lên `catchat-v6` để mọi máy đã cài PWA nhận bản mới (xoá cache cũ khi activate).
+- `npm test` trong `tests/` chạy đủ 7 tệp: rules, cascade mobile, nhận diện thiết bị, mobile-ui, smoke,
+  flows, deep-link — CI dùng đúng lệnh này.
+
 ## Trạng thái trực tuyến & hồ sơ thành viên
 
 - `assets/js/app/presence.js` là nguồn duy nhất trả lời “ai đang online” (`isUserOnline`, `onlineMemberCount`).
@@ -516,15 +554,28 @@ node scripts/verify.mjs
 ```bash
 node scripts/verify.mjs        # cú pháp JS/CSS/JSON, tài nguyên, PWA, Rules tĩnh
 node tests/rules.test.mjs      # mô phỏng Rules: 27 tình huống quyền ghi
-cd tests && npm install && npm test   # thêm smoke test giao diện bằng jsdom
+cd tests && npm install && npm test   # 7 tệp: rules, mobile, ui-mode, mobile-ui, smoke, flows, deep-link
+```
+
+Chạy riêng từng tệp cũng được (đứng ở thư mục gốc repo):
+
+```bash
+node tests/flows.test.mjs      # luồng người dùng thật: gửi/sửa/ghim/nháp/kênh/mobile
+node tests/deep-link.test.mjs  # lối tắt PWA ?view=chat|members|announcements
 ```
 
 - `tests/rules.test.mjs` dịch biểu thức trong `database.rules.json` sang JS rồi chạy:
   giả danh admin, giả uid, timestamp tương lai, sửa/xoá tin người khác, adminLog append-only,
   khách chưa đăng nhập, kênh không tồn tại… Không cần Emulator, chạy trong ~0,1 giây.
-- `tests/smoke.test.mjs` dựng lại `index.html` trong bộ nhớ (CSS/JS thật + Firebase giả **không có
-  Storage**) để kiểm menu `⋯`, phân quyền admin/thường, thông báo toàn máy chủ, chế độ dán ảnh
-  bằng liên kết, gửi tin kèm `imageURL`, và bắt lỗi runtime.
+- `tests/harness.mjs` là khung dùng chung cho smoke/flows/deep-link: nhúng CSS/JS thật vào jsdom, thay
+  Firebase bằng RTDB trong bộ nhớ (**không có Storage**) và phát giá trị hiện có ngay khi đăng ký
+  listener, giống RTDB thật.
+- `tests/smoke.test.mjs` kiểm cấu trúc + menu `⋯`, phân quyền admin/thường, thông báo toàn máy chủ, chế
+  độ dán ảnh bằng liên kết, gửi tin kèm `imageURL`, và bắt lỗi runtime.
+- `tests/flows.test.mjs` bấm/gõ như người dùng: gửi tin, trả lời, reaction, tìm kiếm, theme, danh bạ,
+  tin đã lưu, quản trị, mobile, lệnh `/shrug`, sửa + ghim tin, bật/thoát thông báo, tạo kênh, nháp theo kênh.
+- `tests/deep-link.test.mjs` kiểm lối tắt PWA đọc `?view=`, chỉ nhận 3 giá trị hợp lệ, chỉ áp dụng sau
+  khi đăng nhập và xoá tham số khỏi địa chỉ sau khi dùng.
 - `tests/mobile.test.mjs` tự đánh giá `@media` + specificity trên 20 tệp CSS ở 3 khổ màn hình
   (390px cảm ứng, 820px iPad, 1280px chuột) để chắc rằng rule mobile **thực sự thắng**:
   chữ tin nhắn 15px, ô soạn tin 16px, mục menu 44px, nút `⋯` hiện trên iPad, desktop không đổi.
@@ -539,7 +590,7 @@ cd tests && npm install && npm test   # thêm smoke test giao diện bằng jsdo
 - `tests/mobile-ui.test.mjs` dựng DOM tối thiểu rồi bấm thử: mở/đóng ngăn kéo, aria-expanded, lớp mờ,
   Esc, chọn kênh tự đóng, các mục trong bảng cài đặt gọi đúng nút cũ, phản chiếu trạng thái kết nối,
   ẩn thanh tab khi đăng xuất và khi chuyển sang giao diện máy tính.
-- Cả bốn chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
+- Cả bảy chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
   chạy `verify` + `rules`, job **Kiểm thử giao diện (jsdom)** cài jsdom rồi chạy `npm test`.
 
 ### Firebase Emulator (chạy full stack ở máy)
@@ -582,7 +633,7 @@ Deploy xong thì bật trong `assets/js/app/config.js`:
 - **Google Fonts** (`fonts.googleapis.com`, `fonts.gstatic.com`) được cache riêng, trả cache trước và
   cập nhật ngầm: mở app nhanh hơn và ngoại tuyến vẫn giữ đúng font. Cache font tự dọn còn 24 mục.
 - Khi sửa nhiều tệp tĩnh và muốn xoá cache cũ ngay, tăng `VERSION` trong `sw.js`
-  (hiện là `catchat-v5`).
+  (hiện là `catchat-v6`).
 
 ### CI/CD
 

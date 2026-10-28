@@ -226,11 +226,15 @@ async function switchChannel(channelId, { skipConfirm = false, force = false } =
     toast('Đợi tin nhắn đang gửi xong rồi mới đổi kênh nhé.', 'info');
     return false;
   }
-  const hasDraft = Boolean(els.messageInput.value.trim() || pendingImageFile || replyTarget);
-  if (!skipConfirm && hasDraft) {
+  // Chỉ hỏi lại khi thứ sắp mất là thứ KHÔNG lưu được: ảnh đính kèm hoặc tin đang
+  // trả lời. Nội dung đang gõ thì tính năng "Bản nháp theo kênh" (drafts.js) tự lưu
+  // và khôi phục, nên hỏi "Bỏ bản nháp?" vừa thừa vừa sai (trước đây nói sẽ xoá
+  // trong khi thực tế vẫn lưu) và làm người dùng ngại chuyển kênh.
+  const hasAttachment = Boolean(pendingImageFile || replyTarget);
+  if (!skipConfirm && hasAttachment) {
     const result = await openConfirm({
-      title: 'Bỏ bản nháp và đổi kênh?',
-      description: 'Nội dung, ảnh đính kèm hoặc trả lời đang soạn sẽ bị xóa khi chuyển sang kênh khác.',
+      title: 'Đổi kênh và bỏ ảnh đang soạn?',
+      description: 'Ảnh đính kèm hoặc tin nhắn đang trả lời sẽ bị bỏ khi chuyển kênh. Nội dung đang gõ vẫn được lưu thành bản nháp cho kênh này.',
       acceptLabel: 'Đổi kênh', tone: 'primary', iconName: 'hash'
     });
     if (!result) return false;
@@ -411,6 +415,11 @@ async function enterWorkspace(user, generation) {
   if (generation !== authGeneration) return;
   startRealtimeListeners(user, generation);
   setupPresence(user, generation);
+  // Báo cho các phần phụ (lối tắt PWA, giao diện mobile…) biết không gian đã sẵn
+  // sàng: #appView hiện ra TRƯỚC khi có messagesRef, nên chỉ nhìn thuộc tính hidden
+  // sẽ chạy quá sớm và thao tác chuyển kênh bị bỏ qua.
+  try { window.dispatchEvent(new CustomEvent('catchat:workspace-ready', { detail: { uid: user.uid } })); }
+  catch (error) { console.warn('Không phát được sự kiện workspace-ready:', error); }
   CatChat.bootScreen?.step('Sẵn sàng trò chuyện', 100);
   CatChat.bootScreen?.finish();
 }

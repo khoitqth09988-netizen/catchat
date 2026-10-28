@@ -1,10 +1,10 @@
 # CatChat — lộ trình thành một web full stack thật
 
-> Đánh giá dựa trên mã nguồn hiện tại (2026-10): `index.html` + 42 file JS (~9.6k dòng) chạy trực tiếp
+> Đánh giá dựa trên mã nguồn hiện tại (2026-10): `index.html` + 47 file JS (~10.5k dòng) chạy trực tiếp
 > trên Firebase Hosting, không build step; dữ liệu ở Realtime Database; Auth Email/Password; ảnh ở
 > Storage; 4 Cloud Function tuỳ chọn.
 
-## 0. Trạng thái sau đợt 19 — phần nào đã xong
+## 0. Trạng thái sau đợt 26 — phần nào đã xong
 
 | Hạng mục | Trạng thái | Ở đâu |
 |---|---|---|
@@ -22,6 +22,10 @@
 | Sửa cảnh báo `apple-mobile-web-app-capable` và lỗi `keydown` của bản nháp (`event.key` undefined) | ✅ xong | `index.html`, `assets/js/features/drafts.js` |
 | Sửa ngăn kéo kênh bị lớp mờ che trên điện thoại + thêm nút ✕, lọc kênh, vuốt để đóng | ✅ xong | `assets/css/mobile-app.css`, `assets/js/app/mobile-ui.js` |
 | Bỏ `backdrop-filter` ở các dải cố định, giới hạn ảnh tin nhắn, cache Google Fonts khi ngoại tuyến | ✅ xong | `assets/css/mobile-app.css`, `sw.js` |
+| Lối tắt PWA (`?view=chat` · `members` · `announcements`) đọc đúng sau khi đăng nhập | ✅ xong (đợt 26) | `assets/js/app/deep-link.js`, `manifest.webmanifest` |
+| Chuyển kênh khi đang gõ dở: lưu nháp, không hỏi lại vô ích | ✅ xong (đợt 26) | `assets/js/app/channels.js`, `assets/js/features/drafts.js` |
+| Vuốt đóng ngăn kéo luôn kết thúc đúng (kể cả khi nhấc tay ngoài ngăn kéo) | ✅ xong (đợt 26) | `assets/js/app/mobile-ui.js` |
+| Test dùng chung một harness + 7 tệp chạy trong CI | ✅ xong (đợt 26) | `tests/harness.mjs`, `tests/package.json` |
 | App Check **enforce** cho RTDB + Storage | ⏳ việc trong Console (xem `SECURITY.md` §2) |
 | Rate limit thật ở Functions, chuyển ghi tin nhắn sang Function | ⏳ P1 |
 | Tìm kiếm lịch sử, phân trang, push notification, DM, vai trò | ⏳ P1 |
@@ -101,8 +105,9 @@ sang Cloud Functions (callable + trigger), client chỉ gửi ý định.
 - **Chi phí**: RTDB tính theo lượt tải; các listener `value` trên node lớn (`/identityLedger`,
   `/members`) nên chuyển sang đọc có giới hạn hoặc cache server.
 - **Tuân thủ**: xuất dữ liệu của một người, xoá hoàn toàn (Auth + RTDB + Storage) trong 1 lệnh admin.
-- **Kiểm thử**: hiện chỉ có smoke test jsdom chạy tay. Cần bộ test Rules + vài E2E (Playwright) cho
-  đăng nhập, gửi tin, sửa/xoá, cấm, xoá kênh — chạy trong CI.
+- **Kiểm thử**: đã có Rules + jsdom (7 tệp, chạy trong CI) nhưng **chưa có E2E trên trình duyệt thật**.
+  Bước tiếp theo: Playwright cho đăng nhập, gửi tin, sửa/xoá, cấm, xoá kênh, cài PWA — chạy trên
+  Chromium + WebKit để bắt lỗi iOS Safari mà jsdom không thấy.
 
 ## 5. Thứ tự làm đề xuất
 
