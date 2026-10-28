@@ -20,6 +20,8 @@
 | Tối ưu mobile: ⋯ luôn hiện trên cảm ứng, vùng chạm 44px, safe-area trên, chữ 15–16px | ✅ xong | `assets/css/mobile.css`, `index.html` |
 | Giao diện app riêng cho điện thoại: nhận diện lúc tải, thanh tab 4 mục, ngăn kéo kênh, bảng cài đặt | ✅ xong | `assets/js/app/ui-mode.js`, `assets/js/app/mobile-ui.js`, `assets/css/mobile-app.css` |
 | Sửa cảnh báo `apple-mobile-web-app-capable` và lỗi `keydown` của bản nháp (`event.key` undefined) | ✅ xong | `index.html`, `assets/js/features/drafts.js` |
+| Sửa ngăn kéo kênh bị lớp mờ che trên điện thoại + thêm nút ✕, lọc kênh, vuốt để đóng | ✅ xong | `assets/css/mobile-app.css`, `assets/js/app/mobile-ui.js` |
+| Bỏ `backdrop-filter` ở các dải cố định, giới hạn ảnh tin nhắn, cache Google Fonts khi ngoại tuyến | ✅ xong | `assets/css/mobile-app.css`, `sw.js` |
 | App Check **enforce** cho RTDB + Storage | ⏳ việc trong Console (xem `SECURITY.md` §2) |
 | Rate limit thật ở Functions, chuyển ghi tin nhắn sang Function | ⏳ P1 |
 | Tìm kiếm lịch sử, phân trang, push notification, DM, vai trò | ⏳ P1 |

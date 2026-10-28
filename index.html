@@ -243,6 +243,21 @@
     </div>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Điều hướng">
+        <!-- Chỉ hiện khi sidebar được dùng làm ngăn kéo trên điện thoại
+             (html[data-ui="mobile"]); máy tính ẩn hoàn toàn bằng CSS. -->
+        <div class="sidebar-drawer-head">
+          <div class="drawer-head-copy">
+            <span class="drawer-eyebrow">Điều hướng</span>
+            <strong id="drawerTitle">Kênh &amp; trò chuyện</strong>
+          </div>
+          <button class="drawer-close" id="mobileDrawerClose" type="button" aria-label="Đóng danh sách kênh">
+            <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
+          </button>
+        </div>
+        <label class="drawer-filter" for="mobileChannelFilter">
+          <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+          <input id="mobileChannelFilter" type="search" placeholder="Tìm kênh…" aria-label="Tìm kênh" autocomplete="off" enterkeyhint="search">
+        </label>
         <div class="brand-lockup">
           <div class="brand-mark"><svg class="icon"><use href="#i-cat"></use></svg></div>
           <div><span class="brand-name">CatChat</span><span class="brand-caption">A LITTLE HOME FOR EVERY CAT</span></div>
@@ -270,6 +285,7 @@
         <div class="sidebar-channel-block">
           <div class="sidebar-section-title"><span>KÊNH CỦA BẠN</span><button id="channelAddButton" type="button" aria-label="Tạo kênh" title="Chỉ quản trị viên được tạo kênh" hidden><svg class="icon"><use href="#i-plus"></use></svg></button></div>
           <div class="channel-list" id="channelList" aria-label="Danh sách kênh"></div>
+          <p class="drawer-empty" id="mobileChannelEmpty" hidden>Không tìm thấy kênh nào khớp.</p>
           <button class="channel-link announcements-link" id="channelAnnouncements" type="button" title="Thông báo toàn máy chủ · chỉ quản trị viên được đăng"><svg class="icon"><use href="#i-bell"></use></svg><span>thông-báo</span><span class="channel-unread" id="announcementUnread" hidden></span></button>
         </div>
         <div class="sidebar-spacer"></div>

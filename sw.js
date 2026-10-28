@@ -5,12 +5,14 @@
    - Trang (navigation): network-first ⇒ bản mới lên ngay, offline mới dùng cache.
    - JS/CSS: network-first (tên tệp không có hash ⇒ phải luôn lấy bản mới), offline dùng cache.
    - Ảnh/icon/font cùng tên miền: stale-while-revalidate.
-   - Mọi tên miền khác (Firebase RTDB/Auth/Storage, Google Fonts): đi thẳng ra mạng.
+   - Google Fonts (fonts.googleapis.com + fonts.gstatic.com): cache lại để lần mở sau
+     không phải chờ mạng và vẫn giữ đúng kiểu chữ khi ngoại tuyến.
+   - Mọi tên miền khác (Firebase RTDB/Auth/Storage): đi thẳng ra mạng.
 
    Khi deploy thay đổi lớn, tăng VERSION để xoá cache cũ. */
 'use strict';
 
-const VERSION = 'catchat-v4';
+const VERSION = 'catchat-v5';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 
@@ -99,6 +101,33 @@ async function networkFirstAsset(request) {
   }
 }
 
+const FONT_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
+const MAX_FONT_ENTRIES = 24;
+
+/* Google Fonts: trả cache ngay (mở app nhanh, dùng được offline) và cập nhật ngầm.
+   Chỉ giữ tối đa MAX_FONT_ENTRIES mục để cache không phình theo thời gian. */
+async function fontFirst(request) {
+  const cache = await caches.open(RUNTIME);
+  const cached = await cache.match(request);
+  const network = fetch(request).then(async (response) => {
+    if (response && (response.ok || response.type === 'opaque')) {
+      await cache.put(request, response.clone()).catch(() => {});
+      const keys = await cache.keys();
+      const fonts = keys.filter((key) => FONT_HOSTS.has(new URL(key.url).hostname));
+      if (fonts.length > MAX_FONT_ENTRIES) {
+        await Promise.all(fonts.slice(0, fonts.length - MAX_FONT_ENTRIES).map((key) => cache.delete(key)));
+      }
+    }
+    return response;
+  }).catch(() => null);
+  if (cached) {
+    network.catch(() => {});
+    return cached;
+  }
+  const fresh = await network;
+  return fresh || Response.error();
+}
+
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(RUNTIME);
   const cached = await cache.match(request);
@@ -113,6 +142,10 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
+  if (FONT_HOSTS.has(url.hostname)) {
+    event.respondWith(fontFirst(request));
+    return;
+  }
   if (url.origin !== self.location.origin) return;
   if (url.pathname.endsWith('/sw.js')) return;
 

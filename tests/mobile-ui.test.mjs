@@ -30,13 +30,25 @@ const dom = new JSDOM(`<!doctype html><html lang="vi"><head></head><body>
   <main class="auth-screen" id="authView"></main>
   <div class="app-view" id="appView">
     <aside class="sidebar" id="sidebar">
+      <div class="sidebar-drawer-head">
+        <div class="drawer-head-copy"><strong>Kênh &amp; trò chuyện</strong></div>
+        <button class="drawer-close" id="mobileDrawerClose" type="button"></button>
+      </div>
+      <label class="drawer-filter" for="mobileChannelFilter">
+        <input id="mobileChannelFilter" type="search" placeholder="Tìm kênh…">
+      </label>
       <nav class="side-nav">
         <button class="nav-link" id="navChat" type="button"></button>
         <button class="nav-link" id="navMembers" type="button"></button>
         <button class="nav-link" id="savedMessagesButton" type="button"></button>
         <button class="nav-link" id="navAdmin" type="button" hidden></button>
       </nav>
-      <div class="channel-list"><button class="channel-link" type="button"><span>phòng-chung</span></button></div>
+      <div class="channel-list" id="channelList">
+        <button class="channel-link" type="button" data-channel-id="general"><span class="channel-name">phòng-chung</span></button>
+        <button class="channel-link" type="button" data-channel-id="meo"><span class="channel-name">mèo-con</span></button>
+        <button class="channel-link" type="button" data-channel-id="an"><span class="channel-name">ăn-trưa</span></button>
+      </div>
+      <p class="drawer-empty" id="mobileChannelEmpty" hidden>Không tìm thấy kênh nào khớp.</p>
       <button class="channel-link announcements-link" id="channelAnnouncements" type="button"></button>
       <div class="profile-chip"><button id="logoutButton" type="button"></button></div>
     </aside>
@@ -112,6 +124,45 @@ check('aria-expanded trả về false', channelTab.getAttribute('aria-expanded')
 channelTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 q('.channel-list .channel-link').dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 check('chọn kênh xong thì đóng ngăn kéo', document.documentElement.dataset.mobileSheet, undefined);
+
+/* ── Nút đóng trong ngăn kéo ── */
+channelTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+q('#mobileDrawerClose').dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+check('nút ✕ đóng ngăn kéo', document.documentElement.dataset.mobileSheet, undefined);
+check('nút ✕ trả aria-expanded về false', channelTab.getAttribute('aria-expanded'), 'false');
+
+/* ── Lọc kênh trong ngăn kéo ── */
+const filter = q('#mobileChannelFilter');
+const channelButtons = () => [...q('#channelList').querySelectorAll('.channel-link')];
+const visibleChannels = () => channelButtons().filter((button) => !button.hidden).map((button) => button.dataset.channelId);
+channelTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+check('mở ngăn kéo hiện đủ 3 kênh', visibleChannels().join(','), 'general,meo,an');
+filter.value = 'mèo';
+filter.dispatchEvent(new window.Event('input', { bubbles: true }));
+check('lọc theo tên kênh', visibleChannels().join(','), 'meo');
+filter.value = 'meo';
+filter.dispatchEvent(new window.Event('input', { bubbles: true }));
+check('gõ không dấu vẫn tìm ra kênh có dấu', visibleChannels().join(','), 'meo');
+check('lọc còn kết quả thì không hiện thông báo trống', q('#mobileChannelEmpty').hidden, true);
+filter.value = 'zzz';
+filter.dispatchEvent(new window.Event('input', { bubbles: true }));
+check('lọc không khớp thì ẩn hết kênh', visibleChannels().join(','), '');
+check('lọc không khớp thì hiện thông báo trống', q('#mobileChannelEmpty').hidden, false);
+q('#mobileDrawerClose').dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+check('đóng ngăn kéo thì xoá bộ lọc', filter.value, '');
+check('đóng ngăn kéo thì hiện lại đủ kênh', visibleChannels().length, 3);
+
+/* Danh sách kênh được vẽ lại (có kênh mới) trong lúc đang lọc */
+channelTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+filter.value = 'ăn';
+filter.dispatchEvent(new window.Event('input', { bubbles: true }));
+const rebuilt = document.createElement('div');
+rebuilt.innerHTML = '<button class="channel-link" type="button" data-channel-id="general"><span class="channel-name">phòng-chung</span></button>'
+  + '<button class="channel-link" type="button" data-channel-id="an"><span class="channel-name">ăn-trưa</span></button>';
+q('#channelList').replaceChildren(...rebuilt.children);
+await new Promise((resolve) => window.setTimeout(resolve, 20));
+check('vẽ lại danh sách kênh vẫn giữ bộ lọc', visibleChannels().join(','), 'an');
+q('#mobileDrawerClose').dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 
 /* ── Bảng cài đặt + các mục gọi đúng nút cũ ── */
 settingsTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
