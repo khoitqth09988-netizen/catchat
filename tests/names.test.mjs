@@ -32,6 +32,11 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const errorText = () => doc.getElementById('authErrorText')?.textContent || doc.getElementById('authError')?.textContent || '';
 
   await sleep(600);
+
+  // Gợi ý trong ô tên phải là tên mẫu trung tính (đổi từ “Linh Nguyễn” theo yêu cầu),
+  // vì placeholder là thứ người dùng mới nhìn thấy đầu tiên.
+  check('ô tên gợi ý “Nguyễn Văn A”', $('#displayName').getAttribute('placeholder'), 'Ví dụ: Nguyễn Văn A');
+
   window.eval(`
     database.ref('admins/u1').set(true);
     database.ref('members/u1').set({ uid: 'u1', name: 'admin', email: 'admin@com.vn' });
