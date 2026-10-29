@@ -48,7 +48,13 @@
 
   function syncSheetChrome() {
     const sheet = currentSheet();
-    if (scrim) scrim.hidden = !sheet;
+    if (scrim) {
+      // Không bao giờ để lớp mờ đứng một mình: nếu vì lý do gì đó (bản JS cũ còn trong
+      // cache, một listener ném lỗi, trình duyệt bỏ qua một bước) lớp này còn hiện
+      // trong khi không có ngăn kéo nào mở thì cả màn hình bị tối và không bấm được.
+      scrim.hidden = !sheet;
+      scrim.style.pointerEvents = '';
+    }
     if (settingsSheet) settingsSheet.hidden = sheet !== 'settings';
     document.body.classList.toggle('mobile-sheet-open', Boolean(sheet));
     const channelTab = q('#mobileTabbar [data-mobile-tab="channels"]');
@@ -313,6 +319,22 @@
         closeSheet({ silent: true, keepFocus: true });
       }
     });
+
+    /* Lưới an toàn thứ hai: nghe ở pha capture trên document.
+       Dù #sidebar không được tìm thấy (HTML cũ trong cache), hay một handler khác
+       ném lỗi trước, thì bấm vào kênh / mục điều hướng vẫn luôn đóng ngăn kéo —
+       nếu không người dùng sẽ thấy “một lớp mờ, không nhìn thấy gì” và không thoát ra được. */
+    document.addEventListener('click', (event) => {
+      if (!isMobile() || currentSheet() !== 'channels') return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target) return;
+      if (target.closest('.channel-link, .nav-link, .announcements-link, .profile-logout, #channelAddButton, #mobileCreateChannelButton')) {
+        closeSheet({ silent: true, keepFocus: true });
+      }
+    }, true);
+
+    // Tự chữa: mọi thay đổi của data-mobile-sheet đều đồng bộ lại lớp mờ + bảng cài đặt.
+    new MutationObserver(syncSheetChrome).observe(root, { attributes: true, attributeFilter: ['data-mobile-sheet'] });
 
     const appView = q('#appView');
     if (appView) {

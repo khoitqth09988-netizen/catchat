@@ -94,12 +94,30 @@ const FIREBASE_STUB = `<script>
     onAuthStateChanged(cb) { if (typeof cb === 'function') authListeners.push(cb); return () => {}; },
     onIdTokenChanged() { return () => {}; },
     signInWithEmailAndPassword(email) {
-      const user = { uid: 'u1', email, displayName: 'admin' };
+      // displayName lấy từ phần trước @ giống tài khoản thật (admin@com.vn → “admin”).
+      const user = { uid: 'u1', email, displayName: String(email || '').split('@')[0] || 'admin' };
       authStub.currentUser = user;
       authListeners.forEach((cb) => setTimeout(() => cb(user), 0));
       return Promise.resolve({ user });
     },
-    createUserWithEmailAndPassword() { return Promise.resolve({ user: { uid: 'new' } }); },
+    createUserWithEmailAndPassword(email, password) {
+      // Giống Firebase: tạo tài khoản mới, đặt làm currentUser, có delete/updateProfile.
+      const user = {
+        uid: 'new-' + String(email || 'user').split('@')[0],
+        email: String(email || ''),
+        displayName: '',
+        photoURL: '',
+        updateProfile: (patch) => { Object.assign(user, patch || {}); return Promise.resolve(); },
+        delete: () => {
+          authStub.currentUser = null;
+          authListeners.forEach((cb) => setTimeout(() => cb(null), 0));
+          return Promise.resolve();
+        }
+      };
+      authStub.currentUser = user;
+      window.__lastPassword = password;
+      return Promise.resolve({ user });
+    },
     signOut() {
       authStub.currentUser = null;
       authListeners.forEach((cb) => setTimeout(() => cb(null), 0));

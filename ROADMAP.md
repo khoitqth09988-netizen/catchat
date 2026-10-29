@@ -1,10 +1,10 @@
 # CatChat — lộ trình thành một web full stack thật
 
-> Đánh giá dựa trên mã nguồn hiện tại (2026-10): `index.html` + 47 file JS (~10.5k dòng) chạy trực tiếp
+> Đánh giá dựa trên mã nguồn hiện tại (2026-10): `index.html` + 50 file JS (~11k dòng) chạy trực tiếp
 > trên Firebase Hosting, không build step; dữ liệu ở Realtime Database; Auth Email/Password; ảnh ở
 > Storage; 4 Cloud Function tuỳ chọn.
 
-## 0. Trạng thái sau đợt 26 — phần nào đã xong
+## 0. Trạng thái sau đợt 27 — phần nào đã xong
 
 | Hạng mục | Trạng thái | Ở đâu |
 |---|---|---|
@@ -26,6 +26,9 @@
 | Chuyển kênh khi đang gõ dở: lưu nháp, không hỏi lại vô ích | ✅ xong (đợt 26) | `assets/js/app/channels.js`, `assets/js/features/drafts.js` |
 | Vuốt đóng ngăn kéo luôn kết thúc đúng (kể cả khi nhấc tay ngoài ngăn kéo) | ✅ xong (đợt 26) | `assets/js/app/mobile-ui.js` |
 | Test dùng chung một harness + 7 tệp chạy trong CI | ✅ xong (đợt 26) | `tests/harness.mjs`, `tests/package.json` |
+| Mạng yếu: báo lỗi sớm + nút Thử lại, SW trả cache sau 3,2 giây | ✅ xong (đợt 27) | `assets/js/app/early-guard.js`, `sw.js` |
+| Ngăn kéo mobile: bấm kênh luôn đóng, lớp mờ không thể kẹt | ✅ xong (đợt 27) | `assets/js/app/mobile-ui.js`, `assets/css/mobile-app.css` |
+| Tên “admin” dùng chung + nhãn “Quản trị”/“Thành viên” theo uid thật | ✅ xong (đợt 27, **cần dán Rules mới**) | `assets/js/features/{name-guard,admin-badges}.js`, `database.rules.json` |
 | App Check **enforce** cho RTDB + Storage | ⏳ việc trong Console (xem `SECURITY.md` §2) |
 | Rate limit thật ở Functions, chuyển ghi tin nhắn sang Function | ⏳ P1 |
 | Tìm kiếm lịch sử, phân trang, push notification, DM, vai trò | ⏳ P1 |

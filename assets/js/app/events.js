@@ -508,6 +508,33 @@ function attachEvents() {
   });
 }
 
+/* Nạp lại Firebase SDK (compat) khi lần tải đầu thất bại — mạng chập chờn, đổi Wi-Fi,
+   hoặc tab ngủ quên lúc đang tải. Trả về true nếu cuối cùng có đủ SDK. */
+function loadScriptOnce(src, timeout = 10000) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    const timer = window.setTimeout(() => { script.remove(); reject(new Error(`Hết thời gian tải ${src}`)); }, timeout);
+    script.src = src;
+    script.async = false;
+    script.onload = () => { window.clearTimeout(timer); resolve(true); };
+    script.onerror = () => { window.clearTimeout(timer); script.remove(); reject(new Error(`Không tải được ${src}`)); };
+    document.head.appendChild(script);
+  });
+}
+
+async function retryFirebaseSdk() {
+  const base = 'https://www.gstatic.com/firebasejs/9.23.0/';
+  const files = ['firebase-app-compat.js', 'firebase-auth-compat.js', 'firebase-database-compat.js'];
+  if (!window.firebase) {
+    CatChat.bootScreen?.step('Mạng chậm — đang thử tải lại thư viện…', 48);
+    for (const file of files) {
+      try { await loadScriptOnce(`${base}${file}?retry=${Date.now()}`); }
+      catch (error) { console.warn('Thử lại Firebase SDK thất bại:', error?.message || error); }
+    }
+  }
+  return Boolean(window.firebase && window.firebase.auth && window.firebase.database);
+}
+
 async function initializeFirebase() {
   CatChat.bootScreen?.step('Đang xác thực thiết bị…', 44);
   // App Check (nếu được cấu hình) phải xong trước khi mở kết nối tới Firebase.
@@ -516,11 +543,16 @@ async function initializeFirebase() {
   } catch (error) {
     console.warn('App Check chưa sẵn sàng, tiếp tục không có lớp xác thực thiết bị:', error);
   }
+  // Mạng yếu / mất mạng tạm thời: thử nạp lại đúng thư viện Firebase một lần trước khi
+  // báo lỗi, thay vì bắt người dùng tự tải lại cả trang.
   if (!window.firebase || !window.firebase.auth || !window.firebase.database) {
-    setAuthNotice('Không tải được Firebase SDK. Hãy kiểm tra kết nối Internet rồi tải lại trang.', 'error');
-    els.authSubmit.disabled = true;
-    CatChat.bootScreen?.fail('Không tải được Firebase SDK. Hãy kiểm tra kết nối Internet rồi thử lại.');
-    return;
+    const recovered = await retryFirebaseSdk();
+    if (!recovered) {
+      setAuthNotice('Không tải được Firebase SDK. Hãy kiểm tra kết nối Internet rồi tải lại trang.', 'error');
+      els.authSubmit.disabled = true;
+      CatChat.bootScreen?.fail('Không tải được Firebase SDK. Hãy kiểm tra kết nối Internet rồi thử lại.');
+      return;
+    }
   }
   try {
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);

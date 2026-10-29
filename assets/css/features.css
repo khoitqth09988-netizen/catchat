@@ -584,3 +584,32 @@ body[data-density="compact"] .app-view .message-bubble { line-height: 1.45; }
 }
 .tag-deleted .icon { width: 11px; height: 11px; }
 .admin-action.danger:hover { border-color: color-mix(in srgb, #e05555 60%, transparent); color: #ff8f8f; background: color-mix(in srgb, #e05555 12%, transparent); }
+
+/* ── Nhãn quyền hạn dưới tên hiển thị (features/admin-badges.js) ──
+   Ai cũng có thể đặt tên là “admin”; nhãn này cho biết người đó có quyền quản trị thật
+   hay chỉ là tên hiển thị. Nhãn dựa trên uid có trong /adminBadges, không dựa vào chữ. */
+.name-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border: 1px solid var(--theme-line, rgba(255, 255, 255, .16));
+  border-radius: 999px;
+  background: var(--theme-panel-alt, rgba(255, 255, 255, .06));
+  color: var(--theme-muted, #8b8d94);
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: .02em;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.name-tag .icon { width: 10px; height: 10px; }
+
+.name-tag.is-admin {
+  border-color: color-mix(in srgb, var(--theme-accent, #d5763c) 52%, transparent);
+  background: color-mix(in srgb, var(--theme-accent, #d5763c) 15%, transparent);
+  color: var(--theme-accent, #d5763c);
+}
+
+.directory-badge.name-tag { padding: 2px 7px; font-size: 9px; }

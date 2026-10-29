@@ -336,6 +336,13 @@ function buildMessageNode(id, data, grouped = false) {
     const content = textElement('div', 'message-content');
     const meta = textElement('div', 'message-meta');
     meta.append(textElement('span', 'message-name', name));
+    // Nhãn quyền hạn: chỉ hiện với tên kiểu “admin”, để không ai bị nhầm người
+    // đặt tên admin với quản trị viên thật (xem features/admin-badges.js).
+    const nameTag = window.CatChat?.adminBadges?.tagFor(data.uid, name) || '';
+    if (nameTag) {
+      const badge = textElement('span', `name-tag is-${nameTag}`, window.CatChat.adminBadges.tagLabel(nameTag));
+      meta.appendChild(badge);
+    }
     meta.append(textElement('time', 'message-time', formatTime(time)));
     if (editedLabel) meta.appendChild(textElement('span', 'message-edited', editedLabel));
     if (isPinned) meta.appendChild(textElement('span', 'message-edited', '· đã ghim'));

@@ -265,10 +265,17 @@ function renderDirectory() {
       mutedBadge.append(document.createTextNode(`Cấm chat · ${muteRemainingLabel(mutes[uid])}`));
       copy.appendChild(mutedBadge);
     }
+    const nameTag = window.CatChat?.adminBadges?.tagFor(uid, name) || '';
     if (uid === currentUser?.uid && isAdmin) {
       const badge = textElement('span', 'directory-badge');
       badge.appendChild(icon('crown'));
       badge.append(document.createTextNode('Quản trị viên'));
+      copy.appendChild(badge);
+    } else if (nameTag) {
+      // Tên kiểu “admin” nhưng không có quyền quản trị ⇒ nói rõ để không nhầm.
+      const badge = textElement('span', `directory-badge name-tag is-${nameTag}`);
+      badge.appendChild(icon(nameTag === 'admin' ? 'crown' : 'users'));
+      badge.append(document.createTextNode(nameTag === 'admin' ? 'Quản trị viên' : 'Chỉ là tên hiển thị'));
       copy.appendChild(badge);
     } else if (banned) {
       const badge = textElement('span', 'directory-badge banned');

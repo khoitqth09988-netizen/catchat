@@ -348,6 +348,14 @@
     ]));
     if (dataTasks) summary.data = dataTasks.filter((result) => result.status === 'fulfilled').length;
 
+    // Trả lại tên hiển thị cho cộng đồng: nếu không, /displayNames giữ khoá của
+    // người đã rời tổ mèo và không ai dùng lại được tên đó nữa.
+    await attempt('giải phóng tên', async () => {
+      if (!window.CatChat?.names?.release) return null;
+      await CatChat.names.release(uid, info.name);
+      return null;
+    });
+
     if (removeReactions) {
       summary.reactions = (await attempt('reaction', () => removeUserReactions(uid))) || 0;
     }

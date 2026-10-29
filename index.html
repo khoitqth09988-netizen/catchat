@@ -34,6 +34,8 @@
   <!-- Chọn giao diện theo thiết bị TRƯỚC khi vẽ: điện thoại/máy tính bảng cảm ứng dùng
        giao diện app riêng (mobile-app.css), máy tính giữ giao diện cũ. -->
   <script src="assets/js/app/ui-mode.js"></script>
+  <!-- Mạng yếu: báo sớm + nút "Thử lại" nếu Firebase SDK không tải kịp (nạp trước, không defer) -->
+  <script src="assets/js/app/early-guard.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- CSS: nạp theo thứ tự, halloween-night.css luôn cuối để ghi đè theme Halloween -->
   <link rel="stylesheet" href="assets/css/boot.css">
@@ -183,7 +185,7 @@
               <svg class="icon"><use href="#i-user"></use></svg>
               <input id="displayName" name="displayName" type="text" maxlength="32" autocomplete="nickname" placeholder="Ví dụ: Linh Nguyễn">
             </div>
-            <small class="field-note">Mỗi tên chỉ thuộc về một người — hãy chọn tên riêng của bạn.</small>
+            <small class="field-note">Mỗi tên chỉ thuộc về một người; những tên như “admin” được dành riêng cho quản trị viên.</small>
           </div>
           <div class="form-field">
             <label for="email">Địa chỉ email</label>
@@ -763,6 +765,7 @@
   <script defer src="assets/js/features/identity-guard.js"></script>
   <script defer src="assets/js/features/identity-blocks.js"></script>
   <script defer src="assets/js/features/name-guard.js"></script>
+  <script defer src="assets/js/features/admin-badges.js"></script>
   <script defer src="assets/js/features/typing-indicator.js"></script>
   <script defer src="assets/js/features/cursor-fx.js"></script>
   <script defer src="assets/js/features/pwa.js"></script>

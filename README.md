@@ -69,7 +69,8 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   account-deletion.js          Admin xoá tài khoản thành viên (có hàm purge dùng lại được)
   identity-guard.js            Dấu vân tay thiết bị/IP, chặn vĩnh viễn, giới hạn 2 tài khoản mỗi máy
   identity-blocks.js           Tab quản trị “Chặn vĩnh viễn” (thiết bị / IP / khoá tự động)
-  name-guard.js                Giữ chỗ tên hiển thị duy nhất (/displayNames), gợi ý tên thay thế
+  name-guard.js                Tên hiển thị duy nhất (/displayNames); tên kiểu “admin” là tên dùng chung
+  admin-badges.js              Nhãn quyền hạn dưới tên: “Quản trị” / “Thành viên” (/adminBadges)
   boot-screen.js               Tiến trình khởi động thật cho splash (step/finish/fail)
   typing-indicator.js          Chỉ báo “ai đang nhập…” qua node /typing
   motion.js                    Tuỳ chọn chuyển động dùng chung cho CSS + JS
@@ -79,6 +80,7 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   ui-mode.js                   Chọn giao diện theo thiết bị (chạy trước lần vẽ đầu)
   mobile-ui.js                 Thanh tab, ngăn kéo kênh, bảng cài đặt của giao diện mobile
   deep-link.js                 Lối tắt PWA: đọc ?view=chat|members|announcements sau khi đăng nhập
+  early-guard.js               Gác cổng khởi động sớm: báo mạng yếu + nút Thử lại trước cả Firebase SDK
   media.js                     Trạng thái Storage: có thì upload, không thì dán liên kết ảnh
 functions/                     Cloud Functions: xoá tài khoản Auth, lấy mã IP, tự khoá định danh
   package.json                 Khai báo phụ thuộc + engines Node 22 (bắt buộc để deploy được)
@@ -374,6 +376,74 @@ chỉ lộ khi thao tác thật**. Danh sách việc đã làm:
 - `npm test` trong `tests/` chạy đủ 7 tệp: rules, cascade mobile, nhận diện thiết bị, mobile-ui, smoke,
   flows, deep-link — CI dùng đúng lệnh này.
 
+## Đợt 27 — mạng yếu, ngăn kéo mobile và tên “admin”
+
+Ba lỗi người dùng báo khi dùng Chrome trên điện thoại:
+
+### 1. Mạng yếu thì không mở được app
+
+Nguyên nhân: `index.html` nạp Firebase SDK từ `www.gstatic.com` bằng `<script defer>`. Script
+`defer` phải chạy **theo đúng thứ tự**, nên chỉ cần một tệp SDK "treo" (mạng 3G chập chờn, nhà mạng
+chặn gstatic) là mọi script CatChat phía sau không bao giờ chạy — splash đứng im, không có thông báo
+gì ngoài dòng "đang kết nối".
+
+- `assets/js/app/early-guard.js` (mới, nạp trong `<head>`, **trước** Firebase SDK, không `defer`):
+  sau 9 giây thiếu `window.firebase` thì báo đúng nguyên nhân ngay trên splash; sau 18 giây vẫn chưa
+  mở được app thì hiện hộp lỗi + nút **Thử lại** (chỉ hoạt động khi app chưa mở xong).
+- `events.js` khi thiếu SDK sẽ **tự nạp lại** 3 tệp Firebase một lần (có hạn 10 giây/tệp) trước khi báo
+  lỗi, nên mạng chớp tắt không bắt người dùng tải lại cả trang.
+- `sw.js`: `VERSION` lên **`catchat-v7`**, thêm `NETWORK_TIMEOUT = 3200` — trang và JS/CSS chờ mạng tối
+  đa 3,2 giây rồi trả bản trong cache (vẫn cập nhật cache khi mạng về). Lần mở sau trên mạng yếu vì thế
+  gần như tức thì. Trang ngoại tuyến có nút "Thử lại" dạng liên kết (không dùng `onclick` vì CSP chặn).
+
+### 2. Bấm vào kênh vẫn còn một lớp mờ, không nhìn thấy gì
+
+Nguyên nhân gốc: `<aside class="sidebar">` trong `index.html` **không có `id="sidebar"`**, trong khi
+`mobile-ui.js` tìm ngăn kéo bằng `document.querySelector('#sidebar')`. Kết quả: `sidebar` = `null`,
+phần "chọn kênh thì đóng ngăn kéo" không được gắn, nên bấm kênh xong ngăn kéo + lớp mờ vẫn nằm đó.
+Test cũ dựng DOM giả *có* id nên vẫn xanh.
+
+- Thêm `id="sidebar"`; `mobile-ui.js` nhận cả `#sidebar` lẫn `.sidebar` và cảnh báo nếu không thấy.
+- Lưới an toàn thứ hai: nghe **pha capture trên `document`** — bấm `.channel-link` / `.nav-link` /
+  nút tạo kênh luôn đóng ngăn kéo, kể cả khi HTML cũ còn trong cache.
+- Tự chữa: `MutationObserver` trên `data-mobile-sheet` gọi lại `syncSheetChrome()`, nên mất thuộc tính
+  là lớp mờ ẩn ngay.
+- CSS: `#mobileScrim[hidden] { display: none !important }` và
+  `html[data-ui="mobile"]:not([data-mobile-sheet]) #mobileScrim { pointer-events: none }` — dù có lỗi
+  gì thì lớp mờ cũng không khoá được màn hình.
+
+### 3. Đăng ký với tên “admin” bị đổi thành “admin (a1b2)”
+
+Nguyên nhân: `/displayNames` giữ khoá duy nhất cho mọi tên, nên khi tên đã có người dùng, `syncMemberProfile`
+tự thêm hậu tố UID. Người dùng thấy tên mình bị đổi mà không hiểu vì sao.
+
+Theo lựa chọn của chủ dự án — **cho phép đặt tên “admin” và phân biệt bằng nhãn**:
+
+- Tên kiểu quản trị (`admin`, `administrator`, `quantri`, `root`, `system`, và tên của chính các tài
+  khoản trong `/admins`) là **tên dùng chung**: `claim()` bỏ qua chúng, không chiếm khoá
+  `/displayNames` ⇒ nhiều người cùng tên được, và tài khoản quản trị thật **không bị mất tên**.
+- Tên thường vẫn **duy nhất** như trước; nếu trùng, app báo ngay tại ô tên kèm gợi ý (chưa tạo tài khoản).
+- **Không còn tự đổi tên**: nếu lúc đăng nhập phát hiện trùng, app giữ nguyên tên người dùng đã chọn và
+  chỉ ghi cảnh báo cho quản trị.
+- **Nhãn quyền hạn** (`assets/js/features/admin-badges.js`): node mới `/adminBadges/<uid> = true`, ai đã
+  đăng nhập cũng đọc được, mỗi người chỉ ghi được cờ của chính mình và chỉ khi thật sự là admin. Nhãn
+  hiện ngay sau tên trong tin nhắn và trong danh bạ: **“Quản trị”** (đúng là admin) hoặc **“Thành viên” /
+  “Chỉ là tên hiển thị”** (chỉ trùng tên). Nhãn dựa trên uid, **không** dựa vào chữ trong tên.
+- Xoá tài khoản thành viên giờ **giải phóng khoá tên** để người khác dùng lại.
+
+> **Rules RTDB cần dán lại** vì có thêm node `/adminBadges` (xem `database.rules.json`). Chưa dán thì
+> app vẫn chạy: nhãn lấy từ tài khoản đang đăng nhập và danh sách tên kiểu admin mặc định.
+
+### Kiểm thử mới
+
+- `tests/resilience.test.mjs`: thứ tự nạp `early-guard.js` trước SDK, `NETWORK_TIMEOUT` trong `sw.js`,
+  splash hiện lỗi + nút Thử lại khi thiếu Firebase, bấm kênh luôn đóng ngăn kéo, lớp mờ tự ẩn.
+- `tests/names.test.mjs`: đăng ký tên “admin” thành công và giữ nguyên tên, tên thường vẫn duy nhất,
+  không tự thêm hậu tố, nhãn “Quản trị”/“Thành viên” hiện đúng chỗ, xoá tài khoản giải phóng tên.
+- `tests/rules.test.mjs`: 38 tình huống (thêm 5 tình huống cho `/adminBadges`, cập nhật `/displayNames`).
+- `tests/harness.mjs`: `createUserWithEmailAndPassword` giờ tạo `currentUser` có `updateProfile`/`delete`,
+  `displayName` lấy từ phần trước `@` như tài khoản thật.
+
 ## Trạng thái trực tuyến & hồ sơ thành viên
 
 - `assets/js/app/presence.js` là nguồn duy nhất trả lời “ai đang online” (`isUserOnline`, `onlineMemberCount`).
@@ -417,7 +487,7 @@ Ba lớp chặn, tất cả đều **vĩnh viễn cho tới khi quản trị vi�
 > chỉ đọc được ở server. Đây là lớp giảm lạm dụng, **không phải** bằng chứng tuyệt đối — chặn thật phải
 > dựa vào Firebase Rules + App Check + Cloud Function (xem `SECURITY.md`).
 
-## Tên hiển thị là duy nhất
+## Tên hiển thị: duy nhất với tên thường, dùng chung với tên kiểu “admin”
 
 Mỗi tên chỉ thuộc về một người. Khi đăng ký, tên được chuẩn hoá rồi “giữ chỗ” trong
 `/displayNames/<slug> = <uid>` bằng transaction, nên hai người bấm cùng lúc cũng chỉ một người thắng:
@@ -428,10 +498,16 @@ Mỗi tên chỉ thuộc về một người. Khi đăng ký, tên được chu�
 | `mèo   con` | `meo-con` |
 | `Đường` | `duong` |
 
-- Trùng tên ⇒ tài khoản vừa tạo bị xoá ngay, form gợi ý `Tên 2` và báo lỗi rõ ràng.
-- Người đã có tài khoản (dữ liệu cũ trùng tên) vẫn đăng nhập được: giữ tên cũ của chính mình,
-  nếu chưa có tên thì thêm hậu tố `(abcd)` để không hiển thị trùng người khác.
-- Khi tên đổi, khoá tên cũ được dọn tự động (`forgetOtherSlugs`).
+- Trùng tên ⇒ app báo ngay **tại ô tên** kèm gợi ý `Tên 2` và chưa tạo tài khoản (nếu vẫn lọt qua bước
+  kiểm tra, tài khoản vừa tạo bị xoá ngay để không để lại rác).
+- **Ngoại lệ — tên kiểu quản trị** (`admin`, `administrator`, `quantri`, `root`, `system`, và tên của
+  chính các tài khoản trong `/admins`): đây là **tên dùng chung**, không giữ khoá `/displayNames`, nên
+  nhiều người cùng đặt được và quản trị thật không bị mất tên. Phân biệt bằng nhãn “Quản trị” /
+  “Thành viên” ngay sau tên (xem `features/admin-badges.js`).
+- **Không tự đổi tên người dùng.** Nếu lúc đăng nhập phát hiện trùng tên (dữ liệu cũ), app giữ nguyên
+  tên đã chọn thay vì thêm hậu tố `(abcd)` như trước, và chỉ ghi cảnh báo cho quản trị.
+- Khi tên đổi, khoá tên cũ được dọn tự động (`forgetOtherSlugs`); khi xoá tài khoản, khoá tên được
+  giải phóng để người khác dùng lại.
 - Cần node `displayNames` trong Rules (đã có trong cả hai file Rules); thiếu node thì app **không**
   chặn đăng nhập mà chỉ cảnh báo trong console.
 
@@ -553,8 +629,9 @@ node scripts/verify.mjs
 
 ```bash
 node scripts/verify.mjs        # cú pháp JS/CSS/JSON, tài nguyên, PWA, Rules tĩnh
-node tests/rules.test.mjs      # mô phỏng Rules: 27 tình huống quyền ghi
-cd tests && npm install && npm test   # 7 tệp: rules, mobile, ui-mode, mobile-ui, smoke, flows, deep-link
+node tests/rules.test.mjs      # mô phỏng Rules: 38 tình huống quyền ghi
+cd tests && npm install && npm test   # 9 tệp: rules, mobile, ui-mode, mobile-ui, smoke, flows,
+                                      #        deep-link, resilience, names
 ```
 
 Chạy riêng từng tệp cũng được (đứng ở thư mục gốc repo):
@@ -576,6 +653,12 @@ node tests/deep-link.test.mjs  # lối tắt PWA ?view=chat|members|announcement
   tin đã lưu, quản trị, mobile, lệnh `/shrug`, sửa + ghim tin, bật/thoát thông báo, tạo kênh, nháp theo kênh.
 - `tests/deep-link.test.mjs` kiểm lối tắt PWA đọc `?view=`, chỉ nhận 3 giá trị hợp lệ, chỉ áp dụng sau
   khi đăng nhập và xoá tham số khỏi địa chỉ sau khi dùng.
+- `tests/resilience.test.mjs` kiểm đường "mạng yếu": `early-guard.js` nạp trước Firebase SDK, splash hiện
+  lỗi + nút Thử lại, `sw.js` có hạn chờ mạng rồi dùng cache; và đường "ngăn kéo mobile": bấm kênh luôn
+  đóng ngăn kéo, lớp mờ tự ẩn khi mất `data-mobile-sheet`.
+- `tests/names.test.mjs` kiểm tên hiển thị: đăng ký tên “admin” thành công và giữ nguyên tên, tên thường
+  vẫn duy nhất, không tự thêm hậu tố `(xxxx)`, nhãn “Quản trị”/“Thành viên” trong tin nhắn + danh bạ,
+  xoá tài khoản giải phóng khoá tên.
 - `tests/mobile.test.mjs` tự đánh giá `@media` + specificity trên 20 tệp CSS ở 3 khổ màn hình
   (390px cảm ứng, 820px iPad, 1280px chuột) để chắc rằng rule mobile **thực sự thắng**:
   chữ tin nhắn 15px, ô soạn tin 16px, mục menu 44px, nút `⋯` hiện trên iPad, desktop không đổi.
@@ -590,7 +673,7 @@ node tests/deep-link.test.mjs  # lối tắt PWA ?view=chat|members|announcement
 - `tests/mobile-ui.test.mjs` dựng DOM tối thiểu rồi bấm thử: mở/đóng ngăn kéo, aria-expanded, lớp mờ,
   Esc, chọn kênh tự đóng, các mục trong bảng cài đặt gọi đúng nút cũ, phản chiếu trạng thái kết nối,
   ẩn thanh tab khi đăng xuất và khi chuyển sang giao diện máy tính.
-- Cả bảy chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
+- Cả chín chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
   chạy `verify` + `rules`, job **Kiểm thử giao diện (jsdom)** cài jsdom rồi chạy `npm test`.
 
 ### Firebase Emulator (chạy full stack ở máy)
@@ -633,7 +716,7 @@ Deploy xong thì bật trong `assets/js/app/config.js`:
 - **Google Fonts** (`fonts.googleapis.com`, `fonts.gstatic.com`) được cache riêng, trả cache trước và
   cập nhật ngầm: mở app nhanh hơn và ngoại tuyến vẫn giữ đúng font. Cache font tự dọn còn 24 mục.
 - Khi sửa nhiều tệp tĩnh và muốn xoá cache cũ ngay, tăng `VERSION` trong `sw.js`
-  (hiện là `catchat-v6`).
+  (hiện là `catchat-v7`).
 
 ### CI/CD
 
