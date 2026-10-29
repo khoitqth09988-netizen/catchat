@@ -68,6 +68,28 @@ async function submitAuth(event) {
     return;
   }
 
+  // Tên kiểu “admin” (admin, root, quản trị…) là tên dùng chung: ai cũng đặt được, không
+  // chiếm khoá duy nhất, và được phân biệt bằng nhãn “Quản trị viên” / “Thành viên” trong
+  // danh sách thành viên và dưới mỗi tin nhắn. Với các tên khác, tên vẫn là duy nhất nên
+  // kiểm trước khi tạo tài khoản: báo ngay tại ô tên thay vì tạo rồi xoá.
+  if (isSignUp && window.CatChat?.names) {
+    setAuthBusy(true);
+    try {
+      const shared = await CatChat.names.isShared(displayName);
+      if (!shared && await CatChat.names.holderOf(displayName)) {
+        const suggestion = await CatChat.names.suggest(displayName);
+        els.displayName.value = suggestion;
+        setAuthError(`Tên hiển thị “${displayName}” đã có người dùng. Thử “${suggestion}” hoặc một tên khác nhé.`);
+        els.displayName.focus();
+        return;
+      }
+    } catch (error) {
+      console.warn('Chưa kiểm tra được tên hiển thị:', error);
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
   setAuthBusy(true);
   try {
     if (isSignUp) {

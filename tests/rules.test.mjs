@@ -27,6 +27,7 @@ class Node {
   exists() { return this._value !== null && this._value !== undefined; }
   isString() { return typeof this._value === 'string'; }
   isNumber() { return typeof this._value === 'number' && Number.isFinite(this._value); }
+  isBoolean() { return typeof this._value === 'boolean'; }
   hasChildren(keys) {
     return Boolean(this._value) && typeof this._value === 'object'
       && keys.every((key) => this._value[key] !== null && this._value[key] !== undefined);
@@ -41,6 +42,8 @@ const DB = {
     admin1: { uid: 'admin1', name: 'Quản trị' }
   },
   channels: { general: { name: 'general' }, k1: { name: 'k1' } },
+  displayNames: { 'meo-con': 'u1', admin: 'admin1' },
+  adminBadges: { admin1: true },
   messages: { m1: { uid: 'u1', name: 'Mèo con', text: 'cũ', kind: 'message', timestamp: 1_700_000_000_000 } },
   channelMessages: { k1: { cm1: { uid: 'u1', name: 'Mèo con', text: 'cũ', kind: 'message', timestamp: 1_700_000_000_000 } } },
   adminLog: { log1: { type: 'edit', detail: 'x', adminUid: 'admin1', timestamp: 1_700_000_000_000 } }
@@ -85,6 +88,34 @@ const env = (a, next, prev = null, vars = {}) => ({ auth: a, new: next, old: pre
 
 const cases = [];
 const test = (label, expected, run) => cases.push({ label, expected, run });
+
+/* Tên hiển thị duy nhất (tên kiểu “admin” do client không giữ khoá, xem features/name-guard.js) */
+const DISPLAY = RULES.displayNames.$slug;
+test('thành viên thường vẫn giữ được tên riêng của mình', true,
+  () => allowed(DISPLAY, env(AUTH_U1, 'u1', null, { slug: 'meo-con' })));
+test('không giữ chỗ tên cho uid khác', false,
+  () => allowed(DISPLAY, env(AUTH_U2, 'u1', null, { slug: 'meo-con' })));
+test('không cướp tên người khác đã giữ', false,
+  () => allowed(DISPLAY, env(AUTH_U2, 'u2', 'u1', { slug: 'meo-con' })));
+test('tự bỏ giữ chỗ tên của mình được', true,
+  () => allowed(DISPLAY, env(AUTH_U1, null, 'u1', { slug: 'meo-con' })));
+test('quản trị bỏ giữ chỗ tên của thành viên đã xoá (để tên được dùng lại)', true,
+  () => allowed(DISPLAY, env(AUTH_ADMIN, null, 'u1', { slug: 'meo-con' })));
+test('thành viên thường không xoá được khoá tên của người khác', false,
+  () => allowed(DISPLAY, env(AUTH_U2, null, 'u1', { slug: 'meo-con' })));
+
+/* Nhãn quyền hạn công khai: ai đọc cũng được, chỉ quản trị ghi được cờ của chính mình */
+const BADGE = RULES.adminBadges.$uid;
+test('mọi thành viên đọc được /adminBadges (để hiện nhãn)', true,
+  () => evaluate(RULES.adminBadges['.read'], env(AUTH_U2, null, null, { uid: 'u1' })));
+test('quản trị ghi được cờ của chính mình', true,
+  () => allowed(BADGE, env(AUTH_ADMIN, true, null, { uid: 'admin1' })));
+test('thành viên thường KHÔNG ghi được cờ quản trị', false,
+  () => allowed(BADGE, env(AUTH_U2, true, null, { uid: 'u2' })));
+test('không ghi cờ cho uid của người khác', false,
+  () => allowed(BADGE, env(AUTH_U2, true, null, { uid: 'u1' })));
+test('cờ phải là boolean', false,
+  () => allowed(BADGE, env(AUTH_ADMIN, 'admin', null, { uid: 'admin1' })));
 
 /* Tin nhắn chung */
 test('thành viên gửi tin của mình, đúng tên', true, () => allowed(MESSAGES, env(AUTH_U1, message('u1', 'Mèo con'), null, { messageId: 'm9' })));

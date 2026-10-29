@@ -547,7 +547,15 @@ html[data-ui="mobile"] .mobile-sheet-status .connection-dot.offline {
 
 /* ─────────────── 7. Lớp mờ phía sau ngăn kéo / bảng ─────────────── */
 /* Lớp mờ: chỉ làm tối, KHÔNG blur (vừa đỡ tốn GPU vừa không làm ngăn kéo "mờ tịt").
-   z-index 76: trên thanh tab (45) để thanh tab cũng chìm theo, dưới ngăn kéo (78). */
+   z-index 76: trên thanh tab (45) để thanh tab cũng chìm theo, dưới ngăn kéo (78).
+
+   Hai lớp bảo hiểm chống lỗi "bấm kênh xong vẫn còn một mảng tối":
+   1. `[hidden]` phải thắng mọi luật khác (base.css đã có !important, nhắc lại ở đây);
+   2. khi KHÔNG có ngăn kéo nào mở thì lớp mờ không nhận chạm, kể cả nếu nó lỡ còn hiện
+      do JS cũ trong cache ⇒ người dùng vẫn bấm được vào app thay vì bị khoá màn hình. */
+html[data-ui="mobile"] #mobileScrim[hidden] { display: none !important; }
+html[data-ui="mobile"]:not([data-mobile-sheet]) #mobileScrim { pointer-events: none; }
+
 html[data-ui="mobile"] #mobileScrim {
   position: fixed;
   z-index: 76;

@@ -24,6 +24,9 @@ function setAdminState(value) {
     }
   }
   if (!isAdmin && announcementMode) setAnnouncementMode(false);
+  // Nhãn quyền hạn (Quản trị / Thành viên) dưới tên: cần biết ngay khi quyền vừa đổi.
+  try { window.dispatchEvent(new CustomEvent('catchat:admin-state', { detail: { isAdmin } })); }
+  catch (error) { /* bỏ qua */ }
   syncChannelChrome();
   updateMessageComposer();
   if (!isAdmin && !els.channelDialog.hidden) closeChannelDialog();

@@ -35,7 +35,13 @@ window.eval(`
 const row = doc.querySelector('#chatMessages .message-row');
 const meta = row.querySelector('.message-meta');
 const metaKids = [...meta.children].map((el) => el.className);
-check('hàng meta sai thứ tự', metaKids.join(',') === 'message-name,message-time,message-actions', metaKids.join(','));
+// Nhãn quyền hạn (.name-tag) là tuỳ chọn và luôn đứng NGAY SAU tên (chỉ hiện với tên
+// kiểu “admin”), nên thứ tự hợp lệ là: tên → [nhãn] → giờ → nút ⋯.
+const metaOrder = metaKids.join(',').replace('message-name,name-tag is-admin,', 'message-name,name-tag,')
+  .replace('message-name,name-tag is-member,', 'message-name,name-tag,');
+check('hàng meta sai thứ tự',
+  metaOrder === 'message-name,message-time,message-actions' || metaOrder === 'message-name,name-tag,message-time,message-actions',
+  metaKids.join(','));
 check('thiếu nút ⋯', Boolean(meta.querySelector('.message-more')));
 check('còn nút rời trên hàng meta', meta.querySelectorAll(':scope > button').length === 0);
 check('menu phải đóng lúc đầu', meta.querySelector('.message-menu').hidden === true);

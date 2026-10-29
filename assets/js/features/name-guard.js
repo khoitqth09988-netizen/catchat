@@ -18,13 +18,26 @@
 
    Lưu ý: Rules không chuẩn hoá được chuỗi, nên khoá slug do trình duyệt tính. Đây là lớp
    chặn trùng tên ở luồng đăng ký/đăng nhập bình thường; kẻ sửa dữ liệu thủ công vẫn cần
-   Cloud Function hoặc Rules chặt hơn mới chặn tuyệt đối. */
+   Cloud Function hoặc Rules chặt hơn mới chặn tuyệt đối.
+
+   ── Tên kiểu “admin” là tên DÙNG CHUNG, không phải tên dành riêng ──────────
+   Ai cũng có thể đặt tên hiển thị là “admin”, “quản trị”, “root”… (ví dụ để thử nghiệm).
+   Những tên này KHÔNG chiếm khoá duy nhất trong /displayNames, nên nhiều người cùng dùng
+   được và tài khoản quản trị thật không bị mất tên. Để không ai nhầm lẫn, danh sách thành
+   viên và tên dưới mỗi tin nhắn hiện thêm nhãn:
+     · “Quản trị viên” — uid có trong /adminBadges (chỉ quản trị ghi được, xem Rules);
+     · “Thành viên”    — người dùng tên kiểu admin nhưng không phải quản trị.
+   Nhãn dựa trên quyền thật, KHÔNG dựa vào chữ trong tên, nên không thể giả bằng cách đổi tên. */
 
 'use strict';
 
 (() => {
   const NODE = 'displayNames';
   const MAX_SLUG = 40;
+  // Tên kiểu quản trị: dùng chung cho mọi người, không chiếm khoá duy nhất.
+  const SHARED_SLUGS = new Set(['admin', 'administrator', 'quantri', 'root', 'system']);
+  let adminNamesCache = { slugs: new Set(), at: 0 };
+  const ADMIN_NAMES_TTL = 60 * 1000;
 
   let allNamesPromise = null;
 
@@ -46,15 +59,94 @@
       .replace(/-+$/g, '');
   }
 
+  /** Slug của các tên thuộc “gia đình quản trị” đang có trong hệ thống
+      (lấy từ ADMIN_EMAILS + tên của các uid trong /admins). Chỉ dùng để nhận biết
+      một tên là tên kiểu admin, KHÔNG dùng để chặn ai. */
+  async function adminFamilySlugs() {
+    const slugs = new Set(SHARED_SLUGS);
+    try {
+      (Array.isArray(window.ADMIN_EMAILS) ? window.ADMIN_EMAILS : []).forEach((email) => {
+        const slug = slugFor(String(email || '').split('@')[0]);
+        if (slug) slugs.add(slug);
+      });
+    } catch (error) { /* không có danh sách email thì dùng danh sách mặc định */ }
+    if (Date.now() - adminNamesCache.at < ADMIN_NAMES_TTL) {
+      adminNamesCache.slugs.forEach((slug) => slugs.add(slug));
+      return slugs;
+    }
+    const db = resolveDb();
+    if (db) {
+      try {
+        const admins = (await db.ref('admins').once('value')).val() || {};
+        const uids = Object.keys(admins).filter((uid) => admins[uid] === true);
+        const names = await Promise.all(uids.map((uid) => db.ref(`members/${uid}/name`).once('value')
+          .then((snap) => String(snap.val() || ''))
+          .catch(() => '')));
+        names.forEach((name) => {
+          const slug = slugFor(name);
+          if (slug) slugs.add(slug);
+        });
+      } catch (error) {
+        // Chưa đọc được /admins (người xem không phải quản trị): vẫn đủ danh sách mặc định.
+      }
+    }
+    adminNamesCache = { slugs, at: Date.now() };
+    return slugs;
+  }
+
+  /** Tên này có phải kiểu “admin” không? (luôn trả Promise để nơi gọi dùng thống nhất) */
+  async function isShared(name) {
+    const slug = slugFor(name);
+    if (!slug) return false;
+    if (SHARED_SLUGS.has(slug)) return true;
+    if (Date.now() - adminNamesCache.at < ADMIN_NAMES_TTL && adminNamesCache.slugs.has(slug)) return true;
+    const slugs = await adminFamilySlugs();
+    return slugs.has(slug);
+  }
+
+  /** Bản đồng bộ của isShared: dùng cache (và danh sách mặc định) để vẽ nhãn ngay,
+      không phải chờ Promise trong lúc render danh sách tin nhắn/thành viên. */
+  function isSharedSync(name) {
+    const slug = slugFor(name);
+    if (!slug) return false;
+    if (SHARED_SLUGS.has(slug)) return true;
+    if (adminNamesCache.slugs.has(slug)) return true;
+    try {
+      return (Array.isArray(window.ADMIN_EMAILS) ? window.ADMIN_EMAILS : [])
+        .some((email) => slugFor(String(email || '').split('@')[0]) === slug);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /** Bí danh cũ (đợt trước dùng để CHẶN tên quản trị). Nay là tên dùng chung ⇒ luôn false. */
+  const isReserved = () => Promise.resolve(false);
+
+  /** Đang đăng nhập bằng tài khoản quản trị (email trong ADMIN_EMAILS hoặc /admins) */
+  function callerIsAdmin() {
+    const user = window.firebase?.auth?.().currentUser || (typeof currentUser !== 'undefined' ? currentUser : null);
+    if (!user) return false;
+    const email = String(user.email || '').trim().toLocaleLowerCase('en');
+    const emails = Array.isArray(window.ADMIN_EMAILS) ? window.ADMIN_EMAILS : [];
+    if (email && emails.includes(email)) return true;
+    if (typeof hasAdminMarker !== 'undefined' && hasAdminMarker === true) return true;
+    if (typeof hasAdminClaim !== 'undefined' && hasAdminClaim === true) return true;
+    if (typeof isAdmin !== 'undefined' && isAdmin === true && typeof currentUser !== 'undefined' && currentUser?.uid === user.uid) return true;
+    return false;
+  }
+
   /**
    * Giữ chỗ tên cho một uid.
-   * Trả về { ok, slug, taken?, skipped?, unknown? }.
-   *   ok:false + taken:true  → tên đã có người dùng, phải chọn tên khác.
-   *   ok:true  + unknown:true → chưa đọc/ghi được (Rules cũ), không chặn người dùng.
+   * Trả về { ok, slug, shared?, taken?, skipped?, unknown? }.
+   *   ok:true  + shared:true   → tên kiểu admin, ai cũng dùng được, không chiếm khoá.
+   *   ok:false + taken:true    → tên đã có người dùng, phải chọn tên khác.
+   *   ok:true  + unknown:true  → chưa đọc/ghi được (Rules cũ), không chặn người dùng.
    */
   async function claim(uid, name) {
     const slug = slugFor(name);
     if (!uid || !slug) return { ok: true, slug, skipped: true };
+    // Tên kiểu “admin”: dùng chung (nhiều người cùng tên), nhãn quyền hạn lo phần phân biệt.
+    if (SHARED_SLUGS.has(slug) || await isShared(name)) return { ok: true, slug, shared: true, skipped: true };
     const db = resolveDb();
     if (!db) return { ok: true, slug, skipped: true };
     try {
@@ -71,7 +163,8 @@
     }
   }
 
-  /** Bỏ giữ chỗ (chỉ khi chính uid đang giữ). */
+  /** Bỏ giữ chỗ (chỉ khi chính uid đang giữ). Dùng khi đổi tên hoặc xoá tài khoản,
+      nếu không tên cũ bị khoá vĩnh viễn cho người đã rời tổ mèo. */
   async function release(uid, name) {
     const slug = slugFor(name);
     const db = resolveDb();
@@ -147,6 +240,11 @@
     holderOf,
     ensure,
     suggest,
+    isShared,
+    isSharedSync,
+    isReserved,
+    adminFamilySlugs,
+    callerIsAdmin,
     resetCache
   };
 })();
