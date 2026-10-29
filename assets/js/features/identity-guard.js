@@ -5,6 +5,18 @@
      • một máy/IP chỉ được tạo tối đa 2 tài khoản; cái thứ 3 xuất hiện là toàn bộ
        tài khoản của định danh đó bị khoá và dọn khỏi hệ thống.
 
+   NGUYÊN TẮC AN TOÀN (đợt 29 — sau khi chính chủ dự án bị khoá nhầm):
+     • Mọi lệnh đọc/ghi ở đây đều có HẠN CHÓT. Realtime Database khi mất mạng không
+       báo lỗi mà treo, nên nếu không có hạn chót thì cổng vào treo theo ⇒ “mạng khoẻ
+       mà không vào được”.
+     • Quản trị viên KHÔNG BAO GIỜ bị cổng này chặn (kể cả khi máy họ tạo nhiều tài
+       khoản để thử) — nếu không, chủ dự án tự khoá mình khỏi app của mình.
+     • Vượt hạn mức chỉ KHOÁ định danh (không đăng nhập được), KHÔNG tự xoá dữ liệu và
+       KHÔNG tự ghi /bans nữa. Trước đây cổng này tự cấm vĩnh viễn mọi tài khoản trên
+       máy, kể cả tài khoản quản trị ⇒ muốn vào lại phải sửa tay trong Firebase.
+     • Chỉ đếm những tài khoản còn tồn tại trong /members. Tài khoản đã xoá từng bị
+       tính mãi mãi, nên sau vài lần tạo/xoá là bị khoá oan.
+
    GIỚI HẠN CẦN BIẾT (rất quan trọng, đừng hứa quá):
      – Trình duyệt KHÔNG tự biết IP công cộng của mình. Muốn có IP thật, phải deploy
        Cloud Function `getClientIdentity` (functions/index.js) rồi bật
@@ -34,6 +46,13 @@
   const IP_KEY = 'catchat-ip-hash-v1';
   const IDENTITY_FUNCTION = 'getClientIdentity';
   const DEFAULT_MAX_ACCOUNTS = 2;
+  // Hạn chót cho từng thao tác mạng (xem withTimeout trong ui-helpers.js).
+  // Kiểm thử ghi đè được: window.__catchatIdentityTimeouts = { read, write, gate }.
+  const TIMEOUTS = { read: 5000, write: 6000, gate: 13000 };
+  const limitOf = (name) => {
+    const override = Number(window.__catchatIdentityTimeouts?.[name]);
+    return Number.isFinite(override) && override > 0 ? override : TIMEOUTS[name];
+  };
 
   let deviceId = '';
   let deviceHash = '';
@@ -169,15 +188,21 @@
     return typeof currentTimestamp === 'function' ? currentTimestamp() : Date.now();
   }
 
+  /** Bọc một promise bằng hạn chót; ui-helpers.js nạp trước tệp này. */
+  function race(task, ms, fallback, label) {
+    if (typeof withTimeout === 'function') return withTimeout(task, ms, fallback, label);
+    return Promise.resolve(task).catch(() => fallback);
+  }
+
   /* ── Đọc/ghi dữ liệu định danh ─────────────────────────────── */
 
   async function readOnce(path) {
     const db = resolveDb();
     if (!db) return null;
+    const snapshot = await race(db.ref(path).once('value'), limitOf('read'), null, `đọc /${path}`);
     try {
-      return (await db.ref(path).once('value')).val();
-    } catch (error) {
-      console.warn(`Không đọc được /${path}:`, error?.message || error);
+      return snapshot ? snapshot.val() : null;
+    } catch (_) {
       return null;
     }
   }
@@ -185,11 +210,7 @@
   async function addToLedger(path, uid, payload) {
     const db = resolveDb();
     if (!db || !uid) return;
-    try {
-      await db.ref(path).child(uid).set(payload);
-    } catch (error) {
-      console.warn(`Không ghi được /${path}:`, error?.message || error);
-    }
+    await race(db.ref(path).child(uid).set(payload), limitOf('write'), null, `ghi /${path}`);
   }
 
   /** Ghi hồ sơ định danh của chính mình (được Rules cho phép). */
@@ -199,11 +220,7 @@
     const db = resolveDb();
     if (!db) return null;
     const payload = { device: deviceHash, ipHash: ipHash || '', at: serverTimestamp() };
-    try {
-      await db.ref(`memberIdentity/${uid}`).update(payload);
-    } catch (error) {
-      console.warn('Không ghi được /memberIdentity:', error?.message || error);
-    }
+    await race(db.ref(`memberIdentity/${uid}`).update(payload), limitOf('write'), null, 'ghi /memberIdentity');
     await addToLedger(`identityLedger/${deviceHash}`, uid, { at: serverTimestamp(), ipHash: ipHash || '' });
     if (ipHash) await addToLedger(`identityIpLedger/${ipHash}`, uid, { at: serverTimestamp(), device: deviceHash });
     identityCache.set(uid, { device: deviceHash, ipHash: ipHash || '', at: Date.now() });
@@ -311,56 +328,76 @@
     (uids || []).forEach((uid) => { if (uid) map[uid] = true; });
     const payload = {
       kind,
+      auto: true,
       reason: String(reason || '').slice(0, 180),
       at: serverTimestamp(),
       by: currentUser?.uid || 'system',
       uids: map
     };
-    try {
-      await db.ref(`identityLocks/${hash}`).set(payload);
-    } catch (error) {
-      console.warn('Không ghi được /identityLocks:', error?.message || error);
-    }
-    // Cố gắng cấm từng tài khoản (Rules thường chỉ cho admin ghi /bans —
-    // nếu bị từ chối thì lớp khoá identityLocks ở trên vẫn chặn được đăng nhập).
-    await Promise.allSettled((uids || []).map((uid) => db.ref(`bans/${uid}`).set({
-      reason: payload.reason,
-      bannedBy: currentUser?.uid || 'system',
-      bannedAt: serverTimestamp(),
-      permanent: true,
-      identityLock: hash
-    })));
+    await race(db.ref(`identityLocks/${hash}`).set(payload), limitOf('write'), null, 'ghi /identityLocks');
+    // KHÔNG ghi /bans ở đây nữa. Trước đây cổng này tự cấm vĩnh viễn mọi tài khoản
+    // của định danh (kể cả tài khoản quản trị) nên chủ máy chỉ cần tạo tài khoản thứ 3
+    // để thử là tự ban mình và không mở lại được app. Khoá định danh là đủ để chặn
+    // đăng nhập; mở khoá một chỗ là mọi thứ trở lại bình thường.
     return payload;
   }
 
+  /** Gỡ khoá định danh + dọn những /bans do cổng cũ tự ghi (chỉ admin mới xoá được). */
   async function unlockIdentity(hash) {
     const db = resolveDb();
     if (!db || !hash) return;
-    await db.ref(`identityLocks/${hash}`).remove();
+    const lock = await readOnce(`identityLocks/${hash}`);
+    await race(db.ref(`identityLocks/${hash}`).remove(), limitOf('write'), null, 'xoá /identityLocks');
+    const uids = Object.keys(lock?.uids || {});
+    await Promise.allSettled(uids.map(async (uid) => {
+      const ban = await readOnce(`bans/${uid}`);
+      if (!ban || !isAutoBan(ban, hash)) return;
+      await db.ref(`bans/${uid}`).remove();
+    }));
+  }
+
+  /**
+   * “Cấm tự động” là bản ghi do máy tạo (cổng định danh cũ hoặc quản trị cũ), không
+   * phải quyết định của người thật. Nhận ra nhờ bannedBy === 'system' hoặc có mốc
+   * identityLock. Những bản ghi này được phép tự dọn để không ai bị kẹt vĩnh viễn.
+   */
+  function isAutoBan(ban, hash = '') {
+    if (!ban || typeof ban !== 'object') return false;
+    if (hash && ban.identityLock && ban.identityLock !== hash) return false;
+    return ban.bannedBy === 'system' || Boolean(ban.identityLock);
   }
 
   /**
    * Kiểm tra xem định danh hiện tại có đang nằm trong danh sách cấm/khoá không.
    * Trả về { blocked, reason, kind }.
    */
-  async function checkBlocked() {
+  async function checkBlocked({ skipAuto = false } = {}) {
     await ensureReady();
     const db = resolveDb();
     if (!db) return { blocked: false };
     const targets = [];
     if (deviceHash) {
-      targets.push([`deviceBans/${deviceHash}`, 'Thiết bị này đã bị chặn vĩnh viễn khỏi CatChat.', 'device']);
-      targets.push([`identityLocks/${deviceHash}`, 'Thiết bị này đã bị khoá do tạo quá số tài khoản cho phép.', 'lock']);
+      targets.push([`deviceBans/${deviceHash}`, 'Thiết bị này đã bị quản trị viên chặn khỏi CatChat.', 'device']);
+      targets.push([`identityLocks/${deviceHash}`, 'Thiết bị này đã bị khoá vì tạo quá số tài khoản cho phép.', 'lock']);
     }
     if (ipHash) {
-      targets.push([`ipBans/${ipHash}`, 'Địa chỉ IP này đã bị chặn vĩnh viễn khỏi CatChat.', 'ip']);
-      targets.push([`identityLocks/${ipHash}`, 'Địa chỉ IP này đã bị khoá do tạo quá số tài khoản cho phép.', 'lock']);
+      targets.push([`ipBans/${ipHash}`, 'Địa chỉ IP này đã bị quản trị viên chặn khỏi CatChat.', 'ip']);
+      targets.push([`identityLocks/${ipHash}`, 'Địa chỉ IP này đã bị khoá vì tạo quá số tài khoản cho phép.', 'lock']);
     }
     for (const [path, fallback, kind] of targets) {
       const value = await readOnce(path);
       if (!value) continue;
+      // skipAuto: quản trị viên bỏ qua khoá do máy tự tạo (vẫn tôn trọng chặn tay).
+      if (skipAuto && kind === 'lock' && value.auto !== false) continue;
       const reason = typeof value === 'object' && value.reason ? String(value.reason) : fallback;
-      return { blocked: true, reason, kind, path };
+      return {
+        blocked: true,
+        reason,
+        kind,
+        path,
+        hash: path.split('/').pop(),
+        auto: kind === 'lock' ? value.auto !== false : isAutoBan(value)
+      };
     }
     return { blocked: false };
   }
@@ -384,64 +421,118 @@
     return false;
   }
 
+  /**
+   * Như isAdminNow() nhưng kiểm được cả khi các listener quyền chưa kịp chạy:
+   * đọc trực tiếp /admins/<uid> (Rules cho chính chủ đọc) và so email quản trị.
+   */
+  async function isAdminUid(uid) {
+    if (!uid) return false;
+    if (isAdminNow()) return true;
+    try {
+      if (typeof isAdminEmail === 'function' && typeof currentUser !== 'undefined'
+        && currentUser && currentUser.uid === uid && isAdminEmail(currentUser) === true) return true;
+    } catch (_) { /* state chưa sẵn sàng */ }
+    const marker = await readOnce(`admins/${uid}`);
+    return marker === true;
+  }
+
   function accountPurge() {
     const api = window.CatChat?.accountDeletion;
     return api && typeof api.purge === 'function' ? api.purge : null;
   }
 
-  async function enforce(uid) {
-    activeUid = uid || '';
-    const blocked = await checkBlocked();
-    if (blocked.blocked) return blocked;
-    if (!uid) return { blocked: false };
-
-    await recordIdentity(uid);
-
+  /**
+   * Quản trị viên đăng nhập trên một máy từng bị cổng cũ khoá nhầm: gỡ luôn khoá tự
+   * tạo của chính máy/IP đó, để những tài khoản khác trên cùng máy không bị kẹt theo.
+   * Chỉ đụng tới khoá `auto` (do máy tạo); khoá do người thật đặt thì để nguyên.
+   */
+  async function clearAutoLocks() {
     const db = resolveDb();
-    if (!db) return { blocked: false };
-    const devices = (await readOnce(`identityLedger/${deviceHash}`)) || {};
-    const deviceUids = Object.keys(devices);
-    let ipUids = [];
-    if (ipHash) {
-      const ips = (await readOnce(`identityIpLedger/${ipHash}`)) || {};
-      ipUids = Object.keys(ips);
+    if (!db) return;
+    const hashes = [deviceHash, ipHash].filter(Boolean);
+    for (const hash of hashes) {
+      const lock = await readOnce(`identityLocks/${hash}`);
+      if (!lock || lock.auto === false) continue;
+      await race(db.ref(`identityLocks/${hash}`).remove(), limitOf('write'), null, 'gỡ khoá tự động');
+      console.warn('Đã gỡ khoá định danh tự động cho tài khoản quản trị:', hash.slice(0, 12));
     }
-    const limit = maxAccounts();
-    const overDevice = deviceUids.length > limit;
-    const overIp = ipHash ? ipUids.length > limit : false;
-    if (!overDevice && !overIp) return { blocked: false, accounts: deviceUids.length, limit };
+  }
 
-    const uids = Array.from(new Set([...deviceUids, ...ipUids, uid]));
-    const reason = overIp && overDevice
-      ? `Tự khoá: một thiết bị/IP đã tạo quá ${limit} tài khoản.`
-      : overIp
-        ? `Tự khoá: IP này đã tạo quá ${limit} tài khoản.`
-        : `Tự khoá: thiết bị này đã tạo quá ${limit} tài khoản.`;
+  /**
+   * Chỉ đếm những tài khoản CÒN TỒN TẠI trong /members.
+   * /identityLedger là sổ ghi một chiều: người dùng tạo rồi xoá tài khoản vẫn nằm lại
+   * đó mãi, nên nếu đếm thô thì chỉ vài lần tạo/xoá là bị khoá oan dù máy chỉ còn 1
+   * tài khoản. Đọc /members không được (mạng lỗi) ⇒ trả null để cổng BỎ QUA hạn mức
+   * thay vì khoá nhầm người dùng.
+   */
+  async function liveAccounts(candidateUids) {
+    const db = resolveDb();
+    if (!db) return null;
+    const members = await readOnce('members');
+    if (!members || typeof members !== 'object') return null;
+    return candidateUids.filter((uid) => Object.prototype.hasOwnProperty.call(members, uid));
+  }
 
-    if (overDevice) await lockIdentity({ reason, uids, kind: 'device', hash: deviceHash });
-    if (overIp) await lockIdentity({ reason, uids, kind: 'ip', hash: ipHash });
+  /**
+   * Cổng vào app: cấm thiết bị/IP + ghi nhận định danh + kiểm tra hạn mức.
+   * Toàn bộ có hạn chót: chậm mạng thì trả về “cho vào” chứ không treo splash.
+   */
+  async function enforce(uid) {
+    const gate = (async () => {
+      activeUid = uid || '';
+      const admin = isAdminNow() || (await isAdminUid(uid));
+      if (admin) await clearAutoLocks();
+      // Quản trị viên bỏ qua khoá tự tạo (kể cả khi chính họ tạo nhiều tài khoản để thử).
+      const blocked = await checkBlocked({ skipAuto: admin });
+      if (blocked.blocked) return blocked;
+      if (!uid) return { blocked: false };
 
-    // Dọn dữ liệu: admin xoá được mọi tài khoản; người thường chỉ xoá được chính
-    // mình (Rules), phần còn lại nằm trong /identityLocks để admin dọn một cú bấm.
-    const purged = [];
-    const purge = accountPurge();
-    if (purge) {
-      const targets = isAdminNow() ? uids : [uid];
-      for (const target of targets) {
-        try {
-          await purge(target, {
-            removeMessages: false,
-            removeReactions: true,
-            reason,
-            log: true
-          });
-          purged.push(target);
-        } catch (error) {
-          console.warn('Không dọn được tài khoản vượt hạn mức:', target, error);
-        }
+      await recordIdentity(uid);
+
+      const db = resolveDb();
+      if (!db) return { blocked: false };
+      const limit = maxAccounts();
+      const devices = Object.keys((await readOnce(`identityLedger/${deviceHash}`)) || {});
+      const ips = ipHash ? Object.keys((await readOnce(`identityIpLedger/${ipHash}`)) || {}) : [];
+      // Không đọc được sổ định danh (mạng lỗi / Rules chưa dán) ⇒ bỏ qua hạn mức.
+      if (!devices.length && !ips.length) return { blocked: false, accounts: 0, limit };
+      const deviceUids = (await liveAccounts(devices));
+      const ipUids = ipHash ? (await liveAccounts(ips)) : [];
+      if (deviceUids === null || ipUids === null) {
+        return { blocked: false, accounts: null, limit, skipped: 'members-unavailable' };
       }
-    }
-    return { blocked: true, reason, kind: 'quota', accounts: deviceUids.length, limit, uids, purged };
+      const overDevice = deviceUids.length > limit;
+      const overIp = ipHash ? ipUids.length > limit : false;
+      if (admin) {
+        if (overDevice || overIp) console.warn('Quản trị viên vượt hạn mức định danh — bỏ qua cổng khoá.');
+        return { blocked: false, accounts: deviceUids.length, limit, admin: true };
+      }
+      if (!overDevice && !overIp) return { blocked: false, accounts: deviceUids.length, limit };
+
+      const uids = Array.from(new Set([...deviceUids, ...ipUids, uid]));
+      const reason = overIp && overDevice
+        ? `Máy/IP này đã dùng ${Math.max(deviceUids.length, ipUids.length)} tài khoản, quá mức ${limit} cho phép.`
+        : overIp
+          ? `IP này đã dùng ${ipUids.length} tài khoản, quá mức ${limit} cho phép.`
+          : `Máy này đã dùng ${deviceUids.length} tài khoản, quá mức ${limit} cho phép.`;
+
+      if (overDevice) await lockIdentity({ reason, uids, kind: 'device', hash: deviceHash });
+      if (overIp) await lockIdentity({ reason, uids, kind: 'ip', hash: ipHash });
+
+      // Không tự xoá dữ liệu của ai: chỉ khoá đăng nhập. Quản trị viên vào
+      // “Cài đặt quản trị → Chặn thiết bị & IP” để mở khoá hoặc dọn tài khoản thừa.
+      return {
+        blocked: true,
+        reason,
+        kind: 'quota',
+        help: `Quản trị viên có thể mở khoá trong Cài đặt quản trị → tab “Chặn thiết bị & IP” (mã ${deviceHash.slice(0, 8)}).`,
+        accounts: Math.max(deviceUids.length, ipUids.length),
+        limit,
+        uids: uids.slice(0, 20),
+        purged: []
+      };
+    })();
+    return race(gate, limitOf('gate'), { blocked: false, timedOut: true }, 'kiểm tra định danh');
   }
 
   /* ── Theo dõi trực tiếp: đang dùng mà bị cấm thì đăng xuất ngay ── */
@@ -460,6 +551,12 @@
         if (!snapshot.exists()) return;
         if (path === `bans/${uid}`) return; // /bans đã có listener riêng trong session.js
         const value = snapshot.val() || {};
+        // Khoá do máy tự tạo không được đá quản trị viên ra (họ cần vào để mở khoá).
+        // Chặn tay (auto === false / có người thật đứng tên) thì vẫn áp dụng đầy đủ.
+        if (isAdminNow() && (value.auto !== false || isAutoBan(value))) {
+          console.warn('Bỏ qua khoá tự động cho tài khoản quản trị:', path);
+          return;
+        }
         const reason = String(value.reason || 'Thiết bị/IP của bạn đã bị quản trị viên chặn.');
         if (typeof setAuthNotice === 'function') setAuthNotice(reason, 'error');
         if (typeof toast === 'function') toast(reason, 'error');
@@ -534,6 +631,7 @@
       ensureReady,
       enforce,
       checkBlocked,
+      isAdminUid,
       watch,
       unwatch,
       lookup,
@@ -546,6 +644,9 @@
       banAccountEverywhere,
       lockIdentity,
       unlockIdentity,
+      isAutoBan,
+      liveAccounts,
+      clearAutoLocks,
       listAll,
       purgeIdentityLock,
       maxAccounts

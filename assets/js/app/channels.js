@@ -374,13 +374,33 @@ async function enterWorkspace(user, generation) {
   currentUser = user;
   updateCurrentUserUI();
   try {
-    const banSnapshot = await bansRef.child(user.uid).once('value');
+    // Có hạn chót: RTDB khi mất mạng không báo lỗi mà treo, nếu chờ vô hạn thì
+    // splash đứng ở “Đang xác thực phiên đăng nhập…” mãi dù mạng vẫn “khoẻ”.
+    const banSnapshot = await withTimeout(
+      bansRef.child(user.uid).once('value'), 6000, null, 'kiểm tra trạng thái chặn'
+    );
     if (generation !== authGeneration) return;
-    if (banSnapshot.exists()) {
+    if (banSnapshot?.exists?.()) {
+      const ban = banSnapshot.val() || {};
       const reason = banSnapshot.child('reason').val();
-      signedOutNotice = reason ? `Tài khoản của bạn đang bị chặn truy cập ứng dụng. Lý do: ${reason}` : 'Tài khoản của bạn đang bị chặn truy cập ứng dụng. Hãy liên hệ quản trị viên.';
-      await auth.signOut();
-      return;
+      const autoBan = window.CatChat?.identity?.isAutoBan?.(ban) === true;
+      // Kiểm tra quyền admin bằng cả cờ đồng bộ lẫn /admins/<uid>: listener quyền
+      // thường chưa kịp chạy ở bước này, thiếu lớp thứ hai là admin bị đá ra.
+      const adminNow = (typeof isAdminNow === 'function' ? isAdminNow() : false)
+        || await (window.CatChat?.identity?.isAdminUid?.(user.uid) ?? Promise.resolve(false));
+      if (autoBan && adminNow) {
+        // Bản ghi do cổng định danh cũ tự ghi (bannedBy: 'system') — chính là kiểu
+        // “tự ban mình” khi thử tạo nhiều tài khoản. Admin phải vào được app của mình.
+        console.warn('Tự gỡ bản ghi cấm do máy tạo cho tài khoản quản trị:', user.uid);
+        await withTimeout(bansRef.child(user.uid).remove(), 6000, null, 'gỡ cấm tự động');
+      } else {
+        signedOutNotice = reason
+          ? `Tài khoản của bạn đang bị chặn truy cập ứng dụng. Lý do: ${reason}`
+          : 'Tài khoản của bạn đang bị chặn truy cập ứng dụng. Hãy liên hệ quản trị viên.';
+        if (autoBan) signedOutNotice += ' Đây là khoá tự động do vượt hạn mức tài khoản trên một máy/IP; quản trị viên mở khoá trong Cài đặt quản trị.';
+        await auth.signOut();
+        return;
+      }
     }
   } catch (error) {
     // Nếu Security Rules chưa cho đọc bans/<uid>, các listener bảo vệ vẫn cần được cấu hình ở Firebase.
@@ -393,25 +413,37 @@ async function enterWorkspace(user, generation) {
     CatChat.bootScreen?.step('Đang kiểm tra thiết bị…', 80);
     let gate = null;
     try {
-      gate = await CatChat.identity.enforce(user.uid);
+      // Hai lớp hạn chót: enforce() tự canh giờ bên trong, còn đây chặn trường hợp
+      // bản thân enforce() treo (ví dụ kẹt ở bước tạo dấu vân tay thiết bị).
+      const gateLimit = Number(window.__catchatGateTimeout) > 0 ? Number(window.__catchatGateTimeout) : 15000;
+      gate = await withTimeout(CatChat.identity.enforce(user.uid), gateLimit, { blocked: false, timedOut: true }, 'cổng định danh');
     } catch (error) {
       console.warn('Không kiểm tra được định danh thiết bị:', error);
     }
     if (generation !== authGeneration) return;
     if (gate?.blocked) {
       signedOutNotice = gate.reason || 'Thiết bị/IP của bạn đã bị chặn khỏi CatChat.';
-      setAuthNotice(signedOutNotice, 'error');
+      if (gate.help) signedOutNotice += ` ${gate.help}`;
+      // Đóng splash TRƯỚC khi đăng xuất: người bị chặn phải thấy lý do trên màn đăng
+      // nhập, không được để họ nhìn màn hình chờ mãi.
       CatChat.bootScreen?.finish();
       await auth.signOut();
       return;
+    }
+    if (gate?.timedOut) {
+      // Mạng quá chậm: cho vào app, Rules mới là lớp chặn thật.
+      console.warn('Bỏ qua cổng định danh vì quá hạn chót (mạng chậm).');
     }
     try { await CatChat.identity.watch(user.uid); } catch (error) { console.warn('Không theo dõi được trạng thái chặn:', error); }
   }
   els.authView.hidden = true;
   els.appView.hidden = false;
   CatChat.bootScreen?.step('Đang mở tổ mèo của bạn…', 84);
-  try { await syncMemberProfile(user); }
-  catch (error) { showDatabaseError(error, 'Không thể lưu hồ sơ thành viên. Hãy kiểm tra Security Rules.'); }
+  try {
+    await withTimeout(syncMemberProfile(user), 7000, null, 'lưu hồ sơ thành viên');
+  } catch (error) {
+    showDatabaseError(error, 'Không thể lưu hồ sơ thành viên. Hãy kiểm tra Security Rules.');
+  }
   if (generation !== authGeneration) return;
   startRealtimeListeners(user, generation);
   setupPresence(user, generation);

@@ -162,6 +162,35 @@ function handleAuthState(user) {
   });
 }
 
+/**
+ * Phản ứng khi chính mình bị ghi vào /bans.
+ * Khoá do máy tự tạo (bannedBy: 'system' hoặc có identityLock) KHÔNG được đá quản trị
+ * viên ra: chính họ cần vào app để mở khoá cho mọi người, và những bản ghi đó là dấu
+ * vết của cổng định danh cũ (tự cấm mọi tài khoản trên máy khi có tài khoản thứ 3).
+ */
+async function handleOwnBan(snapshot, user, generation) {
+  if (generation !== authGeneration || !snapshot?.exists?.()) return;
+  const ban = snapshot.val() || {};
+  const reason = snapshot.child('reason').val();
+  const autoBan = window.CatChat?.identity?.isAutoBan?.(ban) === true;
+  if (autoBan) {
+    let admin = isAdmin;
+    if (!admin) {
+      try { admin = await (window.CatChat?.identity?.isAdminUid?.(user.uid) ?? false); }
+      catch (_) { admin = false; }
+    }
+    if (generation !== authGeneration) return;
+    if (admin) {
+      console.warn('Bỏ qua khoá tự động cho tài khoản quản trị:', user.uid);
+      return;
+    }
+  }
+  signedOutNotice = reason ? `Tài khoản của bạn đang bị chặn truy cập ứng dụng. Lý do: ${reason}` : 'Tài khoản của bạn đang bị chặn truy cập ứng dụng. Hãy liên hệ quản trị viên.';
+  if (autoBan) signedOutNotice += ' Đây là khoá tự động do vượt hạn mức tài khoản trên một máy/IP; quản trị viên mở khoá trong Cài đặt quản trị.';
+  toast('Tài khoản của bạn đã bị chặn truy cập ứng dụng.', 'error');
+  void auth.signOut();
+}
+
 function startRealtimeListeners(user, generation) {
   channels = Object.create(null);
   channels.general = { name: 'phòng-chung', description: 'Nơi mọi người cùng trò chuyện', system: true };
@@ -205,11 +234,7 @@ function startRealtimeListeners(user, generation) {
     renderAdminPanel();
   }, (error) => showDatabaseError(error, 'Không thể tải trạng thái trực tuyến.'));
   subscribe(bansRef.child(user.uid), 'value', (snapshot) => {
-    if (generation !== authGeneration || !snapshot.exists()) return;
-    const reason = snapshot.child('reason').val();
-    signedOutNotice = reason ? `Tài khoản của bạn đang bị chặn truy cập ứng dụng. Lý do: ${reason}` : 'Tài khoản của bạn đang bị chặn truy cập ứng dụng. Hãy liên hệ quản trị viên.';
-    toast('Tài khoản của bạn đã bị chặn truy cập ứng dụng.', 'error');
-    void auth.signOut();
+    void handleOwnBan(snapshot, user, generation);
   }, (error) => showDatabaseError(error, 'Không thể theo dõi trạng thái tài khoản.'));
   if (mutesRef) {
     stopOwnMuteListener = subscribe(mutesRef.child(user.uid), 'value', (snapshot) => {

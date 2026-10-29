@@ -2,7 +2,7 @@
   "name": "catchat-tests",
   "private": true,
   "type": "module",
-  "description": "Kiểm thử tự động cho CatChat: Rules, cascade CSS mobile, nhận diện thiết bị, giao diện mobile và smoke test bằng jsdom",
+  "description": "Kiểm thử tự động cho CatChat: Rules, cascade CSS mobile, nhận diện thiết bị, giao diện mobile, màn hình chờ/cổng truy cập và smoke test bằng jsdom",
   "scripts": {
     "rules": "node rules.test.mjs",
     "mobile": "node mobile.test.mjs",
@@ -13,7 +13,8 @@
     "deep-link": "node deep-link.test.mjs",
     "resilience": "node resilience.test.mjs",
     "names": "node names.test.mjs",
-    "test": "node rules.test.mjs && node mobile.test.mjs && node ui-mode.test.mjs && node mobile-ui.test.mjs && node smoke.test.mjs && node flows.test.mjs && node deep-link.test.mjs && node resilience.test.mjs && node names.test.mjs"
+    "access": "node access.test.mjs",
+    "test": "node rules.test.mjs && node mobile.test.mjs && node ui-mode.test.mjs && node mobile-ui.test.mjs && node smoke.test.mjs && node flows.test.mjs && node deep-link.test.mjs && node resilience.test.mjs && node names.test.mjs && node access.test.mjs"
   },
   "devDependencies": {
     "jsdom": "^30.1.3"

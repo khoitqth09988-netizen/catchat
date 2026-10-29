@@ -75,8 +75,9 @@ async function submitAuth(event) {
   if (isSignUp && window.CatChat?.names) {
     setAuthBusy(true);
     try {
-      const shared = await CatChat.names.isShared(displayName);
-      if (!shared && await CatChat.names.holderOf(displayName)) {
+      // Mạng yếu: kiểm tra tên cũng phải có hạn chót, nếu không nút sẽ quay mãi.
+      const shared = await withTimeout(CatChat.names.isShared(displayName), 5000, false, 'kiểm tra tên dùng chung');
+      if (!shared && await withTimeout(CatChat.names.holderOf(displayName), 5000, null, 'kiểm tra tên đã có người dùng')) {
         const suggestion = await CatChat.names.suggest(displayName);
         els.displayName.value = suggestion;
         setAuthError(`Tên hiển thị “${displayName}” đã có người dùng. Thử “${suggestion}” hoặc một tên khác nhé.`);
@@ -91,12 +92,17 @@ async function submitAuth(event) {
   }
 
   setAuthBusy(true);
+  // Mạng yếu: Firebase có thể mất 20–30 giây mới trả lời. Nói rõ là app vẫn đang
+  // chạy thay vì để nút “Đăng nhập” quay im lặng.
+  const slowTimer = window.setTimeout(() => {
+    setAuthError('Mạng đang rất chậm — CatChat vẫn đang thử kết nối, bạn đợi thêm một chút nhé.');
+  }, 8000);
   try {
     if (isSignUp) {
       const credential = await auth.createUserWithEmailAndPassword(email, password);
       // Tên hiển thị là duy nhất: giữ chỗ /displayNames/<slug> trước khi lưu hồ sơ.
       const claim = window.CatChat?.names?.claim
-        ? await CatChat.names.claim(credential.user.uid, displayName)
+        ? await withTimeout(CatChat.names.claim(credential.user.uid, displayName), 7000, { ok: true }, 'giữ tên hiển thị')
         : { ok: true };
       if (claim && claim.ok === false && claim.taken) {
         // Chưa có gì được ghi vào /members nên chỉ cần trả lại tài khoản vừa tạo.
@@ -108,7 +114,9 @@ async function submitAuth(event) {
         return;
       }
       await credential.user.updateProfile({ displayName });
-      try { await syncMemberProfile(credential.user); } catch (profileError) { console.warn('Không lưu được hồ sơ thành viên:', profileError); }
+      try {
+        await withTimeout(syncMemberProfile(credential.user), 7000, null, 'lưu hồ sơ thành viên');
+      } catch (profileError) { console.warn('Không lưu được hồ sơ thành viên:', profileError); }
       setAuthNotice('Tài khoản đã được tạo. Đang mở không gian trò chuyện...', 'success');
     } else {
       await auth.signInWithEmailAndPassword(email, password);
@@ -116,6 +124,7 @@ async function submitAuth(event) {
   } catch (error) {
     setAuthError(friendlyAuthError(error));
   } finally {
+    window.clearTimeout(slowTimer);
     setAuthBusy(false);
   }
 }
