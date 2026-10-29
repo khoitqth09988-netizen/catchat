@@ -62,9 +62,86 @@
     );
   }, GIVE_UP_MS);
 
+  /* ── Chẩn đoán: trình duyệt/tiện ích chặn script từ host Realtime Database ──
+     Khi WebSocket bị chặn (mạng 3G/4G chập chờn, proxy công ty, VPN, DNS lọc) thì
+     Firebase RTDB tự chuyển sang long-polling bằng JSONP — tức là tải một <script>
+     từ chính host database (`https://<db>.firebaseio.com/.lp?...`). Nếu CSP hoặc
+     tiện ích chặn script đó, app không đồng bộ được gì mà chỉ có console nói lý do.
+     Ở đây ghi lại vi phạm và báo bằng tiếng Việt, kèm nhãn kết nối đổi thành
+     “Bị chặn kết nối” (theme.js đọc lại qua isCspBlocked()). */
+  // Host dữ liệu Firebase: <db>.firebaseio.com (tên cũ) và <db>.<region>.firebasedatabase.app.
+  const DATA_HOSTS = ['firebaseio.com', 'firebasedatabase.app'];
+  const isDataHost = (host) => DATA_HOSTS.some((suffix) => host === suffix || host.endsWith('.' + suffix));
+  const violations = [];
+  let dataBlocked = false;
+  let blockedUri = '';
+  let notified = false;
+  let retryTimer = 0;
+
+  function hostOf(uri) {
+    try {
+      return new URL(uri, window.location.href).hostname;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function explainBlock(message) {
+    const pill = byId('connectionPill');
+    const label = byId('connectionLabel');
+    if (pill && pill.classList.contains('online')) return;
+    if (label) label.textContent = 'Bị chặn kết nối';
+    if (pill && message) pill.title = message;
+  }
+
+  function notifyBlocked() {
+    if (notified) return;
+    const hint = 'Không đồng bộ được dữ liệu vì trình duyệt hoặc tiện ích đang chặn script từ '
+      + (blockedUri || 'host Firebase') + '. Hãy tắt trình chặn quảng cáo/CSP của tiện ích rồi tải lại trang.';
+    // Toast chỉ có sau khi app lắp xong; nếu chưa có thì thử lại mỗi giây (tối đa 20 lần).
+    if (typeof window.toast !== 'function') {
+      if (!retryTimer) {
+        let tries = 0;
+        retryTimer = window.setInterval(() => {
+          tries += 1;
+          notifyBlocked();
+          if (notified || tries >= 20) {
+            window.clearInterval(retryTimer);
+            retryTimer = 0;
+          }
+        }, 1000);
+      }
+      return;
+    }
+    notified = true;
+    if (retryTimer) {
+      window.clearInterval(retryTimer);
+      retryTimer = 0;
+    }
+    window.toast(hint, 'error');
+    explainBlock(hint);
+  }
+
+  if (typeof document.addEventListener === 'function') {
+    // Gắn vô điều kiện: trình duyệt không hỗ trợ sự kiện này thì đơn giản là không có gì xảy ra.
+    document.addEventListener('securitypolicyviolation', (event) => {
+      const uri = String(event.blockedURI || '');
+      const directive = String(event.effectiveDirective || event.violatedDirective || '');
+      violations.push({ uri, directive });
+      if (violations.length > 20) violations.shift();
+      if (!/^script-src/.test(directive)) return;
+      if (!isDataHost(hostOf(uri))) return;
+      dataBlocked = true;
+      blockedUri = uri;
+      notifyBlocked();
+    });
+  }
+
   // Dùng lại từ events.js khi thiếu Firebase SDK (cùng một thông điệp, một chỗ sửa).
   window.CatChatEarlyGuard = {
     revealError,
-    isBooted: booted
+    isBooted: booted,
+    isCspBlocked: () => dataBlocked,
+    cspViolations: () => violations.slice()
   };
 })();

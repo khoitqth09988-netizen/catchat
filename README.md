@@ -372,7 +372,7 @@ chỉ lộ khi thao tác thật**. Danh sách việc đã làm:
 
 ### Dọn dẹp
 
-- `sw.js` tăng `VERSION` lên `catchat-v7` để mọi máy đã cài PWA nhận bản mới (xoá cache cũ khi activate).
+- `sw.js` tăng `VERSION` lên `catchat-v8` để mọi máy đã cài PWA nhận bản mới (xoá cache cũ khi activate).
 - `npm test` trong `tests/` chạy đủ 7 tệp: rules, cascade mobile, nhận diện thiết bị, mobile-ui, smoke,
   flows, deep-link — CI dùng đúng lệnh này.
 
@@ -392,7 +392,7 @@ gì ngoài dòng "đang kết nối".
   mở được app thì hiện hộp lỗi + nút **Thử lại** (chỉ hoạt động khi app chưa mở xong).
 - `events.js` khi thiếu SDK sẽ **tự nạp lại** 3 tệp Firebase một lần (có hạn 10 giây/tệp) trước khi báo
   lỗi, nên mạng chớp tắt không bắt người dùng tải lại cả trang.
-- `sw.js`: `VERSION` lên **`catchat-v7`**, thêm `NETWORK_TIMEOUT = 3200` — trang và JS/CSS chờ mạng tối
+- `sw.js`: `VERSION` lên **`catchat-v8`**, thêm `NETWORK_TIMEOUT = 3200` — trang và JS/CSS chờ mạng tối
   đa 3,2 giây rồi trả bản trong cache (vẫn cập nhật cache khi mạng về). Lần mở sau trên mạng yếu vì thế
   gần như tức thì. Trang ngoại tuyến có nút "Thử lại" dạng liên kết (không dùng `onclick` vì CSP chặn).
 
@@ -433,6 +433,31 @@ Theo lựa chọn của chủ dự án — **cho phép đặt tên “admin” v
 
 > **Rules RTDB cần dán lại** vì có thêm node `/adminBadges` (xem `database.rules.json`). Chưa dán thì
 > app vẫn chạy: nhãn lấy từ tài khoản đang đăng nhập và danh sách tên kiểu admin mặc định.
+
+### 4. CSP chặn long-polling của Firebase (đợt 28)
+
+Khi WebSocket bị chặn — rất thường gặp trên mạng di động yếu, Wi-Fi công ty, VPN hoặc DNS lọc —
+Realtime Database tự chuyển sang **long-polling bằng JSONP**: nó tải
+`<script src="https://chat-e58b5-default-rtdb.firebaseio.com/.lp?...">`. CSP cũ chỉ cho `script-src`
+tải từ `www.gstatic.com`, `*.firebaseapp.com`… nên **mọi kênh long-polling bị chặn**, SDK đã tải xong mà
+app không đồng bộ được gì, console đầy lỗi `violates the following Content Security Policy directive`.
+
+Đây chính là nửa còn lại của lỗi “mạng yếu thì load không vào” ở đợt 27.
+
+- `index.html` + `firebase.json`: thêm **đúng** host dữ liệu trong `config.js` vào `script-src`
+  (`https://chat-e58b5-default-rtdb.firebaseio.com`) — không dùng wildcard, không thêm
+  `'unsafe-inline'`/`'unsafe-eval'`, không đổi `object-src 'none'`.
+- `early-guard.js`: bắt sự kiện `securitypolicyviolation`; nếu script của host dữ liệu bị chặn thì nhãn
+  kết nối đổi thành **“Bị chặn kết nối”** (kèm chú thích) và hiện toast nêu rõ host bị chặn — thay vì để
+  người dùng thấy “Đang kết nối” mãi.
+- `sw.js`: `VERSION` lên **`catchat-v8`** để máy đã cài PWA nhận `index.html` mới (CSP nằm trong meta của
+  trang, mà trang cũ còn trong cache thì vẫn dính CSP cũ).
+- `tests/resilience.test.mjs`: CSP trong `index.html` và trong header `firebase.json` **phải trùng nhau**
+  và phải chứa host trong `config.js`; vẫn cấm `'unsafe-inline'`/`'unsafe-eval'`; mô phỏng vi phạm CSP
+  để kiểm nhãn “Bị chặn kết nối” + toast.
+
+> Đổi database (sang project/region khác) thì phải sửa `databaseURL` **và** CSP ở cả hai file — test sẽ
+> báo đỏ nếu quên.
 
 ### Kiểm thử mới
 
@@ -717,7 +742,7 @@ Deploy xong thì bật trong `assets/js/app/config.js`:
 - **Google Fonts** (`fonts.googleapis.com`, `fonts.gstatic.com`) được cache riêng, trả cache trước và
   cập nhật ngầm: mở app nhanh hơn và ngoại tuyến vẫn giữ đúng font. Cache font tự dọn còn 24 mục.
 - Khi sửa nhiều tệp tĩnh và muốn xoá cache cũ ngay, tăng `VERSION` trong `sw.js`
-  (hiện là `catchat-v7`).
+  (hiện là `catchat-v8`).
 
 ### CI/CD
 

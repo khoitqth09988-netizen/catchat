@@ -58,7 +58,15 @@ function closeThemeDialog() {
 
 function setConnectionState(state) {
   connectionIsOnline = state === 'online';
+  // Trình duyệt/tiện ích chặn script long-polling của Firebase (xem early-guard.js):
+  // nói rõ nguyên nhân thay vì để người dùng đoán “Mất kết nối” là do mạng.
+  const blocked = !connectionIsOnline && window.CatChatEarlyGuard?.isCspBlocked?.() === true;
   els.connectionPill.classList.toggle('online', state === 'online');
   els.connectionPill.classList.toggle('offline', state === 'offline');
-  els.connectionLabel.textContent = state === 'online' ? 'Đang trực tuyến' : state === 'offline' ? 'Mất kết nối' : 'Đang kết nối';
+  els.connectionPill.title = blocked
+    ? 'Trình duyệt hoặc tiện ích đang chặn script của Firebase. Hãy tắt chặn rồi tải lại trang.'
+    : '';
+  els.connectionLabel.textContent = blocked
+    ? 'Bị chặn kết nối'
+    : state === 'online' ? 'Đang trực tuyến' : state === 'offline' ? 'Mất kết nối' : 'Đang kết nối';
 }

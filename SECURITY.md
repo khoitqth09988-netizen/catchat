@@ -103,6 +103,18 @@ hình thức — App Check + Rules + budget alert là bộ ba cần thiết.
 - `<meta http-equiv="Content-Security-Policy">` trong `index.html` vẫn giữ làm lớp dự phòng khi mở file
   trực tiếp; `script-src` gồm `www.gstatic.com` (Firebase SDK), `www.google.com` / `www.recaptcha.net`
   (App Check), `apis.google.com` và `*.firebaseapp.com` (helper của Firebase Auth).
+- **Host dữ liệu Firebase cũng phải nằm trong `script-src`.** Khi WebSocket bị chặn (mạng di động yếu,
+  proxy công ty, VPN, DNS lọc) Realtime Database tự chuyển sang long-polling bằng JSONP: nó tải
+  `<script src="https://chat-e58b5-default-rtdb.firebaseio.com/.lp?...">`. Thiếu host đó trong
+  `script-src` thì mọi kênh long-polling bị chặn và app **không đồng bộ được gì** dù SDK đã tải xong —
+  đúng là lỗi “mạng yếu thì không vào được”. Vì vậy danh sách trong `index.html` và `firebase.json`
+  liệt kê **chính xác** host trong `assets/js/app/config.js` (`databaseURL`), không dùng wildcard.
+  `tests/resilience.test.mjs` kiểm hai file này khớp với `config.js` — đổi database thì phải sửa CSP.
+- CSP **không** nới thêm gì khác: vẫn không có `'unsafe-inline'` / `'unsafe-eval'` cho script, không có
+  `onclick`/handler nội tuyến; mọi thay đổi hành vi đi qua file JS cùng origin.
+- Nếu người dùng vẫn bị chặn (tiện ích, proxy, mạng công ty), `early-guard.js` bắt sự kiện
+  `securitypolicyviolation` và báo rõ bằng tiếng Việt: nhãn kết nối đổi thành **“Bị chặn kết nối”** kèm
+  toast nêu host bị chặn, thay vì để app im lặng như trước.
 - `worker-src 'self' blob:` cho phép Web Worker tạo từ Blob (nếu thêm sau này) mà không mở toàn bộ `script-src`.
 
 ## 7. Node `/typing` (chỉ báo đang gõ)
