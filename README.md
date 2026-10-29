@@ -372,7 +372,7 @@ chỉ lộ khi thao tác thật**. Danh sách việc đã làm:
 
 ### Dọn dẹp
 
-- `sw.js` tăng `VERSION` lên `catchat-v6` để mọi máy đã cài PWA nhận bản mới (xoá cache cũ khi activate).
+- `sw.js` tăng `VERSION` lên `catchat-v7` để mọi máy đã cài PWA nhận bản mới (xoá cache cũ khi activate).
 - `npm test` trong `tests/` chạy đủ 7 tệp: rules, cascade mobile, nhận diện thiết bị, mobile-ui, smoke,
   flows, deep-link — CI dùng đúng lệnh này.
 
@@ -588,7 +588,8 @@ Dự án vẫn chạy đủ tính năng chat khi chưa bật Storage:
   → Rules → Publish. Đây là bộ Rules duy nhất của dự án:
 
   - gốc **đóng** (`".read": false`, `".write": false`), mở quyền theo từng node;
-  - 24 node, gồm cả `displayNames`, `pins`, `locks`, `typing`, `mutes`, `adminLog`, `deletedUsers`
+  - 23 node, gồm cả `displayNames`, `adminBadges`, `pins`, `locks`, `typing`, `mutes`, `adminLog`,
+    `deletedUsers`
     và 6 node định danh (`memberIdentity`, `identityLedger`, `identityIpLedger`, `deviceBans`, `ipBans`, `identityLocks`);
   - admin = `/admins/<uid> = true` ∨ `auth.token.email === 'admin@com.vn'` ∨ `auth.token.admin === true`.
 
