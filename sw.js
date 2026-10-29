@@ -15,7 +15,7 @@
    Khi deploy thay đổi lớn, tăng VERSION để xoá cache cũ. */
 'use strict';
 
-const VERSION = 'catchat-v8';
+const VERSION = 'catchat-v9';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 /* Mạng yếu: chờ mạng tối đa chừng này rồi dùng bản trong cache cho kịp mở app.

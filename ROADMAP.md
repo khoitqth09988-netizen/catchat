@@ -4,7 +4,7 @@
 > trên Firebase Hosting, không build step; dữ liệu ở Realtime Database; Auth Email/Password; ảnh ở
 > Storage; 4 Cloud Function tuỳ chọn.
 
-## 0. Trạng thái sau đợt 27 — phần nào đã xong
+## 0. Trạng thái sau đợt 29 — phần nào đã xong
 
 | Hạng mục | Trạng thái | Ở đâu |
 |---|---|---|
@@ -26,6 +26,9 @@
 | Chuyển kênh khi đang gõ dở: lưu nháp, không hỏi lại vô ích | ✅ xong (đợt 26) | `assets/js/app/channels.js`, `assets/js/features/drafts.js` |
 | Vuốt đóng ngăn kéo luôn kết thúc đúng (kể cả khi nhấc tay ngoài ngăn kéo) | ✅ xong (đợt 26) | `assets/js/app/mobile-ui.js` |
 | Test dùng chung một harness + 7 tệp chạy trong CI | ✅ xong (đợt 26) | `tests/harness.mjs`, `tests/package.json` |
+| Màn hình chờ cho mạng yếu: tiến trình tự nhích, số giây đã chờ, chẩn đoán nguyên nhân, nút Thử lại | ✅ xong (đợt 29) | `assets/js/features/boot-screen.js`, `assets/js/app/ui-helpers.js` |
+| Cổng định danh không treo cửa (mọi bước có hạn chót, quá hạn thì cho vào) | ✅ xong (đợt 29) | `assets/js/features/identity-guard.js`, `assets/js/app/channels.js` |
+| Khoá theo máy/IP: chỉ khoá đăng nhập, không tự `/bans`/không tự xoá; admin không bị khoá; sổ định danh tự lành | ✅ xong (đợt 29, không đổi Rules) | `assets/js/features/identity-guard.js` |
 | Mạng yếu: báo lỗi sớm + nút Thử lại, SW trả cache sau 3,2 giây | ✅ xong (đợt 27) | `assets/js/app/early-guard.js`, `sw.js` |
 | Ngăn kéo mobile: bấm kênh luôn đóng, lớp mờ không thể kẹt | ✅ xong (đợt 27) | `assets/js/app/mobile-ui.js`, `assets/css/mobile-app.css` |
 | Tên “admin” dùng chung + nhãn “Quản trị”/“Thành viên” theo uid thật | ✅ xong (đợt 27, **cần dán Rules mới**) | `assets/js/features/{name-guard,admin-badges}.js`, `database.rules.json` |

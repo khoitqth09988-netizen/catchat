@@ -277,6 +277,29 @@ body[data-theme="ocean"] .boot-screen {
   transform: translateY(3px);
 }
 
+/* Dòng gợi ý khi mạng chậm: nhỏ, không làm nhảy bố cục (chiều cao cố định). */
+.boot-hint {
+  max-width: 300px;
+  min-height: 15px;
+  margin: 7px 0 0;
+  color: var(--boot-muted);
+  font-size: 10.5px;
+  line-height: 1.5;
+  text-align: center;
+  opacity: .82;
+  transition: opacity .25s ease;
+}
+
+.boot-hint[hidden] {
+  display: block;
+  visibility: hidden;
+}
+
+/* Mạng chậm: viền thanh tiến trình ấm lên để người dùng biết app vẫn đang chạy. */
+.boot-screen.is-slow .boot-progress-fill {
+  background: linear-gradient(90deg, var(--boot-accent), var(--boot-accent-3));
+}
+
 .boot-screen.is-failed .boot-progress {
   opacity: .32;
 }

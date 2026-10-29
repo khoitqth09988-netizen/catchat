@@ -45,9 +45,19 @@
     return true;
   }
 
+  /** Ưu tiên API của boot-screen.js khi đã có (thông điệp thống nhất một chỗ). */
+  function showFailure(message, stepLabel) {
+    const screenApi = window.CatChat?.bootScreen;
+    if (screenApi && typeof screenApi.fail === 'function' && byId('bootScreen')) {
+      screenApi.fail(message);
+      return;
+    }
+    revealError(message, stepLabel);
+  }
+
   window.setTimeout(() => {
     if (booted() || window.firebase) return;
-    revealError(
+    showFailure(
       'Mạng có vẻ quá chậm, hoặc đang chặn www.gstatic.com (nơi chứa Firebase SDK). '
       + 'Hãy kiểm tra kết nối rồi bấm “Thử lại”.',
       'Đang chờ mạng tải thư viện…'
@@ -56,7 +66,7 @@
 
   window.setTimeout(() => {
     if (booted()) return;
-    revealError(
+    showFailure(
       'Chưa mở được CatChat sau 18 giây. Nếu mạng đang yếu, hãy đợi thêm một chút hoặc bấm “Thử lại”.',
       'Kết nối quá chậm'
     );

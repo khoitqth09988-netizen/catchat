@@ -12,6 +12,38 @@ function icon(name, className = 'icon') {
   return svg;
 }
 
+/**
+ * Chờ một promise nhưng KHÔNG BAO GIỜ chờ quá `ms`.
+ *
+ * Vì sao cần: các lệnh đọc/ghi Realtime Database khi mất mạng (hoặc khi trình duyệt
+ * chặn kết nối) không lỗi mà **treo** — chúng xếp hàng chờ có mạng. Chỉ cần một await
+ * như vậy nằm trong luồng khởi động là splash đứng im mãi dù “mạng khoẻ”. Với helper
+ * này, mọi bước ở cổng vào đều có hạn chót và app luôn mở được.
+ *
+ * @param {Promise} promise   việc cần chờ
+ * @param {number}  ms        hạn chót (mili giây)
+ * @param {*}       fallback  giá trị trả về khi quá giờ (mặc định null)
+ * @param {string}  label     nhãn để ghi log khi quá giờ
+ */
+function withTimeout(promise, ms, fallback = null, label = '') {
+  const limit = Number(ms) > 0 ? Number(ms) : 4000;
+  let timer = 0;
+  const timeout = new Promise((resolve) => {
+    timer = window.setTimeout(() => {
+      if (label) console.warn(`Quá ${limit}ms khi ${label} — bỏ qua để app vẫn mở được.`);
+      resolve(fallback);
+    }, limit);
+  });
+  const work = Promise.resolve(promise).then(
+    (value) => value,
+    (error) => {
+      if (label) console.warn(`Lỗi khi ${label}:`, error?.message || error);
+      return fallback;
+    }
+  );
+  return Promise.race([work, timeout]).finally(() => window.clearTimeout(timer));
+}
+
 function textElement(tag, className, text) {
   const element = document.createElement(tag);
   if (className) element.className = className;

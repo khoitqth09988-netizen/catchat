@@ -67,11 +67,12 @@ assets/js/features/            Tính năng mở rộng, mỗi tính năng một 
   anti-flood.js                Giới hạn tần suất gửi tin, chống trùng, chống spam reaction
   login-guard.js               Chặn dò mật khẩu: 5 lần/phút rồi khoá tăng dần
   account-deletion.js          Admin xoá tài khoản thành viên (có hàm purge dùng lại được)
-  identity-guard.js            Dấu vân tay thiết bị/IP, chặn vĩnh viễn, giới hạn 2 tài khoản mỗi máy
+  identity-guard.js            Dấu vân tay thiết bị/IP, giới hạn 2 tài khoản mỗi máy (chỉ khoá đăng nhập,
+                               có hạn chót cho mọi thao tác mạng, admin không bị khoá)
   identity-blocks.js           Tab quản trị “Chặn vĩnh viễn” (thiết bị / IP / khoá tự động)
   name-guard.js                Tên hiển thị duy nhất (/displayNames); tên kiểu “admin” là tên dùng chung
   admin-badges.js              Nhãn quyền hạn dưới tên: “Quản trị” / “Thành viên” (/adminBadges)
-  boot-screen.js               Tiến trình khởi động thật cho splash (step/finish/fail)
+  boot-screen.js               Splash cho mạng yếu: tiến trình tự nhích, số giây đã chờ, chẩn đoán, nút Thử lại
   typing-indicator.js          Chỉ báo “ai đang nhập…” qua node /typing
   motion.js                    Tuỳ chọn chuyển động dùng chung cho CSS + JS
   viewport.js                  Bàn phím ảo, vùng an toàn, đổi kích thước / xoay ngang
@@ -372,7 +373,7 @@ chỉ lộ khi thao tác thật**. Danh sách việc đã làm:
 
 ### Dọn dẹp
 
-- `sw.js` tăng `VERSION` lên `catchat-v8` để mọi máy đã cài PWA nhận bản mới (xoá cache cũ khi activate).
+- `sw.js` tăng `VERSION` lên `catchat-v9` để mọi máy đã cài PWA nhận bản mới (xoá cache cũ khi activate).
 - `npm test` trong `tests/` chạy đủ 7 tệp: rules, cascade mobile, nhận diện thiết bị, mobile-ui, smoke,
   flows, deep-link — CI dùng đúng lệnh này.
 
@@ -392,7 +393,7 @@ gì ngoài dòng "đang kết nối".
   mở được app thì hiện hộp lỗi + nút **Thử lại** (chỉ hoạt động khi app chưa mở xong).
 - `events.js` khi thiếu SDK sẽ **tự nạp lại** 3 tệp Firebase một lần (có hạn 10 giây/tệp) trước khi báo
   lỗi, nên mạng chớp tắt không bắt người dùng tải lại cả trang.
-- `sw.js`: `VERSION` lên **`catchat-v8`**, thêm `NETWORK_TIMEOUT = 3200` — trang và JS/CSS chờ mạng tối
+- `sw.js`: `VERSION` lên **`catchat-v9`**, thêm `NETWORK_TIMEOUT = 3200` — trang và JS/CSS chờ mạng tối
   đa 3,2 giây rồi trả bản trong cache (vẫn cập nhật cache khi mạng về). Lần mở sau trên mạng yếu vì thế
   gần như tức thì. Trang ngoại tuyến có nút "Thử lại" dạng liên kết (không dùng `onclick` vì CSP chặn).
 
@@ -450,7 +451,7 @@ app không đồng bộ được gì, console đầy lỗi `violates the followi
 - `early-guard.js`: bắt sự kiện `securitypolicyviolation`; nếu script của host dữ liệu bị chặn thì nhãn
   kết nối đổi thành **“Bị chặn kết nối”** (kèm chú thích) và hiện toast nêu rõ host bị chặn — thay vì để
   người dùng thấy “Đang kết nối” mãi.
-- `sw.js`: `VERSION` lên **`catchat-v8`** để máy đã cài PWA nhận `index.html` mới (CSP nằm trong meta của
+- `sw.js`: `VERSION` lên **`catchat-v9`** để máy đã cài PWA nhận `index.html` mới (CSP nằm trong meta của
   trang, mà trang cũ còn trong cache thì vẫn dính CSP cũ).
 - `tests/resilience.test.mjs`: CSP trong `index.html` và trong header `firebase.json` **phải trùng nhau**
   và phải chứa host trong `config.js`; vẫn cấm `'unsafe-inline'`/`'unsafe-eval'`; mô phỏng vi phạm CSP
@@ -468,6 +469,71 @@ app không đồng bộ được gì, console đầy lỗi `violates the followi
 - `tests/rules.test.mjs`: 38 tình huống (thêm 5 tình huống cho `/adminBadges`, cập nhật `/displayNames`).
 - `tests/harness.mjs`: `createUserWithEmailAndPassword` giờ tạo `currentUser` có `updateProfile`/`delete`,
   `displayName` lấy từ phần trước `@` như tài khoản thật.
+
+## Đợt 29 — màn hình chờ cho mạng yếu & cổng định danh tự khoá nhầm
+
+Hai việc người dùng báo, hoá ra cùng một gốc: **cổng định danh tự cấm chính chủ**.
+
+### 1. Màn hình chờ (loading) cho máy mạng yếu
+
+`assets/js/features/boot-screen.js` được viết lại theo ba nhu cầu thật của người dùng mạng yếu:
+
+| Trước | Nay |
+|---|---|
+| Thanh tiến trình chỉ nhảy khi có bước mới ⇒ mạng khựng là đứng im, trông như treo | Tự nhích **1% mỗi 0,7 giây** nhưng không bao giờ vượt quá bước đang chờ |
+| Không biết đang chờ gì | Sau **6 giây** hiện dòng `#bootHint`: “Mạng hơi chậm — vẫn đang kết nối (**7 giây**). Bạn không cần làm gì cả.”, số giây tự đếm |
+| Chỉ có một thông báo chung chung | Sau **20 giây** hiện hộp lỗi + nút **Thử lại** nhưng **vẫn tiếp tục chờ**; mạng hồi phục thì app vẫn mở và hộp lỗi tự biến mất |
+| Không rõ vì sao | `CatChat.bootScreen.diagnose()` chỉ đúng nguyên nhân: **ngoại tuyến**, **CSP/tiện ích chặn Firebase**, **chưa tải được SDK từ gstatic**, hay **máy chủ im lặng** |
+
+Bổ sung: nghe sự kiện `offline` để báo ngay khi vừa mất mạng; nút “Đăng nhập” cũng có hạn chót
+(sau 8 giây hiện “Mạng đang rất chậm — CatChat vẫn đang thử kết nối…”), và bước kiểm tra tên hiển thị
+lúc đăng ký có hạn chót nên nút không quay mãi.
+
+### 2. “Mạng khoẻ mà vẫn không load được” — đúng là bị khoá theo thiết bị
+
+Nguyên nhân thật (đã dựng lại được bằng thử nghiệm): cổng `identity-guard.enforce()` cũ, khi một máy
+có **tài khoản thứ 3**, đã tự làm ba việc phá hoại:
+
+1. ghi `/bans/<uid>` **cho mọi tài khoản trên máy** — kể cả tài khoản quản trị và chính người đang đăng nhập;
+2. **tự xoá dữ liệu** của người đang đăng nhập (purge);
+3. ghi khoá `/identityLocks/<hash>` **vĩnh viễn**, muốn gỡ phải vào Firebase sửa tay.
+
+Vì `/bans` được kiểm tra ngay khi mở app, lần sau đăng nhập chỉ còn thông báo “Tài khoản đang bị chặn” —
+đúng triệu chứng “mạng khoẻ mà không load được”. Thêm nữa, `/identityLedger` là sổ ghi một chiều: tài khoản
+đã xoá vẫn bị đếm mãi, nên chỉ vài lần tạo/xoá để thử là bị khoá oan dù máy chỉ còn 1 tài khoản.
+
+Đã sửa:
+
+- **Chỉ khoá đăng nhập, không phá dữ liệu**: vượt hạn mức ⇒ ghi `/identityLocks` và chặn vào; **không**
+  ghi `/bans`, **không** tự xoá tài khoản. Quản trị viên mở khoá (hoặc dọn tài khoản thừa) trong
+  *Cài đặt quản trị → Chặn thiết bị & IP*.
+- **Quản trị viên không bao giờ bị cổng hạn mức chặn** (kể cả khi dùng chính máy đó để tạo tài khoản thử).
+  Quyền admin được kiểm bằng cả cờ trong bộ nhớ **và** `/admins/<uid>`, vì listener quyền thường chưa chạy
+  ở bước này.
+- **Tự dọn dấu vết cũ**: `/bans/<uid>` có `bannedBy: 'system'` hoặc `identityLock` là *cấm tự động* —
+  admin đăng nhập là bản ghi đó được gỡ; `unlockIdentity()` cũng dọn luôn những bản ghi như vậy.
+  Chặn **do người thật** (`bannedBy` là uid của một admin) vẫn giữ nguyên hiệu lực.
+- **Chỉ đếm tài khoản còn tồn tại** trong `/members`; xoá tài khoản là không còn bị tính. Không đọc được
+  `/members` (mạng lỗi) ⇒ **bỏ qua** hạn mức thay vì khoá nhầm.
+- **Cổng định danh không thể treo cửa**: mọi lệnh đọc/ghi có hạn chót (`withTimeout` trong `ui-helpers.js`,
+  5/6/13 giây), và `channels.js` bọc thêm một lớp 15 giây khi gọi `enforce()`. Quá hạn ⇒ cho vào app —
+  Rules mới là lớp chặn thật, không phải một cú mạng chậm.
+- Người bị chặn thấy đúng lý do trên màn đăng nhập, kèm chỉ đường “Quản trị viên mở khoá trong Cài đặt
+  quản trị → tab Chặn thiết bị & IP”.
+
+`sw.js` lên **`catchat-v9`** để máy đã cài PWA nhận `index.html` mới (có `#bootHint`).
+
+### Kiểm thử mới — `tests/access.test.mjs`
+
+- splash: có `#bootHint`, tiến trình tự nhích khi đang chờ, gợi ý có số giây, `diagnose()` nói đúng
+  nguyên nhân (ngoại tuyến / máy chủ), hộp lỗi + nút Thử lại hiện mà splash vẫn chờ và app vẫn mở được sau đó;
+- `enforce()` treo ⇒ app vẫn vào được không gian trò chuyện (không kẹt splash);
+- 3 tài khoản trên một máy: người thường bị khoá nhưng **không** có `/bans`, **không** mất dữ liệu;
+  `unlockIdentity()` gỡ khoá và dọn luôn `/bans` kiểu cũ;
+- sổ định danh còn 5 uid đã xoá, `/members` chỉ còn 1 ⇒ **không** bị khoá oan;
+- admin có 4 tài khoản trên máy + khoá tự động cũ + `/bans` tự động ⇒ vào được app, bản ghi cấm được dọn;
+- chặn tay (`bannedBy` là người thật) vẫn chặn, và **không** bị tự dọn;
+- người thường bị cấm tự động thấy thông báo nêu rõ “khoá tự động” + chỉ đường cho quản trị viên.
 
 ## Trạng thái trực tuyến & hồ sơ thành viên
 
@@ -656,8 +722,8 @@ node scripts/verify.mjs
 ```bash
 node scripts/verify.mjs        # cú pháp JS/CSS/JSON, tài nguyên, PWA, Rules tĩnh
 node tests/rules.test.mjs      # mô phỏng Rules: 38 tình huống quyền ghi
-cd tests && npm install && npm test   # 9 tệp: rules, mobile, ui-mode, mobile-ui, smoke, flows,
-                                      #        deep-link, resilience, names
+cd tests && npm install && npm test   # 10 tệp: rules, mobile, ui-mode, mobile-ui, smoke, flows,
+                                      #         deep-link, resilience, names, access
 ```
 
 Chạy riêng từng tệp cũng được (đứng ở thư mục gốc repo):
@@ -699,7 +765,7 @@ node tests/deep-link.test.mjs  # lối tắt PWA ?view=chat|members|announcement
 - `tests/mobile-ui.test.mjs` dựng DOM tối thiểu rồi bấm thử: mở/đóng ngăn kéo, aria-expanded, lớp mờ,
   Esc, chọn kênh tự đóng, các mục trong bảng cài đặt gọi đúng nút cũ, phản chiếu trạng thái kết nối,
   ẩn thanh tab khi đăng xuất và khi chuyển sang giao diện máy tính.
-- Cả chín chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
+- Cả mười chạy tự động trong GitHub Actions (`.github/workflows/deploy.yml`): job **Kiểm tra tĩnh**
   chạy `verify` + `rules`, job **Kiểm thử giao diện (jsdom)** cài jsdom rồi chạy `npm test`.
 
 ### Firebase Emulator (chạy full stack ở máy)
@@ -742,7 +808,7 @@ Deploy xong thì bật trong `assets/js/app/config.js`:
 - **Google Fonts** (`fonts.googleapis.com`, `fonts.gstatic.com`) được cache riêng, trả cache trước và
   cập nhật ngầm: mở app nhanh hơn và ngoại tuyến vẫn giữ đúng font. Cache font tự dọn còn 24 mục.
 - Khi sửa nhiều tệp tĩnh và muốn xoá cache cũ ngay, tăng `VERSION` trong `sw.js`
-  (hiện là `catchat-v8`).
+  (hiện là `catchat-v9`).
 
 ### CI/CD
 
