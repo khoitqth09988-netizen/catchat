@@ -20,9 +20,12 @@
   <!-- CSP (lớp dự phòng cho bản chạy tĩnh). Bản deploy qua Firebase Hosting còn gửi CSP thật trong
        HTTP header (xem firebase.json) — nhờ đó frame-ancestors mới có hiệu lực, vì trình duyệt bỏ qua
        frame-ancestors khi khai báo trong <meta>.
-       script-src gồm gstatic (Firebase SDK), google/recaptcha (App Check) và apis.google.com
-       (Firebase Auth nạp khi cần). App không dùng script/event handler nội tuyến. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://apis.google.com https://*.firebaseapp.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: wss:; frame-src https://www.google.com https://recaptcha.google.com https://www.recaptcha.net https://*.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+       script-src gồm gstatic (Firebase SDK), google/recaptcha (App Check), apis.google.com
+       (Firebase Auth nạp khi cần) và ĐÚNG host Realtime Database trong config.js — host này bắt
+       buộc phải có vì khi WebSocket bị chặn (mạng di động yếu, proxy, VPN) RTDB chuyển sang
+       long-polling bằng JSONP, tức là tải <script src="https://<db>.firebaseio.com/.lp?...">.
+       App không dùng script/event handler nội tuyến. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://apis.google.com https://*.firebaseapp.com https://chat-e58b5-default-rtdb.firebaseio.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: wss:; frame-src https://www.google.com https://recaptcha.google.com https://www.recaptcha.net https://*.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>CatChat — Ngôi nhà của những cuộc trò chuyện</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

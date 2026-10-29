@@ -109,9 +109,59 @@ check('sw.js có VERSION để buộc cập nhật cache', Boolean(version), tru
   dom.window.close();
 }
 
+/* ── 5. CSP: phải cho phép JSONP của Realtime Database, nhưng không nới thêm ──
+   Khi WebSocket bị chặn (mạng 3G/4G, proxy, VPN) Firebase RTDB chuyển sang
+   long-polling bằng JSONP: nó tải <script src="https://<db>.firebaseio.com/.lp?...">.
+   Thiếu host đó trong script-src ⇒ mọi kênh long-polling bị CSP chặn, app im lặng
+   không đồng bộ được gì. Test này giữ cho danh sách host luôn khớp config.js và
+   khoá lại: chỉ thêm host dữ liệu, tuyệt đối không thêm 'unsafe-inline'. */
+const configSrc = readFileSync(path.join(ROOT, 'assets/js/app/config.js'), 'utf8');
+const databaseURL = (configSrc.match(/databaseURL:\s*"([^"]+)"/) || [])[1];
+const dbHostname = new URL(databaseURL).hostname;
+const metaCsp = (html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/) || [])[1] || '';
+const hostingJson = JSON.parse(readFileSync(path.join(ROOT, 'firebase.json'), 'utf8'));
+const headerCsp = (hostingJson.hosting?.headers?.[0]?.headers || [])
+  .find((header) => header.key === 'Content-Security-Policy')?.value || '';
+const scriptSrcOf = (csp) => (csp.split(';').map((part) => part.trim()).find((part) => part.startsWith('script-src')) || '');
+for (const [label, csp] of [['index.html', metaCsp], ['firebase.json', headerCsp]]) {
+  const tokens = scriptSrcOf(csp).split(/\s+/).slice(1);
+  check(`${label}: script-src cho phép host dữ liệu Firebase (JSONP)`, tokens.includes(`https://${dbHostname}`), true);
+  check(`${label}: script-src vẫn không mở script nội tuyến/eval`,
+    tokens.some((token) => token === "'unsafe-inline'" || token === "'unsafe-eval'"), false);
+  check(`${label}: CSP vẫn chặn object`, /object-src 'none'/.test(csp), true);
+}
+check('CSP trong index.html và header của Hosting phải giống nhau', metaCsp.replace("; frame-ancestors 'self'", ''), headerCsp.replace("; frame-ancestors 'self'", ''));
+
+/* Trình duyệt báo vi phạm ⇒ app phải nói rõ thay vì “Mất kết nối” chung chung. */
+{
+  const { dom, window, doc } = createApp({ url: 'https://example.test/' });
+  await sleep(700);
+  const violation = (uri, directive) => {
+    const event = new window.Event('securitypolicyviolation');
+    Object.defineProperty(event, 'blockedURI', { value: uri });
+    Object.defineProperty(event, 'effectiveDirective', { value: directive });
+    doc.dispatchEvent(event);
+  };
+  check('chưa có vi phạm thì không báo bị chặn', window.eval('CatChatEarlyGuard.isCspBlocked()'), false);
+  violation('https://example.test/app.js', 'script-src-elem');
+  violation(`https://${dbHostname}/api/x`, 'connect-src');
+  check('vi phạm của host khác (hoặc không phải script) không bị coi là chặn dữ liệu',
+    window.eval('CatChatEarlyGuard.isCspBlocked()'), false);
+  violation(`https://${dbHostname}/.lp?start=t&ser=23592252&cb=1&v=5`, 'script-src-elem');
+  await sleep(60);
+  check('nhận ra script JSONP của Firebase bị chặn', window.eval('CatChatEarlyGuard.isCspBlocked()'), true);
+  check('ghi lại vi phạm để gỡ lỗi', window.eval('CatChatEarlyGuard.cspViolations().length'), 3);
+  check('nhãn kết nối đổi thành “Bị chặn kết nối”', doc.getElementById('connectionLabel').textContent, 'Bị chặn kết nối');
+  check('nhãn có chú thích nguyên nhân', /chặn script/.test(doc.getElementById('connectionPill').title), true);
+  check('có toast giải thích bằng tiếng Việt', /chặn script từ/.test(doc.querySelector('.toast.error')?.textContent || ''), true);
+  const runtime = (window.__errors || []).concat();
+  check('không có lỗi runtime khi báo bị chặn', runtime.slice(0, 3).join(' | '), '');
+  dom.window.close();
+}
+
 if (failures.length) {
   console.error(`\n✗ ${failures.length} lỗi chịu lỗi (mạng yếu / lớp mờ ngăn kéo):`);
   for (const failure of failures) console.error(`  - ${failure}`);
   process.exit(1);
 }
-console.log('✓ Chịu lỗi đạt (splash báo mạng yếu, SW dùng cache sau 3,2s, bấm kênh luôn đóng ngăn kéo).');
+console.log('✓ Chịu lỗi đạt (splash báo mạng yếu, SW dùng cache sau 3,2s, bấm kênh luôn đóng ngăn kéo, CSP cho JSONP của Firebase).');
