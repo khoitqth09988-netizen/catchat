@@ -39,7 +39,7 @@
 |---|---|
 | Frontend | SPA thuần JS, tách module theo tính năng, CSS 20 lớp, theme + giảm chuyển động, giao diện mobile riêng |
 | Auth | Email/Password, phân quyền admin 3 nguồn (`/admins`, email, custom claim) |
-| Database | RTDB 24 node, Rules gốc đóng, validate độ dài/kiểu, whitelist reaction |
+| Database | RTDB 23 node, Rules gốc đóng, validate độ dài/kiểu, whitelist reaction |
 | Storage | Ảnh chat + avatar (chưa có `storage.rules` trong repo) |
 | Backend | 4 Cloud Function: xoá Auth, lấy mã IP, khoá định danh, trigger hạn mức |
 | Vận hành | Hosting + CSP/header bảo mật trong `firebase.json` |
